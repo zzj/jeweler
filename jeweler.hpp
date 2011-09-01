@@ -47,10 +47,24 @@ public:
 							 vector<transcript> &ptrans, 
 							 vector<transcript> &mtrans
 							 ); // load transcript data 
-	int load_read_data(transcript_info ti, map<rna_read_key,rna_read_query>& queires);
+	int load_read_data(transcript_info ti, 
+					   vector<transcript> &ptrans,
+					   vector<transcript> &mtrans,
+					   map<rna_read_key,rna_read_query>& queires);
+	int add_queries(vector<transcript> &ref, 
+					multimap<string,string> &srmap,
+					vector<rna_read_query> &pqueries,
+					map<rna_read_key,rna_read_query>& queires);
+	bool match_snp(transcript t, rna_read_query rrq);
 	int identify_sources(vector<transcript> source,
 						 map<rna_read_key,rna_read_query> &queries,
 						 int source_id);
+	// return the number of mismatches
+	int count_mismatches(transcript &t, rna_read_query &rrq);
+	int generate_landscape(transcript_info ti,
+						   vector<transcript> &ref,
+						   map<rna_read_key,rna_read_query> &queries);
+	
 
 };
 

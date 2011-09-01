@@ -1,23 +1,24 @@
+CC=-O2
+
 all: jeweler
 
-
 jeweler: jeweler.o common.o fasta.o gtf.o rna_read.o
-	g++ jeweler.o common.o fasta.o gtf.o rna_read.o -o jeweler
+	g++ $(CC) jeweler.o common.o fasta.o gtf.o rna_read.o -o jeweler
 
 jeweler.o: jeweler.cpp 
-	g++ -c jeweler.cpp
+	g++  $(CC) -c jeweler.cpp
 
 common.o: common.cpp common.hpp
-	g++ -c common.cpp
+	g++  $(CC) -c common.cpp
 
 fasta.o: fasta.cpp fasta.hpp
-	g++ -c fasta.cpp
+	g++ $(CC) -c fasta.cpp
 
 gtf.o: gtf.cpp gtf.hpp
-	g++ -c gtf.cpp
+	g++ $(CC) -c gtf.cpp
 
 rna_read.o: rna_read.cpp rna_read.hpp
-	g++ -c rna_read.cpp
+	g++ $(CC) -c rna_read.cpp
 
 clean: 
 	rm *.o
