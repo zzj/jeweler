@@ -187,7 +187,7 @@ int jeweler::add_queries(vector<transcript> &ref,
 		}
 		else {
 			fprintf(stderr,"cannot find seq data\n");
-			exit(0);
+			continue;
 		}
 		if (iter==queries.end()){
 			queries.insert(make_pair(rrk,blat_result[i]));
@@ -438,6 +438,7 @@ int jeweler::run(){
 		load_read_data(transcripts_info[i],ptrans,mtrans,queries);
 		identify_sources(ptrans,queries,1);
 		identify_sources(mtrans,queries,2);
+
 		label_mismatches_perbase(ptrans, mtrans, queries);
 
 
