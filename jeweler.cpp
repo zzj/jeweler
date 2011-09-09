@@ -185,7 +185,7 @@ int jeweler::add_queries(vector<transcript> &ref,
 		}
 		else {
 			fprintf(stderr,"cannot find seq data\n");
-			exit(0);
+			continue;
 		}
 		if (iter==queries.end()){
 			queries.insert(make_pair(rrk,blat_result[i]));
@@ -389,15 +389,12 @@ int jeweler::run(){
 		load_read_data(transcripts_info[i],ptrans,mtrans,queries);
 		identify_sources(ptrans,queries,1);
 		identify_sources(mtrans,queries,2);
-
-
-
-			for (map<rna_read_key,rna_read_query>::iterator j=queries.begin();
-				 j!=queries.end();
-				 j++){
-				//test_match_snp(ptrans[0],mtrans[0],j->second);
-				;
-			}
+		for (map<rna_read_key,rna_read_query>::iterator j=queries.begin();
+			 j!=queries.end();
+			 j++){
+			//test_match_snp(ptrans[0],mtrans[0],j->second);
+			;
+		}
 
 
 		generate_landscape(transcripts_info[i],ptrans,queries);
