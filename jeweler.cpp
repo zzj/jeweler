@@ -288,8 +288,11 @@ int jeweler::annotate_mismatch_pos(transcript &t, rna_read_query rrq)
 			}
 		}
 	}
-	if (num_mismatches != rrq.mismatch)
+	if (num_mismatches < rrq.mismatch)
 	{
+		fprintf(stderr, "%s\n", t.seq.c_str());
+		fprintf(stderr, "%s\n", rrq.seq.c_str());
+		fprintf(stderr, "%d %d \n", num_mismatches, rrq.mismatch);
 		fprintf(stderr, "WARNING: inconsistent mismatches at query %s \n", rrq.name.c_str());
 	}
 
@@ -355,9 +358,10 @@ int jeweler::generate_landscape(transcript_info ti,
 	string filename=string(ti.folder+ti.gene_id+"landscape.plot.info");
 	FILE *fd=file_open(filename.c_str(),"w+");
 	for ( i=0;i<ref.size();i++){
-		
+		fprintf(stderr,"%d\n",i);
 		int size=ref[i].seq.size();
 		int num_unknown=0,num_paternal=0,num_maternal=0;
+		fprintf(stderr,"%d\n",size);
 		vector<int> unknown(size,0);
 		vector<int> paternal(size,0);
 		vector<int> maternal(size,0);
@@ -450,7 +454,7 @@ int jeweler::run(){
 				;
 			}
 
-
+		fprintf(log_file,"generating\n");
 		generate_landscape(transcripts_info[i],ptrans,queries);
 	}
 	return 0;

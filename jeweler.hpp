@@ -56,6 +56,7 @@ public:
 					vector<rna_read_query> &pqueries,
 					map<rna_read_key,rna_read_query>& queires);
 	bool match_snp(transcript t, rna_read_query rrq);
+	int annotate_mismatch_pos(transcript &t, rna_read_query rrq);
 	int identify_sources(vector<transcript> source,
 						 map<rna_read_key,rna_read_query> &queries,
 						 int source_id);
@@ -64,6 +65,10 @@ public:
 	int generate_landscape(transcript_info ti,
 						   vector<transcript> &ref,
 						   map<rna_read_key,rna_read_query> &queries);
+	int label_mismatches_perbase(vector<transcript> &ptrans, 
+							 vector<transcript> &mtrans,
+							 map<rna_read_key,rna_read_query>& queires);
+
 	
 
 };

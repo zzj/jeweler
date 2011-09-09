@@ -17,6 +17,7 @@ public:
 	vector<int> exon_end; //end is inclusive 
 	vector<int> snp_pos;
 	vector<char> alleles;
+	vector<int> noninformative_mismatches; // number of non informative mismatches per base
 	transcript();
 };
 

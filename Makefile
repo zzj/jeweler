@@ -1,4 +1,4 @@
-CC=-O2
+CC=-g
 
 all: jeweler
 
