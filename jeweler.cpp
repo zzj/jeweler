@@ -211,8 +211,10 @@ int jeweler::label_mismatches_perbase(std::vector<transcript> &ptrans,
 	{
 		for(int i = 0; i < ptrans.size(); ++i)
 		{
-			annotate_mismatch_pos(ptrans[i], it->second);		
-			annotate_mismatch_pos(mtrans[i], it->second);		
+			if (it->second.target==ptrans[i].name){
+				annotate_mismatch_pos(ptrans[i], it->second);		
+				annotate_mismatch_pos(mtrans[i], it->second);		
+			}
 		}
 	}
 }
@@ -283,6 +285,10 @@ int jeweler::annotate_mismatch_pos(transcript &t, rna_read_query rrq)
 					continue;
 				else
 				{
+					//printf("%s %s %d %d %d\n",t.name.c_str(),rrq.name.c_str(),tstr+len,t.noninformative_mismatches.size(),t.seq.size());
+					if (tstr+j>t.noninformative_mismatches.size()) {
+						fprintf(stderr,"out of range!\n");
+					}
 					t.noninformative_mismatches[tstr+j] += 1;
 				}
 			}
@@ -358,10 +364,9 @@ int jeweler::generate_landscape(transcript_info ti,
 	string filename=string(ti.folder+ti.gene_id+"landscape.plot.info");
 	FILE *fd=file_open(filename.c_str(),"w+");
 	for ( i=0;i<ref.size();i++){
-		fprintf(stderr,"%d\n",i);
 		int size=ref[i].seq.size();
 		int num_unknown=0,num_paternal=0,num_maternal=0;
-		fprintf(stderr,"%d\n",size);
+
 		vector<int> unknown(size,0);
 		vector<int> paternal(size,0);
 		vector<int> maternal(size,0);
@@ -454,7 +459,7 @@ int jeweler::run(){
 				;
 			}
 
-		fprintf(log_file,"generating\n");
+
 		generate_landscape(transcripts_info[i],ptrans,queries);
 	}
 	return 0;
