@@ -1,5 +1,6 @@
 #include "jeweler.hpp"
 #include <cstdio>
+#include <algorithm>
 using namespace std;
 
 
@@ -76,6 +77,7 @@ int jeweler::transcript_helper(string seq_filename,string gtf_file,
 				continue;
 			}
 			transcripts[j].seq=sr[i].seq;
+			transcripts[j].noninformative_mismatches.resize(transcripts[j].seq.size(),0);
 		}
 	}
 	return 0;
@@ -154,7 +156,7 @@ int jeweler::add_queries(vector<transcript> &ref,
 
 		// TODO : only use the exact one now
 		// need to 
-		if(blat_result[i].mismatch!=0 
+		if(blat_result[i].mismatch>10 
 		   ||blat_result[i].target_gap_num!=0
 		   ||blat_result[i].matches!=blat_result[i].size)
 			continue;
@@ -199,6 +201,22 @@ int jeweler::add_queries(vector<transcript> &ref,
 
 
 }
+
+int jeweler::label_mismatches_perbase(std::vector<transcript> &ptrans, 
+									  std::vector<transcript> &mtrans, 
+									  std::map<rna_read_key,rna_read_query> &queries)
+{
+	std::map<rna_read_key,rna_read_query>::iterator it;
+	for(it=queries.begin(); it !=queries.end(); ++it)
+	{
+		for(int i = 0; i < ptrans.size(); ++i)
+		{
+			annotate_mismatch_pos(ptrans[i], it->second);		
+			annotate_mismatch_pos(mtrans[i], it->second);		
+		}
+	}
+}
+
 
 int jeweler::load_read_data(transcript_info ti, 
 							vector<transcript> &ptrans,
@@ -246,6 +264,37 @@ bool jeweler::match_snp(transcript t, rna_read_query rrq){
 		}
 	}
 	return !no_allele;
+}
+
+int jeweler::annotate_mismatch_pos(transcript &t, rna_read_query rrq)
+{
+	int num_mismatches = 0;
+	for(int i = 0; i < rrq.query_start.size(); ++i)
+	{
+		int qstr = rrq.query_start[i];
+		int tstr = rrq.target_start[i];
+		int len  = rrq.block_size[i];
+		for(int j = 0; j < len; ++j)
+		{
+			if(t.seq[tstr+j]!=rrq.seq[qstr+j]) // find a mismatch or an allele
+			{
+				num_mismatches++;
+				if(find(t.snp_pos.begin(), t.snp_pos.end(), tstr+j)!=t.snp_pos.end())
+					continue;
+				else
+				{
+					t.noninformative_mismatches[tstr+j] += 1;
+				}
+			}
+		}
+	}
+	if (num_mismatches != rrq.mismatch)
+	{
+		fprintf(stderr, "WARNING: inconsistent mismatches at query %s \n", rrq.name.c_str());
+	}
+
+	return num_mismatches;
+
 }
 
 bool test_match_snp(transcript t, transcript t2, rna_read_query rrq){
@@ -367,9 +416,9 @@ int jeweler::generate_landscape(transcript_info ti,
 
 		for (k=0;k<ref[i].seq.size();k++){
 			int target=k;
-			fprintf(fd,"%s\t%d\t%d\t%d\t%d\t%d\t%d\n", ref[i].name.c_str(),target,
+			fprintf(fd,"%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", ref[i].name.c_str(),target,
 					unknown[target],paternal[target],maternal[target],
-					is_snp[target],exon_jump[target]);
+					is_snp[target],exon_jump[target],ref[i].noninformative_mismatches[k]);
 		}
 	}
 	fclose(fd);
@@ -389,6 +438,7 @@ int jeweler::run(){
 		load_read_data(transcripts_info[i],ptrans,mtrans,queries);
 		identify_sources(ptrans,queries,1);
 		identify_sources(mtrans,queries,2);
+		label_mismatches_perbase(ptrans, mtrans, queries);
 
 
 
