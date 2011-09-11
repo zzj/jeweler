@@ -1,6 +1,7 @@
 #include "jeweler.hpp"
 #include <cstdio>
 #include <algorithm>
+#include <boost/algorithm/string.hpp>
 using namespace std;
 
 
@@ -139,56 +140,210 @@ int jeweler::count_mismatches(transcript &t, rna_read_query &rrq){
 	}
 	return mismatches;
 }
+
+int jeweler::merge_paired_reads(vector<transcript> &ref,
+								vector<rna_read_query> &blat_result){
+	
+	int i,j,k;
+
+	// first, map all reads with same read id and same target transcript id 
+	// to the same vector
+	
+	map<rna_read_key, vector<rna_read_query> > read_id2queries;
+	map<rna_read_key, vector<rna_read_query> > :: iterator iter;
+
+	for (i=0;i<blat_result.size();i++){
+		vector<string> strs;
+		string read_id,flag_field;
+		// first field is read_id
+		// second field's first field is flag
+		// second field's second field is rna_read_query
+		if (blat_result[i].is_ignored) {
+			continue;
+		}
+		rna_read_key  rrk = rna_read_key(blat_result[i].target,blat_result[i].name);
+		iter=read_id2queries.find(rrk);
+		
+		if (iter==read_id2queries.end()){
+			vector<rna_read_query> vrrqs;
+			vrrqs.push_back(blat_result[i]);
+			read_id2queries.insert(make_pair(rrk, vrrqs));
+		}
+		else {
+			vector<rna_read_query> &vrrqs=iter->second;
+			bool has_conflict=false;
+			for (j=0;j<vrrqs.size();j++){
+
+				if (vrrqs[j].flag_field!=blat_result[i].flag_field){
+					continue;
+				}
+				else {
+					has_conflict=true;
+					if (is_better_alignment(blat_result[i],vrrqs[j])){
+						vrrqs[j]=blat_result[i];
+					}
+					// no matter this is a good alignment or not
+					// break the loop
+					break;
+				}
+			}
+			if (!has_conflict){
+				vrrqs.push_back(blat_result[i]);
+			}
+		}
+
+	}
+
+	// for all reads that can be mapped back to the same transcript and read
+	// merge them, and generate new blat result
+	blat_result.clear();
+	
+	for (iter=read_id2queries.begin();iter!=read_id2queries.end();iter++){
+		vector<rna_read_query>& vrrqs=iter->second;
+		if (vrrqs.size()==1){
+		}
+		else if (vrrqs.size()==2) {
+
+			if (vrrqs[0].target_start>vrrqs[1].target_start){
+				swap(vrrqs[0],vrrqs[1]);
+			}
+			// using s simple rule. 
+			// append the non-overlapping fields 
+			// from the second read to the first one
+			// TODO: hanle more complicated cases
+			// the start position in the second read
+			// that does not overlap with the first one
+			
+			
+			// get the last mapped position in the target_transcript
+			// from the first read
+			// the block is left-closed, and right-open
+			int l = vrrqs[0].target_start.size()-1;
+			int last_in_first_tran=vrrqs[0].target_start[l]+vrrqs[0].block_size[l];
+			int last_in_first_read=vrrqs[0].query_start[l]+vrrqs[0].block_size[l];
+			
+			for (i=0;i<vrrqs[1].target_start.size();i++){
+				int tran_block_end=vrrqs[1].target_start[i]+vrrqs[1].block_size[i];
+				if (tran_block_end<=last_in_first_tran){
+					continue;
+				}
+				int tran_block_start=vrrqs[1].target_start[i];
+				// no overlap, happy, just append to the read
+				int shift=0;
+				// overlapped 
+				if (tran_block_start<last_in_first_tran){
+						shift=last_in_first_tran-tran_block_start;
+				}
+				vrrqs[0].query_start.push_back(vrrqs[0].seq.size());
+				vrrqs[0].seq+=vrrqs[1].seq.substr(vrrqs[1].query_start[i]+shift,
+												  vrrqs[1].block_size[i]-shift);
+				vrrqs[0].target_start.push_back(vrrqs[1].target_start[i]+shift);
+				
+				vrrqs[0].block_size.push_back(vrrqs[1].block_size[i]-shift);
+				vrrqs[0].size=vrrqs[0].seq.size();
+				vrrqs[0].is_merged=true;
+				// TODO: merge the flag_field
+			}
+		}
+		else { //(vrrqs.size()>3)
+			for (i=0;i<vrrqs.size();i++){
+				fprintf(stderr,"%s\t%s\t%s\n",vrrqs[i].name.c_str(),
+						vrrqs[i].target.c_str(),vrrqs[i].flag_field.c_str());
+			}
+			fprintf(stderr,
+					"WARNING: more than two flags paired read, discarded the read. \n");
+			continue;
+		}
+
+		// find reference genome, and count mismatches
+		for (j=0;j<ref.size();j++){
+			if (ref[j].name==vrrqs[0].target){
+				vrrqs[0].mismatch=count_mismatches(ref[j],vrrqs[0]);
+				break;
+			}
+		}
+		blat_result.push_back(vrrqs[0]);
+	}
+}
+
 int jeweler::add_queries(vector<transcript> &ref, 
 				multimap<string,string> &srmap,
 				vector<rna_read_query> &blat_result,
 				map<rna_read_key,rna_read_query>& queries){
 	int i,j,k;
+
 	
-	// insert all blat result into queries
-	// may have multiple alignment 
-	// choose the best one that can be aligned to either transcript
+	// associate each read with its sequence data
 
 	for (i=0;i<blat_result.size();i++){
-		rna_read_key rrk=rna_read_key(blat_result[i].target, blat_result[i].name);
-		map<rna_read_key,rna_read_query>::iterator iter=queries.find(rrk);
-
-
-		// TODO : only use the exact one now
-		// need to 
-		if(blat_result[i].mismatch>10 
-		   ||blat_result[i].target_gap_num!=0
-		   ||blat_result[i].matches!=blat_result[i].size)
-			continue;
-
+		
 		// double check the read with the aligned segments
-		// blat has 
+		// blat has the exactly same sequence. 
 		
 		map<string,string>::iterator finder;
-		if ((finder=srmap.find(blat_result[i].name))!=srmap.end()){
+		string read_id_in_fasta=blat_result[i].name+";"+blat_result[i].flag_field;
+		//fprintf(stderr,"%s\n",read_id_in_fasta.c_str());
+		if ((finder=srmap.find(read_id_in_fasta))!=srmap.end()){
 			blat_result[i].seq=finder->second;
 
 			for (j=0;j<ref.size();j++){
 				if (ref[j].name==blat_result[i].target){
-					int mismatches=count_mismatches(ref[j],blat_result[i]);
+
 					// the number of mismatches does not conform with 
-					// the result from blat, means the seq need to be reversed and 
+					// the result from blat, which means the seq need to be reversed and 
 					// complemented
+					int mismatches=count_mismatches(ref[j],blat_result[i]);						
 
-
-					if (mismatches>blat_result[i].mismatch){
+					if (mismatches!=blat_result[i].mismatch){
 						recover_original_read(blat_result[i].seq);
 					}
 					mismatches=count_mismatches(ref[j],blat_result[i]);						
+
 					if (mismatches!=blat_result[i].mismatch)
-						printf("%s\t%d\t%d\t%s\n",blat_result[i].name.c_str(),blat_result[i].mismatch,mismatches,blat_result[i].seq.c_str());
+						printf("%s\t%d\t%d\t%s\n",blat_result[i].name.c_str(),
+							   blat_result[i].mismatch,mismatches,blat_result[i].seq.c_str());
+					break;
 				}
 			}
 		}
 		else {
 			fprintf(stderr,"cannot find seq data\n");
+			blat_result[i].is_ignored=true;
+			blat_result[i].is_initialized=false;
 			continue;
 		}
+
+		// TODO : Does not allow any gap now. 
+		int threshold=5;
+
+		if(blat_result[i].mismatch>threshold
+		   ||blat_result[i].target_gap_num!=0
+		   || blat_result[i].matches<(blat_result[i].size-threshold )
+		   || blat_result[i].start_in_query!=0
+		   || blat_result[i].end_in_query!=blat_result[i].size
+		   ){
+			//fprintf(stderr,"%d\t%d\t%d\n",blat_result[i].mismatch,blat_result[i].matches,blat_result[i].size-threshold);
+			blat_result[i].is_ignored=true;
+			blat_result[i].is_initialized=false;
+			continue;
+		}
+		else{
+			blat_result[i].is_ignored=false;
+			blat_result[i].is_initialized=true;
+		}
+
+	}
+	//fprintf(log_file,"Total %d reads loaded.\n",blat_result.size());
+	// refresh blat_result variable with all marged paired read.
+	merge_paired_reads(ref,blat_result);
+	// insert all blat result into queries
+	// may have multiple alignment 
+	// choose the best one that can be aligned to either transcript
+	//fprintf(log_file,"Total %d reads inserted into reads database.\n",blat_result.size());
+	for (i=0;i<blat_result.size();i++){
+		rna_read_key rrk=rna_read_key(blat_result[i].target, blat_result[i].name);
+		map<rna_read_key,rna_read_query>::iterator iter=queries.find(rrk);
+
 		if (iter==queries.end()){
 			queries.insert(make_pair(rrk,blat_result[i]));
 		}
@@ -199,7 +354,7 @@ int jeweler::add_queries(vector<transcript> &ref,
 		}
 	}
 
-
+	return 0;
 }
 
 int jeweler::label_mismatches_perbase(std::vector<transcript> &ptrans, 
@@ -207,8 +362,10 @@ int jeweler::label_mismatches_perbase(std::vector<transcript> &ptrans,
 									  std::map<rna_read_key,rna_read_query> &queries)
 {
 	std::map<rna_read_key,rna_read_query>::iterator it;
+
 	for(it=queries.begin(); it !=queries.end(); ++it)
 	{
+
 		for(int i = 0; i < ptrans.size(); ++i)
 		{
 			if (it->second.target==ptrans[i].name){
@@ -271,16 +428,21 @@ bool jeweler::match_snp(transcript t, rna_read_query rrq){
 int jeweler::annotate_mismatch_pos(transcript &t, rna_read_query rrq)
 {
 	int num_mismatches = 0;
-	for(int i = 0; i < rrq.query_start.size(); ++i)
+	int i,j;
+	for( i = 0; i < rrq.query_start.size(); ++i)
 	{
 		int qstr = rrq.query_start[i];
 		int tstr = rrq.target_start[i];
 		int len  = rrq.block_size[i];
-		for(int j = 0; j < len; ++j)
+		
+		for( j = 0; j < len; ++j)
 		{
+
 			if(t.seq[tstr+j]!=rrq.seq[qstr+j]) // find a mismatch or an allele
 			{
+									
 				num_mismatches++;
+
 				if(find(t.snp_pos.begin(), t.snp_pos.end(), tstr+j)!=t.snp_pos.end())
 					continue;
 				else
@@ -296,9 +458,23 @@ int jeweler::annotate_mismatch_pos(transcript &t, rna_read_query rrq)
 	}
 	if (num_mismatches < rrq.mismatch)
 	{
-		fprintf(stderr, "%s\n", t.seq.c_str());
-		fprintf(stderr, "%s\n", rrq.seq.c_str());
-		fprintf(stderr, "%d %d \n", num_mismatches, rrq.mismatch);
+
+	    // the reason this happened is due to the randomness of blat
+		// sometimes, blat does not return the optimal solution
+		// so when it aligned to the first transcript, it may not 
+		// align both pair properly.
+		// however, when it align to the second transcript, it may align
+		// both properly.
+		// then it may cause this warning. 
+		// the merged read can be aligned better to the improper aligned transcript, 
+		// which has been discarded before.  
+		fprintf(stderr, "%s\t%s\n", t.name.c_str(),t.seq.c_str());
+		fprintf(stderr, "%s\t%s\n", rrq.name.c_str(),rrq.seq.c_str());
+		fprintf(stderr, "%d %d %d %d\n", num_mismatches, rrq.mismatch,rrq.query_start.size(),count_mismatches(t,rrq));
+		for (i=0;i<rrq.query_start.size();i++){
+			fprintf(stderr,"%s\n",rrq.seq.substr(rrq.query_start[i],rrq.block_size[i]).c_str());
+			fprintf(stderr,"%d\n",rrq.block_size[i]);
+		}
 		fprintf(stderr, "WARNING: inconsistent mismatches at query %s \n", rrq.name.c_str());
 	}
 
@@ -327,8 +503,6 @@ bool test_match_snp(transcript t, transcript t2, rna_read_query rrq){
 					printf("%d\t%d\n",rrq.target_start[i],rrq.mismatch);
 					printf("%s\t%s\n",t.name.c_str(),t.seq.substr(rrq.target_start[i],rrq.block_size[i]).c_str());
 					printf("%s\n",t2.seq.substr(rrq.target_start[i],rrq.block_size[i]).c_str());
-
-
 				}
 			}
 		}

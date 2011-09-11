@@ -21,17 +21,17 @@ bool operator < (const rna_read_key &a, const rna_read_key &b);
 
 class rna_read_query{
 public:
-	rna_read_query();
-	int set_seq(string seq);
 	string seq;
 	string name;
 	string target; // transcript id;
-
+	string flag_field;
 	int size;
 	vector<int> target_start;
 	vector<int> query_start;
 	vector<int> block_size;
-
+	
+	int start_in_query;
+	int end_in_query;
 	int mismatch;
 	int matches;
 	int target_gap_num;
@@ -47,6 +47,11 @@ public:
 	int source_id; 
 	bool is_ignored;
 	bool is_initialized;
+	bool is_merged;
+
+	rna_read_query();
+	int set_seq(string seq);
+	bool is_reversed();
 };
 
 bool operator < (const rna_read_query &a, const rna_read_query  &b);

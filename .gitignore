@@ -1,0 +1,6 @@
+*.pdf
+*.o
+jeweler
+result
+test.info
+\#*
