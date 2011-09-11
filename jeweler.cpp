@@ -314,13 +314,11 @@ int jeweler::add_queries(vector<transcript> &ref,
 		}
 
 		// TODO : Does not allow any gap now. 
-		int threshold=5;
+		int threshold=10;
 
 		if(blat_result[i].mismatch>threshold
 		   ||blat_result[i].target_gap_num!=0
 		   || blat_result[i].matches<(blat_result[i].size-threshold )
-		   || blat_result[i].start_in_query!=0
-		   || blat_result[i].end_in_query!=blat_result[i].size
 		   ){
 			//fprintf(stderr,"%d\t%d\t%d\n",blat_result[i].mismatch,blat_result[i].matches,blat_result[i].size-threshold);
 			blat_result[i].is_ignored=true;
@@ -456,7 +454,8 @@ int jeweler::annotate_mismatch_pos(transcript &t, rna_read_query rrq)
 			}
 		}
 	}
-	if (num_mismatches < rrq.mismatch)
+	//if (num_mismatches < rrq.mismatch)
+	if (false)
 	{
 
 	    // the reason this happened is due to the randomness of blat
