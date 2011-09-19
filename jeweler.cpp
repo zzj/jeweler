@@ -79,6 +79,21 @@ int jeweler::transcript_helper(string seq_filename,string gtf_file,
 			}
 			transcripts[j].seq=sr[i].seq;
 			transcripts[j].noninformative_mismatches.resize(transcripts[j].seq.size(),0);
+			//check errors
+			if (transcripts[j].seq.size() != transcripts[j].genome_pos.size())
+			{
+				fprintf(stderr, "something wrong in inferring the genome position");
+				exit(0);
+			}
+			else
+			{
+				// revised by Weibo
+				//fprintf(stderr, "size the transcirpt is %d bases\n", transcripts[j].genome_pos.size());
+				transcripts[j].Anoninformative_mismatches.resize(transcripts[j].genome_pos.size());
+				transcripts[j].Cnoninformative_mismatches.resize(transcripts[j].genome_pos.size());
+				transcripts[j].Gnoninformative_mismatches.resize(transcripts[j].genome_pos.size());
+				transcripts[j].Tnoninformative_mismatches.resize(transcripts[j].genome_pos.size());
+			}
 		}
 	}
 	return 0;
@@ -450,6 +465,25 @@ int jeweler::annotate_mismatch_pos(transcript &t, rna_read_query rrq)
 						fprintf(stderr,"out of range!\n");
 					}
 					t.noninformative_mismatches[tstr+j] += 1;
+					// revised by Weibo
+					switch(t.seq[tstr+j])
+					{
+					case 'A':
+					case 'a':
+						t.Anoninformative_mismatches[tstr+j] += 1;
+						break;
+					case 'C':
+					case 'c':
+						t.Cnoninformative_mismatches[tstr+j] += 1;
+						break;
+					case 'G':
+					case 'g':
+						t.Gnoninformative_mismatches[tstr+j] += 1;
+						break;
+					case 'T':
+					case 't':
+						t.Tnoninformative_mismatches[tstr+j] += 1;
+					}
 				}
 			}
 		}
@@ -533,6 +567,7 @@ int jeweler::identify_sources(vector<transcript> source,
 int jeweler::generate_landscape(transcript_info ti,
 								vector<transcript> &ref,
 								map<rna_read_key,rna_read_query> &queries){
+	
 	int i,j,k,m;
 	string filename=string(ti.folder+ti.gene_id+"landscape.plot.info");
 	FILE *fd=file_open(filename.c_str(),"w+");
@@ -590,17 +625,25 @@ int jeweler::generate_landscape(transcript_info ti,
 					}
 				}
 			}
-		}		
+		}
+
 		for (k=0;k<ref[i].snp_pos.size();k++){
 			int target=ref[i].snp_pos[k];
 			//printf("%d\t%d\t%d\n",unknown[target],paternal[target],maternal[target]);
 		}
 
+
 		for (k=0;k<ref[i].seq.size();k++){
+			// revised by weibo
 			int target=k;
-			fprintf(fd,"%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", ref[i].name.c_str(),target,
-					unknown[target],paternal[target],maternal[target],
-					is_snp[target],exon_jump[target],ref[i].noninformative_mismatches[k]);
+			fprintf(fd,"%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\n", 
+				ref[i].name.c_str(),target, unknown[target],paternal[target],maternal[target],
+					is_snp[target],exon_jump[target],ref[i].noninformative_mismatches[k],
+					ref[i].genome_pos[k], ref[i].Anoninformative_mismatches[k],
+					ref[i].Cnoninformative_mismatches[k],
+					ref[i].Gnoninformative_mismatches[k],
+					ref[i].Tnoninformative_mismatches[k],
+					ref[i].chr.c_str());
 		}
 	}
 	fclose(fd);
@@ -621,8 +664,8 @@ int jeweler::run(){
 		identify_sources(ptrans,queries,1);
 		identify_sources(mtrans,queries,2);
 
+		
 		label_mismatches_perbase(ptrans, mtrans, queries);
-
 
 
 			for (map<rna_read_key,rna_read_query>::iterator j=queries.begin();

@@ -13,11 +13,17 @@ class transcript{
 public:
 	string name;
 	string seq;
+	string chr;  // added by weibo, storing chromosome name
 	vector<int> exon_start;
 	vector<int> exon_end; //end is inclusive 
 	vector<int> snp_pos;
 	vector<char> alleles;
 	vector<int> noninformative_mismatches; // number of non informative mismatches per base
+	vector<int> Anoninformative_mismatches; // number of non informative mismatches equaling to A per base
+	vector<int> Cnoninformative_mismatches; // number of non informative mismatches equaling to C per base
+	vector<int> Gnoninformative_mismatches; // number of non informative mismatches equaling to G per base
+	vector<int> Tnoninformative_mismatches; // number of non informative mismatches equaling to T per base
+	vector<int> genome_pos;  // added by weibo, storing the within chromosome pos of each base in the transcript
 	transcript();
 };
 
