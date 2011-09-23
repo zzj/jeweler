@@ -236,6 +236,9 @@ int jeweler::merge_paired_reads(vector<transcript> &ref,
 			int l = vrrqs[0].target_start.size()-1;
 			int last_in_first_tran=vrrqs[0].target_start[l]+vrrqs[0].block_size[l];
 			int last_in_first_read=vrrqs[0].query_start[l]+vrrqs[0].block_size[l];
+
+			vrrqs[0].first_end = last_in_first_tran;
+			vrrqs[0].second_start = vrrqs[1].target_start[0];
 			
 			for (i=0;i<vrrqs[1].target_start.size();i++){
 				int tran_block_end=vrrqs[1].target_start[i]+vrrqs[1].block_size[i];
@@ -330,9 +333,10 @@ int jeweler::add_queries(vector<transcript> &ref,
 
 		// TODO : Does not allow any gap now. 
 		int threshold=10;
+		int gap_threshold = 15;
 
 		if(blat_result[i].mismatch>threshold
-		   ||blat_result[i].target_gap_num!=0
+		   ||blat_result[i].target_gap_num>gap_threshold
 		   || blat_result[i].matches<(blat_result[i].size-threshold )
 		   ){
 			//fprintf(stderr,"%d\t%d\t%d\n",blat_result[i].mismatch,blat_result[i].matches,blat_result[i].size-threshold);
@@ -622,6 +626,14 @@ int jeweler::generate_landscape(transcript_info ti,
 							exit(0);
 						}
 						target->at(iter->second.target_start[k]+m)++;
+					}
+				}
+
+				if (iter->second.first_end >0 && iter->second.first_end < iter->second.second_start)
+				{
+					for(int i = iter->second.first_end+1; i < iter->second.second_start; ++i)
+					{
+						target->at(i)++;
 					}
 				}
 			}
