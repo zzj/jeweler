@@ -78,7 +78,7 @@ int load_psl_file(string psl_filename, vector<rna_read_query> &queries){
 
 		boost::split(strs_temp,strs[9],boost::is_any_of(";"));
 		if (strs_temp.size()!=2) {
-			fprintf(stderr,"the id does not contain flag fileds. please check the first step\n");
+			fprintf(stderr,"the id does not contain flag fileds. please check the first step\n%s\n",strs[9].c_str());
 			exit(0);
 		}
 		read_id=strs_temp[0]; 

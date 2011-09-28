@@ -5,6 +5,7 @@
 
 $transcriptfile="data/cufflinks/".$argv[1]."/transcripts.gtf";
 $cufffolder="result/cuffsequence/".$argv[1]."/";
+mkdir($cufffolder);
 $output_info=$cufffolder.$argv[1].".info";
 $foutput=fopen($output_info,"w+");
 $father=$argv[2];
@@ -48,11 +49,11 @@ foreach ($fd as $line){
 				$read_seq=$genefolder.$lastid.".seq.fasta";
 				system("gffread -w ".$fa_seq." -g data/genomes/$father ".$genefolder.$lastid);
 				system("gffread -w ".$ma_seq." -g data/genomes/$mother ".$genefolder.$lastid);
-				system('samtools view '.$bamfile.' '.$chr.':'.$min.'-'.$max.' |awk \'{OFS="\\t"; print ">"$1"\\n"$10}\' - > '.$read_seq);
+				system('samtools view -X '.$bamfile.' '.$chr.':'.$min.'-'.$max.' |awk \'{OFS="\\t"; print ">"$1";"$2"\\n"$10}\' - > '.$read_seq);
 				$result=array();
 				exec('diff '.$fa_seq." ".$ma_seq,$result);
-				system("./blat ".$fa_seq." ".$read_seq." -t=dna -q=dna ".$fa_map);
-				system("./blat ".$ma_seq." ".$read_seq." -t=dna -q=dna ".$ma_map);
+				system("./blat ".$fa_seq." ".$read_seq." -t=dna -q=rna ".$fa_map);
+				system("./blat ".$ma_seq." ".$read_seq." -t=dna -q=rna ".$ma_map);
 				if (count($result)<2){
 					$nodiff[]=$lastid;
 				}
