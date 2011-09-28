@@ -2,15 +2,22 @@
 
 
 
+// argument format
+// php split_get.php alias gtf_file_from_cufflinks left_side_ref_sequence right_side_ref_sequence bam_file
 
-$transcriptfile="data/cufflinks/".$argv[1]."/transcripts.gtf";
+// the script will create a folder named by the given alias under folder result/cuffsequence
+
+@mkdir('result');
+@mkdir('result/cuffsequence')
 $cufffolder="result/cuffsequence/".$argv[1]."/";
-mkdir($cufffolder);
 $output_info=$cufffolder.$argv[1].".info";
+
+
+$transcriptfile=$argv[2]
 $foutput=fopen($output_info,"w+");
-$father=$argv[2];
-$mother=$argv[3];
-$bamfile=$argv[4];
+$father=$argv[3];
+$mother=$argv[4];
+$bamfile=$argv[5];
 mkdir($cufffolder);
 
 $fd=file($transcriptfile, FILE_IGNORE_NEW_LINES);
