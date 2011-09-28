@@ -12,13 +12,13 @@
 $cufffolder="result/cuffsequence/".$argv[1]."/";
 $output_info=$cufffolder.$argv[1].".info";
 
-
+mkdir($cufffolder);
 $transcriptfile=$argv[2];
 $foutput=fopen($output_info,"w+");
 $father=$argv[3];
 $mother=$argv[4];
 $bamfile=$argv[5];
-mkdir($cufffolder);
+
 
 $fd=file($transcriptfile, FILE_IGNORE_NEW_LINES);
 $lastid="";
@@ -49,10 +49,10 @@ foreach ($fd as $line){
 				fclose($tranfile);
 				printf($id."\n");
 				$id++;
-				$fa_seq=$genefolder.$lastid.'.'.$father.".fa";
-				$ma_seq=$genefolder.$lastid.'.'.$mother.".fa";
-				$fa_map=$genefolder.$lastid.'.'.$father.".map";
-				$ma_map=$genefolder.$lastid.'.'.$mother.".map";
+				$fa_seq=$genefolder.$lastid.'.'.basename($father).".fa";
+				$ma_seq=$genefolder.$lastid.'.'.basename($mother).".fa";
+				$fa_map=$genefolder.$lastid.'.'.basename($father).".map";
+				$ma_map=$genefolder.$lastid.'.'.basename($mother).".map";
 				$read_seq=$genefolder.$lastid.".seq.fasta";
 				system("./gffread -w ".$fa_seq." -g $father ".$genefolder.$lastid);
 				system("./gffread -w ".$ma_seq." -g $mother ".$genefolder.$lastid);
