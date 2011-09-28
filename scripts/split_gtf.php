@@ -54,8 +54,8 @@ foreach ($fd as $line){
 				$fa_map=$genefolder.$lastid.'.'.$father.".map";
 				$ma_map=$genefolder.$lastid.'.'.$mother.".map";
 				$read_seq=$genefolder.$lastid.".seq.fasta";
-				system("gffread -w ".$fa_seq." -g data/genomes/$father ".$genefolder.$lastid);
-				system("gffread -w ".$ma_seq." -g data/genomes/$mother ".$genefolder.$lastid);
+				system("gffread -w ".$fa_seq." -g $father ".$genefolder.$lastid);
+				system("gffread -w ".$ma_seq." -g $mother ".$genefolder.$lastid);
 				system('samtools view -X '.$bamfile.' '.$chr.':'.$min.'-'.$max.' |awk \'{OFS="\\t"; print ">"$1";"$2"\\n"$10}\' - > '.$read_seq);
 				$result=array();
 				exec('diff '.$fa_seq." ".$ma_seq,$result);
