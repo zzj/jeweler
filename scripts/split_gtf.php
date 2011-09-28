@@ -8,12 +8,12 @@
 // the script will create a folder named by the given alias under folder result/cuffsequence
 
 @mkdir('result');
-@mkdir('result/cuffsequence')
+@mkdir('result/cuffsequence');
 $cufffolder="result/cuffsequence/".$argv[1]."/";
 $output_info=$cufffolder.$argv[1].".info";
 
 
-$transcriptfile=$argv[2]
+$transcriptfile=$argv[2];
 $foutput=fopen($output_info,"w+");
 $father=$argv[3];
 $mother=$argv[4];
