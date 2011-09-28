@@ -29,6 +29,9 @@ public:
 	vector<int> target_start;
 	vector<int> query_start;
 	vector<int> block_size;
+
+	int first_end;       // the rightmost aligned position of the left end read
+	int second_start;    // the leftmost aligned position of the right end read
 	
 	int start_in_query;
 	int end_in_query;

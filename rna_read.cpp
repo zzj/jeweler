@@ -73,6 +73,9 @@ int load_psl_file(string psl_filename, vector<rna_read_query> &queries){
 		q.target_gap_size=atoi(strs[7].c_str());
 		q.target=strs[13];
 
+		q.first_end = -1;
+		q.second_start = -1;
+
 		// the first part is the id
 		// the second part is the flag field, genearted by samtools -x
 
