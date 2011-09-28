@@ -1,16 +1,23 @@
 <?php
 
 
+// argument format
+// php split_get.php alias gtf_file_from_cufflinks left_side_ref_sequence right_side_ref_sequence bam_file
+
+// the script will create a folder named by the given alias under folder result/cuffsequence
 
 
-$transcriptfile="data/cufflinks/".$argv[1]."/transcripts.gtf";
+@mkdir('result');
+@mkdir('result/cuffsequence')
 $cufffolder="result/cuffsequence/".$argv[1]."/";
-mkdir($cufffolder);
 $output_info=$cufffolder.$argv[1].".info";
+
+
+$transcriptfile=$argv[2]
 $foutput=fopen($output_info,"w+");
-$father=$argv[2];
-$mother=$argv[3];
-$bamfile=$argv[4];
+$father=$argv[3];
+$mother=$argv[4];
+$bamfile=$argv[5];
 mkdir($cufffolder);
 
 $fd=file($transcriptfile, FILE_IGNORE_NEW_LINES);
@@ -47,13 +54,13 @@ foreach ($fd as $line){
 				$fa_map=$genefolder.$lastid.'.'.$father.".map";
 				$ma_map=$genefolder.$lastid.'.'.$mother.".map";
 				$read_seq=$genefolder.$lastid.".seq.fasta";
-				system("gffread -w ".$fa_seq." -g data/genomes/$father ".$genefolder.$lastid);
-				system("gffread -w ".$ma_seq." -g data/genomes/$mother ".$genefolder.$lastid);
-				system('samtools view -X '.$bamfile.' '.$chr.':'.$min.'-'.$max.' |awk \'{OFS="\\t"; print ">"$1";"$2"\\n"$10}\' - > '.$read_seq);
+				system("gffread -w ".$fa_seq." -g $father ".$genefolder.$lastid);
+				system("gffread -w ".$ma_seq." -g $mother ".$genefolder.$lastid);
+				system('samtools view '.$bamfile.' '.$chr.':'.$min.'-'.$max.' |awk \'{OFS="\\t"; print ">"$1"\\n"$10}\' - > '.$read_seq);
 				$result=array();
 				exec('diff '.$fa_seq." ".$ma_seq,$result);
-				system("./blat ".$fa_seq." ".$read_seq." -t=dna -q=rna ".$fa_map);
-				system("./blat ".$ma_seq." ".$read_seq." -t=dna -q=rna ".$ma_map);
+				system("./blat ".$fa_seq." ".$read_seq." -t=dna -q=dna ".$fa_map);
+				system("./blat ".$ma_seq." ".$read_seq." -t=dna -q=dna ".$ma_map);
 				if (count($result)<2){
 					$nodiff[]=$lastid;
 				}
