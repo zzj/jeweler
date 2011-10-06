@@ -100,6 +100,10 @@ foreach ($fd as $line){
 
 		}
 	}
+	// for gffread, because if the strand is '-', the 
+	// gffread will reverse the transcript's sequences.
+	$data[6]='+';
+	$line=implode("\t",$data);
 	fprintf($tranfile,$line."\n");
 }
 
