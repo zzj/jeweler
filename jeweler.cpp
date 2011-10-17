@@ -643,6 +643,13 @@ int jeweler::generate_landscape(transcript_info ti,
 			int target=ref[i].snp_pos[k];
 			//printf("%d\t%d\t%d\n",unknown[target],paternal[target],maternal[target]);
 		}
+		
+		if (i==0){
+			string filename=string(ti.folder+ti.gene_id+"landscape.plot.info.meta");
+			FILE *fd=file_open(filename.c_str(),"w+");
+			fprintf(fd,"%d\t%d\t%d\n",num_unknown,num_paternal,num_maternal);
+			fclose(fd);
+		}
 
 
 		for (k=0;k<ref[i].seq.size();k++){

@@ -15,14 +15,13 @@ plot.landscape <- function(plot.data,parental.color,marental.color,cuffcmp,name)
   cuff <- cuffcmp[as.character(levels(plot.data[1,1])),3:4]
   title(paste(name,cuff[1,]))
 }
+name <- "129xPWK"
+parental.color <- "pink"
+marental.color <- "red"
 
 name <- "PWKx129"
 parental.color <- "red"
 marental.color <- "pink"
-
-name <- "129xPWK"
-parental.color <- "pink"
-marental.color <- "red"
 
 t<-read.table(paste("result/cuffsequence/",name,"/",name,".info",sep=""),stringsAsFactors=F)
 cuffcmp<-read.table(paste("result/cuffsequence/",name,"/cuffcmp.tracking",sep=""),stringsAsFactors=F)
@@ -37,8 +36,24 @@ pdffolder <- paste("result/cuffsequence_no_novelSNP/",name,"_plot/",sep="")
 
 
 dir.create(pdffolder, showWarnings = FALSE, recursive = TRUE)
+unknown=0
+paternal=0
+maternal=0
+for (i in 1:27660){##length(t[,1])){
 
+  plot.all.data <-
+    read.table(paste(t[i,2],t[i,1],"landscape.plot.info.meta",sep=""))
 
+  unknown <- unknown+plot.all.data[1]
+  paternal <- paternal+plot.all.data[2]
+  maternal <- maternal+plot.all.data[3]
+  ##working on the genes that only have one transcript
+}
+print(unknown)
+print(paternal)
+print(maternal)
+print((maternal+paternal)/(unknown+maternal+paternal))
+stop()
 for (i in 1:length(t[,1])){
   ##  print(i)
   plot.all.data <-

@@ -29,7 +29,7 @@ $transcriptid=0;
 foreach ($database as $data){
 
 	$id=$data[9];
-	$chr="1";
+	$chr=$data[13];
 	$start=$data[15];
 	$end=$data[16];
 	$srand=$data[8];

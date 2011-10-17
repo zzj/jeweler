@@ -18,31 +18,40 @@ $foutput=fopen($output_info,"w+");
 $father=$argv[3];
 $mother=$argv[4];
 $bamfile=$argv[5];
+if (isset($curfilter)){
+	$chrfilter=$argv[6];
+	$output_info=$cufffolder.$argv[1].".info.".$chrfilter;
+}
+else {
+	$chrfilter="NA";
+}
 
 
 $fd=file($transcriptfile, FILE_IGNORE_NEW_LINES);
 $lastid="";
 $tranfile=NULL;
-$summary=array();
+
 $nodiff=array();
 $diff=array();
 
-for ($i=1;$i<=31594;$i++){
-	$summary["CUFF.".$i]=0;
-}
+
 $id=0;
 $chr="";
 $min=-1;
 $max=-1;
 foreach ($fd as $line){
 	$data=split("\t", $line);
+	if ($cuffilter!="NA"){
+		if ($data[0]!=$chrfilter){
+			continue;
+		}
+	}
 
 	if ($data[2]=='transcript'){
 		$newdata=split(";",$data[8]);
 		$geneid=split("\"",$newdata[0]);
 		$geneid=$geneid[1];
 		
-		@$summary[$geneid]++;
 		if ($lastid!=$geneid){
 			
 			if ($tranfile!=NULL) {

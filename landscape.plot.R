@@ -36,6 +36,7 @@ selected=(c('Kcnk9','Eif2c2','Osbpl5','Copg2'))
 dir.create(pdffolder, showWarnings = FALSE, recursive = TRUE)
 exon.num=mat.or.vec(length(t[,1]),1)
 snp.num=mat.or.vec(length(t[,1]),1)
+length.num=mat.or.vec(length(t[,1]),1)
 transcript.num=mat.or.vec(length(t[,1]),1)
 
 exon.total <- 0
@@ -43,6 +44,7 @@ exon.has.snp <- 0
 transcript.has.snp <- 0
 snp.total <- 0
 exon.snp.num <- NULL
+
 for (i in 1:length(t[,1])){
   if (!file.exists(paste(t[i,2],t[i,1],"landscape.plot.info",sep=""))){
     break
@@ -51,20 +53,19 @@ for (i in 1:length(t[,1])){
     read.table(paste(t[i,2],t[i,1],"landscape.plot.info",sep=""))
   transcripts=levels(plot.all.data[,1])
   transcript.num[i]=length(transcripts)
-  if (length(transcripts)>1){
-    exon.num[i] <- -1
-    snp.num[i] <--1
-    next
-  }
+  plot.all.data <-
+    plot.all.data[which(plot.all.data[,1]==paste(t[i,1],".1",sep="")),]
 
   b<-hist(which(plot.all.data[,6]==1),breaks=c(0,which(plot.all.data[,7]==1)),plot=F)
   exon.has.snp <- exon.has.snp+sum(b$counts!=0)
   exon.snp.num <- c(exon.snp.num,b$counts)
+
   transcript.has.snp <-transcript.has.snp+sum(sum(b$counts!=0)!=0)
   exon.total <- exon.total+sum(plot.all.data[,7])
   snp.total <- snp.total+sum(plot.all.data[,6])
   exon.num[i] <- sum(plot.all.data[,7])
   snp.num[i] <- sum(plot.all.data[,6])
+  length.num[i] <- dim(plot.all.data)[1]
 }
 
 pdf(paste(name,"exon","pdf",sep="."))
@@ -84,7 +85,7 @@ exon.snp.num <- exon.snp.num[exon.num>=0]
 hist(exon.snp.num,breaks=min(exon.snp.num):max(exon.snp.num),main=name)
 dev.off()
 
-
+save(exon.has.snp,exon.num,exon.snp.num,exon.total,length.num,transcript.num,file="general.Rdata")
 
 stop()
 for (i in 1:length(t[,1])){
