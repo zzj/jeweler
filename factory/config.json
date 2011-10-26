@@ -1,0 +1,13 @@
+{
+"paternal_reference_file" : "/csbiodata02/sanger/Projects/data/genomes_wSNPs_1106/PWK.fasta",
+"maternal_reference_file" : "/csbiodata02/sanger/Projects/data/genomes_wSNPs_1106/129.fasta",
+"gtf_input_file"          : "../../data/cufflinks/129xPWK/transcripts.gtf",
+"result_folder"           : "result/cuffsequence/",
+"alias"                : "test",
+"result_file"          : "129xPWK.info",
+"left_strain_ref_seq"  : "/csbiohome01/zzj/Research/rna_seq/data/genomes/129S1.fa",
+"right_strain_ref_seq" : "/csbiohome01/zzj/Research/rna_seq/data/genomes/PWK.fa",
+"left_strain_id"       : "129",
+"right_strain_id"      : "PWK",
+"bam_file"             : "/csbiohome01/zzj/Research/rna_seq/data/genomes/129xPWK-merge.bam"
+}
