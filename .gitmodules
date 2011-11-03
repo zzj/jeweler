@@ -1,3 +1,6 @@
 [submodule "lib/bamtools"]
 	path = lib/bamtools
 	url = https://github.com/pezmaster31/bamtools.git
+[submodule "lib/fastahack"]
+	path = lib/fastahack
+	url = https://github.com/ekg/fastahack.git
