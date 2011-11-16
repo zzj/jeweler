@@ -1,5 +1,5 @@
 CC=-g -std=gnu++0x
-INC=-Ilib/bamtools/include/
+INC=-Ilib/bamtools/include/ -Ilib/fastahack/
 LIB=-Llib/bamtools/lib/
 
 
@@ -30,8 +30,8 @@ clean:
 test: all
 	./jeweler -i test.info
 
-appraiser: appraiser.o common.o metabam.o bam_info.o sewing_machine.o cigar_holder.o
-	g++ $(INC) $(LIB) $(CC) appraiser.o sewing_machine.o metabam.o  bam_info.o cigar_holder.o -lz lib/bamtools/lib/libbamtools.a common.o  -o appraiser 
+appraiser: appraiser.o common.o metabam.o bam_info.o sewing_machine.o cigar_holder.o Fasta.o split.o disorder.o 
+	g++ $(INC) $(LIB) $(CC) appraiser.o sewing_machine.o metabam.o  bam_info.o cigar_holder.o  Fasta.o split.o disorder.o -lz lib/bamtools/lib/libbamtools.a common.o  -o appraiser 
 
 appraiser.o: laboratory/appraiser.cpp laboratory/appraiser.hpp
 	g++ $(INC) $(CC) -c laboratory/appraiser.cpp  
@@ -49,3 +49,12 @@ cigar_holder.o: laboratory/cigar_holder.cpp laboratory/cigar_holder.hpp
 
 sewing_machine.o: laboratory/sewing_machine.cpp laboratory/sewing_machine.hpp
 	g++ $(INC) $(CC) -c laboratory/sewing_machine.cpp  		
+
+Fasta.o: lib/fastahack/Fasta.h lib/fastahack/Fasta.cpp
+	g++ $(INC) $(CC) -c lib/fastahack/Fasta.cpp
+
+split.o: lib/fastahack/split.h lib/fastahack/split.cpp
+	g++ -c lib/fastahack/split.cpp
+
+disorder.o: lib/fastahack/disorder.c lib/fastahack/disorder.h
+	g++ -c lib/fastahack/disorder.c

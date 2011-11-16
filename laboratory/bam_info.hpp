@@ -16,6 +16,7 @@ public:
 	SamHeader sam_header;
 	RefVector references;
 	virtual int initialize(BamReader &reader);
+
 };
 
 #endif 
