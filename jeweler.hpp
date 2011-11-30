@@ -20,11 +20,12 @@ public:
 	string paternal_seq_filename;
 	string maternal_seq_filename;
 	string read_seq_filename;
-	string paternal_aligned_filename;
-	string maternal_aligned_filename;
 	
-	transcript_info(string gene_id,string folder,string gf,
-					string psf,string msf,string tsf,string paf,string maf);
+	transcript_info(string gene_id,string folder,string gtf_filename,
+					string paternal_seq_filename,
+					string maternal_seq_filename,
+					string bam_read_filename);
+
 	int load_transcript_info(FILE *);
 	
 };
@@ -36,7 +37,7 @@ class jeweler{
 public:
 	string info_filename;
 	FILE * log_file;
-	vector<transcript_info> transcripts_info;
+	vector<transcript_info *> transcripts_info;
 	
 	jeweler(int argc, char *argv[]);
 	// function to run the analysis 
@@ -48,50 +49,50 @@ public:
 
 	// load cufflinks' gtf file 
 	int transcript_helper(string read_file,string gtf_file, 
-						  vector<transcript> &transcripts);
+						  vector<transcript *> &transcripts);
 
 	// create paternal and maternal transcripts databases
 	// annotate SNPs for paternal  and maternal transcripts' sequence
-	int load_transcript_data(transcript_info ti,
-							 vector<transcript> &ptrans, 
-							 vector<transcript> &mtrans
+	int load_transcript_data(transcript_info * ti,
+							 vector<transcript *> &ptrans, 
+							 vector<transcript *> &mtrans
 							 ); // load transcript data 
 	// load read data,
-	int load_read_data(transcript_info ti, 
-					   vector<transcript> &ptrans,
-					   vector<transcript> &mtrans,
-					   map<rna_read_key,rna_read_query>& queires);
-	int merge_paired_reads(vector<transcript> &ref,
-						  vector<rna_read_query> & blat_result);
+	int load_read_data(transcript_info * ti, 
+					   vector<transcript *> &ptrans,
+					   vector<transcript *> &mtrans,
+					   map<rna_read_key,rna_read_query *>& queires);
+	int merge_paired_reads(vector<transcript *> &ref,
+						  vector<rna_read_query *> & blat_result);
 	//  add queries, match the read sequences to the transcript's sequences. 
 	// If the reads are not flipped and reversed, do that. 
-	int add_queries(vector<transcript> &ref, 
+	int add_queries(vector<transcript *> &ref, 
 					multimap<string,string> &srmap,
-					vector<rna_read_query> &pqueries,
-					map<rna_read_key,rna_read_query>& queires);
+					vector<rna_read_query *> &pqueries,
+					map<rna_read_key,rna_read_query *>& queires);
 
 	// return wether the read map to the transcript. 
-	bool match_snp(transcript t, rna_read_query rrq);
+	bool match_snp(transcript * t, rna_read_query * rrq);
 
 	// record all mismatches in transcript
 	// this function will change transcript. Please be careful about it.
 	// make sure for each read, it is be called once. Otherwise,
 	// the statistics for mismaches are wrong. 
-	int annotate_mismatch_pos(transcript &t, rna_read_query rrq);
+	int annotate_mismatch_pos(transcript * t, rna_read_query * rrq);
 	// 
-	int label_mismatches_perbase(vector<transcript> &ptrans, 
-								 vector<transcript> &mtrans,
-								 map<rna_read_key,rna_read_query>& queires);
+	int label_mismatches_perbase(vector<transcript *> &ptrans, 
+								 vector<transcript *> &mtrans,
+								 map<rna_read_key,rna_read_query *>& queires);
 	// given a set of transcripts, check whether the read can be aligned to
 	// the transcript by matching all the SNPs in the transcript. 
-	int identify_sources(vector<transcript> source,
-						 map<rna_read_key,rna_read_query> &queries,
+	int identify_sources(vector<transcript *> &source,
+						 map<rna_read_key,rna_read_query *> &queries,
 						 int source_id);
 	// return the number of mismatches
-	int count_mismatches(transcript &t, rna_read_query &rrq);
-	int generate_landscape(transcript_info ti,
-						   vector<transcript> &ref,
-						   map<rna_read_key,rna_read_query> &queries);
+	int count_mismatches(transcript *t, rna_read_query *rrq);
+	int generate_landscape(transcript_info * ti,
+						   vector<transcript *> &ref,
+						   map<rna_read_key,rna_read_query *> &queries);
 
 	
 

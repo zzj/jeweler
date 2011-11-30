@@ -4,17 +4,17 @@ import sys
 import traceback
 from subprocess import call
 try:
-    config_data   = open('config.json')
-    configuration = json.load(config_data)
-    result_folder    = configuration['result_folder'] + '/' + configuration['alias'] + '/'
-    output_info_file = result_folder + configuration['alias']
-    left_strain_ref_seq = configuration['left_strain_ref_seq']
+    config_data          = open('config.json')
+    configuration        = json.load(config_data)
+    result_folder        = configuration['result_folder'] + '/' + configuration['alias'] + '/'
+    output_info_file     = result_folder + configuration['alias']
+    left_strain_ref_seq  = configuration['left_strain_ref_seq']
     right_strain_ref_seq = configuration['right_strain_ref_seq']
-    left_strain_id = configuration['left_strain_id']
-    right_strain_id = configuration['right_strain_id']
-    bam_file = configuration['bam_file']
-    result_file     =  result_folder+configuration['result_file']  
-    result_file_fd= open(result_file,"w+")
+    left_strain_id       = configuration['left_strain_id']
+    right_strain_id      = configuration['right_strain_id']
+    bam_file             = configuration['bam_file']
+    result_file          = result_folder+configuration['result_file']  
+    result_file_fd       = open(result_file,"w+")
     try:
         os.makedirs()
     except:
@@ -33,7 +33,7 @@ try:
     id              = 0
 
     for line in gene_meta:
-        info=line.strip().split('\t')
+        info=line.strip(' \t\n\r').split('\t')
         if (len(info)!=9):
             break
         # Find a new start of a transcript

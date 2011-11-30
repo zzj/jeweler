@@ -8,7 +8,7 @@ all: jeweler appraiser
 jeweler: jeweler.o common.o fasta.o gtf.o rna_read.o
 	g++ $(CC) jeweler.o common.o fasta.o gtf.o rna_read.o -o jeweler
 
-jeweler.o: jeweler.cpp 
+jeweler.o: jeweler.cpp  jeweler.hpp
 	g++  $(CC) -c jeweler.cpp
 
 common.o: common.cpp common.hpp
@@ -32,6 +32,9 @@ test: all
 
 appraiser: appraiser.o common.o metabam.o bam_info.o sewing_machine.o cigar_holder.o Fasta.o split.o disorder.o 
 	g++ $(INC) $(LIB) $(CC) appraiser.o sewing_machine.o metabam.o  bam_info.o cigar_holder.o  Fasta.o split.o disorder.o -lz lib/bamtools/lib/libbamtools.a common.o  -o appraiser 
+
+test_bam: test_bam.cpp Fasta.o split.o
+	g++  test_bam.cpp $(INC) $(LIB) $(CC) Fasta.o split.o cigar_holder.o -lz lib/bamtools/lib/libbamtools.a   -o test_bam
 
 appraiser.o: laboratory/appraiser.cpp laboratory/appraiser.hpp
 	g++ $(INC) $(CC) -c laboratory/appraiser.cpp  
