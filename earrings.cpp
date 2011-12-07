@@ -14,7 +14,16 @@ Earrings::Earrings(TranscriptInfo *info){
 }
 
 
-
+Earrings::~Earrings(){
+	int i=0;
+	for (i=0;i<maternal_transcripts.size();i++){
+		delete maternal_transcripts[i];
+		delete paternal_transcripts[i];
+	}
+	for (i=0;i<bam_reads.size();i++){
+		delete bam_reads[i];
+	}
+}
 
 int Earrings::load_read_data(TranscriptInfo *info){
 	string bam_filename=info->read_seq_filename;
@@ -36,6 +45,8 @@ int Earrings::load_read_data(TranscriptInfo *info){
 	
 	return 0;
 }
+
+
 
 int Earrings::load_transcript_data(TranscriptInfo * info){
 	int i,j,k;
@@ -173,7 +184,7 @@ int Earrings::align_reads(){
 				//fprintf(stdout,"%d\n",total_alleles);
 				if ( total_alleles>0){
 					if (num_paternal_alleles == num_maternal_alleles)
-						noninfo.insert(bam_reads[i]);
+						noninfo[j].insert(bam_reads[i]);
 					else {
 						cleared.insert(bam_reads[i]);
 						if (num_maternal_alleles!=0){

@@ -26,7 +26,7 @@ class Earrings{
 public :
 	Earrings(TranscriptInfo *);
 
-
+	~Earrings();
 	TranscriptInfo * info;
 	vector<Transcript *> maternal_transcripts;
 	vector<Transcript *> paternal_transcripts;
