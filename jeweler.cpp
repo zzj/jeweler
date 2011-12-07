@@ -682,11 +682,7 @@ int jeweler::run(){
 		load_read_data(transcripts_info[i],ptrans,mtrans,queries);
 		identify_sources(ptrans,queries,1);
 		identify_sources(mtrans,queries,2);
-
-		
 		label_mismatches_perbase(ptrans, mtrans, queries);
-
-
 			for (map<rna_read_key,rna_read_query>::iterator j=queries.begin();
 				 j!=queries.end();
 				 j++){
