@@ -4,7 +4,7 @@ import sys
 import traceback
 from subprocess import call
 try:
-    config_data          = open('config.json')
+    config_data          = open(sys.argv[1])
     configuration        = json.load(config_data)
     result_folder        = configuration['result_folder'] + '/' + configuration['alias'] + '/'
     output_info_file     = result_folder + configuration['alias']
@@ -14,12 +14,12 @@ try:
     right_strain_id      = configuration['right_strain_id']
     bam_file             = configuration['bam_file']
     result_file          = result_folder+configuration['result_file']  
-    result_file_fd       = open(result_file,"w+")
+
     try:
-        os.makedirs()
+        os.makedirs(result_folder)
     except:
         print("Notice: the folder was created.\n")
-
+    result_file_fd       = open(result_file,"w+")
 
     with open(configuration['gtf_input_file']) as f:
         gene_meta = f.readlines()
@@ -34,6 +34,7 @@ try:
 
     for line in gene_meta:
         info=line.strip(' \t\n\r').split('\t')
+
         if (len(info)!=9):
             break
         # Find a new start of a transcript
@@ -72,6 +73,7 @@ try:
                     print("\t".join([last_id, gene_folder, gene_folder+last_id,
                                      left_output_seq, right_output_seq, read_seq]),
                           file=result_file_fd)
+                    result_file_fd.flush()
 
                 gene_folder=result_folder + gene_id + '/'
                 if ( not os.path.exists(gene_folder)):
@@ -84,7 +86,7 @@ try:
 
 
         info[6]='+'
-        print("\t".join(info)+"\n",file=tranfile)
+        print("\t".join(info),file=tranfile)
 
 except: 
     exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()

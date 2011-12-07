@@ -1,7 +1,7 @@
 
 #include "transcript_info.hpp"
 
-transcript_info::transcript_info(string gene_id,string folder,string gtf_filename,
+TranscriptInfo::TranscriptInfo(string gene_id,string folder,string gtf_filename,
 								 string paternal_seq_filename,
 								 string maternal_seq_filename,
 								 string bam_read_filename){

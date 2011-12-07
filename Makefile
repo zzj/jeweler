@@ -5,11 +5,25 @@ LIB=-Llib/bamtools/lib/
 
 all: jeweler appraiser
 
-jeweler: jeweler.o common.o fasta.o gtf.o rna_read.o
-	g++ $(CC) jeweler.o common.o fasta.o gtf.o rna_read.o -o jeweler
+jeweler: jeweler.o earrings.o common.o fasta.o gtf.o rna_read.o transcript_info.o transcript.o cigar_holder.o landscape.plot.o
+	g++ $(CC) jeweler.o earrings.o common.o fasta.o gtf.o rna_read.o transcript_info.o  landscape.plot.o transcript.o cigar_holder.o -lz lib/bamtools/lib/libbamtools.a -o jeweler
+
+
 
 jeweler.o: jeweler.cpp  jeweler.hpp
-	g++  $(CC) -c jeweler.cpp
+	g++  $(INC)  $(CC) -c jeweler.cpp 
+
+transcript_info.o: transcript_info.cpp transcript_info.hpp
+	g++ $(INC) $(CC) -c transcript_info.cpp
+
+landscape.plot.o: landscape.plot.cpp landscape.plot.hpp
+	g++ $(INC) $(CC) -c landscape.plot.cpp
+
+transcript.o: transcript.cpp transcript.hpp
+	g++ $(INC) $(CC) -c transcript.cpp
+
+earrings.o: earrings.cpp earrings.hpp 
+	g++  $(INC) $(CC) -c earrings.cpp	
 
 common.o: common.cpp common.hpp
 	g++  $(CC) -c common.cpp
@@ -18,7 +32,7 @@ fasta.o: fasta.cpp fasta.hpp
 	g++ $(CC) -c fasta.cpp
 
 gtf.o: gtf.cpp gtf.hpp
-	g++ $(CC) -c gtf.cpp
+	g++ $(INC) $(CC) -c gtf.cpp
 
 rna_read.o: rna_read.cpp rna_read.hpp
 	g++ $(CC) -c rna_read.cpp

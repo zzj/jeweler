@@ -1,11 +1,8 @@
 #include "gtf.hpp"
 using namespace std;
 
-transcript::transcript(){
-	
-}
 
-int load_gtf_file(string gtf_filename, vector<transcript *> &transcripts){
+int load_gtf_file(string gtf_filename, vector<Transcript *> &transcripts){
 
 
 	FILE *fd=file_open(gtf_filename.c_str(),"r");
@@ -14,7 +11,7 @@ int load_gtf_file(string gtf_filename, vector<transcript *> &transcripts){
 	char gene_id[100];
 	char transcript_id[100];
 	string chr;
-	transcript* t=new transcript();
+	Transcript* t=new Transcript();
 	int num=-1;
 
 	int t_start = 0;
@@ -32,7 +29,7 @@ int load_gtf_file(string gtf_filename, vector<transcript *> &transcripts){
 		}
 		if (strs[2]=="transcript" && num != -1){
 			transcripts.push_back(t);
-			t=new transcript();
+			t=new Transcript();
 			// added by Weibo
 			t_start = atoi(strs[3].c_str());
 			t_end = atoi(strs[4].c_str());
@@ -55,7 +52,6 @@ int load_gtf_file(string gtf_filename, vector<transcript *> &transcripts){
 			{
 				t->genome_pos.push_back(i);
 			}
-
 		}
 		sscanf(strs[8].c_str(),"gene_id \"%[^\"]\"; transcript_id \"%[^\"]\";",gene_id,transcript_id);
 
@@ -64,7 +60,7 @@ int load_gtf_file(string gtf_filename, vector<transcript *> &transcripts){
 
 	}
 
-	// check error, added by Weibo
+	// check error
 	if (t->exon_start[0] != t_start)
 	{
 		fprintf(stderr, "%s:%d:%d\n",t->name.c_str(), t->exon_start[0],t_start);
@@ -72,7 +68,6 @@ int load_gtf_file(string gtf_filename, vector<transcript *> &transcripts){
 		exit(0);
 	}
 
-	
 	transcripts.push_back(t);
 
 	free(temp);

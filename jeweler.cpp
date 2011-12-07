@@ -2,20 +2,8 @@
 #include <cstdio>
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
+
 using namespace std;
-
-
-transcript_info::transcript_info(string gene_id,string folder,string gtf_filename,
-								 string paternal_seq_filename,
-								 string maternal_seq_filename,
-								 string bam_read_filename){
-	this->gene_id=gene_id;
-	this->folder=folder;
-	this->gtf_filename=gtf_filename;
-	this->paternal_seq_filename=paternal_seq_filename;
-	this->maternal_seq_filename=maternal_seq_filename;
-	this->read_seq_filename=bam_read_filename;
-}
 
 jeweler::jeweler(int argc, char * argv[]){
 	int i;
@@ -53,10 +41,10 @@ int jeweler::load_info_file(){
 		bam_read_filename[100];
 	int id=0;
 	while(fscanf(fd,"%s%s%s%s%s%s",
-				 gene_id,folder,gtf_filename,
-				 paternal_seq_filename,maternal_seq_filename,bam_read_filename)==8){
-		transcript_info * ti= 
-			new transcript_info(gene_id,folder,gtf_filename,
+				 gene_id, folder, gtf_filename,
+				 paternal_seq_filename, maternal_seq_filename, bam_read_filename)==6){
+		TranscriptInfo * ti= 
+			new TranscriptInfo(gene_id,folder,gtf_filename,
 								paternal_seq_filename,maternal_seq_filename,
 								bam_read_filename);
 		transcripts_info.push_back(ti);
@@ -66,86 +54,9 @@ int jeweler::load_info_file(){
 	return 0;
 }
 
-int jeweler::transcript_helper(string seq_filename,string gtf_file, 
-							   vector<transcript *> &transcripts){
-	//assuming gtf file has the same order of transcripts with the seq files
-	int i,j;
-	vector<seq_read*> sr;
-	load_fasta_file(seq_filename,sr);
-	load_gtf_file(gtf_file,transcripts);
-	if (transcripts.size()!=sr.size()){
-		fprintf(stderr, "ERROR: sequence file (%d sequences) does not match gtf file (%d transcripts) at %s:%d\n",
-				(int)sr.size(),(int)transcripts.size(),__FILE__, __LINE__);
-		exit(0);
-
-	}
-	for (i=0;i<sr.size();i++){
-		for (j=0;j<transcripts.size();j++){
-			if (transcripts[j]->name != sr[i]->name){
-				continue;
-			}
-			transcripts[j]->seq=sr[i]->seq;
-			transcripts[j]->noninformative_mismatches.resize(transcripts[j]->seq.size(),0);
-			//check errors
-			if (transcripts[j]->seq.size() != transcripts[j]->genome_pos.size())
-			{
-				fprintf(stderr, "something wrong in inferring the genome position");
-				exit(0);
-			}
-			else
-			{
-				//fprintf(stderr, "size the transcirpt is %d bases\n", transcripts[j]->genome_pos.size());
-				transcripts[j]->Anoninformative_mismatches.resize(transcripts[j]->genome_pos.size());
-				transcripts[j]->Cnoninformative_mismatches.resize(transcripts[j]->genome_pos.size());
-				transcripts[j]->Gnoninformative_mismatches.resize(transcripts[j]->genome_pos.size());
-				transcripts[j]->Tnoninformative_mismatches.resize(transcripts[j]->genome_pos.size());
-			}
-		}
-	}
-	return 0;
-}
 	
-int jeweler::load_transcript_data(transcript_info * ti,
-								  vector<transcript *> &ptrans, 
-								  vector<transcript *> &mtrans
-								  ){
-	int i,j;
 
-	transcript_helper(ti->paternal_seq_filename,ti->gtf_filename, ptrans );
-	transcript_helper(ti->maternal_seq_filename,ti->gtf_filename, mtrans );
-	if (ptrans.size()!=mtrans.size() || ptrans.size()==0){
-		fprintf(stderr, 
-				"ERROR: number of transcripts does not match or no reads at all for gene %s  at %s:%d\n",
-				ti->gene_id.c_str(),__FILE__, __LINE__);
-		exit(0);
-	}
-
-	for (i=0;i<ptrans.size();i++){
-		transcript *p=ptrans[i];
-		transcript *m=mtrans[i];
-		if (p->seq.size()!=m->seq.size()){
-
-			fprintf(stderr, 
-					"ERROR: transcript sequence size does not match at gene %s  at %s:%d\n",
-					p->name.c_str(),__FILE__, __LINE__);
-			exit(0);
-		}
-		int num=0;
-		for (j=0;j<p->seq.size();j++){
-			if (p->seq[j]!=m->seq[j]){
-				p->snp_pos.push_back(j);
-				m->snp_pos.push_back(j);
-				p->alleles.push_back(p->seq[j]);
-				m->alleles.push_back(m->seq[j]);
-				num++;
-			}
-		}
-
-	}
-	return 0;
-}
-
-int jeweler::count_mismatches(transcript *t, rna_read_query  *rrq){
+int jeweler::count_mismatches(Transcript *t, rna_read_query  *rrq){
 	if (t->name != rrq->target){
 		fprintf(stderr,"transcript names do not match with each other\n");
 		exit(0);
@@ -162,7 +73,7 @@ int jeweler::count_mismatches(transcript *t, rna_read_query  *rrq){
 	return mismatches;
 }
 
-int jeweler::merge_paired_reads(vector<transcript *> &ref,
+int jeweler::merge_paired_reads(vector<Transcript *> &ref,
 								vector<rna_read_query *> &bam_result){
 	
 	int i,j,k;
@@ -290,7 +201,7 @@ int jeweler::merge_paired_reads(vector<transcript *> &ref,
 	}
 }
 
-int jeweler::add_queries(vector<transcript *> &ref, 
+int jeweler::add_queries(vector<Transcript *> &ref, 
 				multimap<string,string> &srmap,
 				vector<rna_read_query *> &bam_result,
 				map<rna_read_key,rna_read_query *>& queries){
@@ -380,8 +291,8 @@ int jeweler::add_queries(vector<transcript *> &ref,
 	return 0;
 }
 
-int jeweler::label_mismatches_perbase(std::vector<transcript*> &ptrans, 
-									  std::vector<transcript*> &mtrans, 
+int jeweler::label_mismatches_perbase(std::vector<Transcript*> &ptrans, 
+									  std::vector<Transcript*> &mtrans, 
 									  std::map<rna_read_key,rna_read_query * > &queries)
 {
 	std::map<rna_read_key,rna_read_query*>::iterator it;
@@ -399,9 +310,9 @@ int jeweler::label_mismatches_perbase(std::vector<transcript*> &ptrans,
 }
 
 
-int jeweler::load_read_data(transcript_info * ti, 
-							vector<transcript *> &ptrans,
-							vector<transcript *> &mtrans,
+int jeweler::load_read_data(TranscriptInfo * ti, 
+							vector<Transcript *> &ptrans,
+							vector<Transcript *> &mtrans,
 							map<rna_read_key , rna_read_query *> &queries
 							){
 	
@@ -410,20 +321,23 @@ int jeweler::load_read_data(transcript_info * ti,
 	multimap<string,string> srmap;
 	int i;
 
-	load_fasta_file(ti->read_seq_filename,sr);
-	for (i=0;i<sr.size();i++){
-		srmap.insert(make_pair(sr[i]->name,sr[i]->seq));
-	}
-
+	//load_fasta_file(ti->read_seq_filename,sr);
+	//for (i=0;i<sr.size();i++){
+	//srmap.insert(make_pair(sr[i]->name,sr[i]->seq));
+	//}
+	
 
 	//load_psl_file(ti->paternal_aligned_filename,pqueries);
 	//load_psl_file(ti->maternal_aligned_filename,mqueries);
 	//add_queries(ptrans,srmap,pqueries,queries);
 	//add_queries(mtrans,srmap,mqueries,queries);
+	
+	// Now, we only need to read one bam file
+
 	return 0;
 }
 
-bool jeweler::match_snp(transcript *t, rna_read_query* rrq){
+bool jeweler::match_snp(Transcript *t, rna_read_query* rrq){
 	if (t->snp_pos.size()==0) 
 		return false;
 	int i,j;
@@ -447,7 +361,7 @@ bool jeweler::match_snp(transcript *t, rna_read_query* rrq){
 	return !no_allele;
 }
 
-int jeweler::annotate_mismatch_pos(transcript *t, rna_read_query * rrq)
+int jeweler::annotate_mismatch_pos(Transcript *t, rna_read_query * rrq)
 {
 	int num_mismatches = 0;
 	int i,j;
@@ -526,7 +440,7 @@ int jeweler::annotate_mismatch_pos(transcript *t, rna_read_query * rrq)
 
 }
 
-bool test_match_snp(transcript * t, transcript* t2, rna_read_query* rrq){
+bool test_match_snp(Transcript * t, Transcript* t2, rna_read_query* rrq){
 	if (t->snp_pos.size()==0) 
 		return false;
 	int i,j;
@@ -554,7 +468,7 @@ bool test_match_snp(transcript * t, transcript* t2, rna_read_query* rrq){
 	return !no_allele;
 }
 
-int jeweler::identify_sources(vector<transcript *> &source,
+int jeweler::identify_sources(vector<Transcript *> &source,
 							  map<rna_read_key,rna_read_query *> &queries,
 							  int source_id){
 	int i;
@@ -575,8 +489,8 @@ int jeweler::identify_sources(vector<transcript *> &source,
 }
 
 
-int jeweler::generate_landscape(transcript_info * ti,
-								vector<transcript *> &ref,
+int jeweler::generate_landscape(TranscriptInfo * ti,
+								vector<Transcript *> &ref,
 								map<rna_read_key,rna_read_query *> &queries){
 	
 	int i,j,k,m;
@@ -679,29 +593,26 @@ int jeweler::generate_landscape(transcript_info * ti,
 int jeweler::run(){
 	int i,j;
 
-	vector<transcript *> ptrans, mtrans;
+	vector<Transcript *> paternal_transcripts, maternal_transcripts;
 
 	load_info_file();
 	for (i=0;i<transcripts_info.size();i++){
 		if (i%10==0) fprintf(log_file,"%d\n",i);
-		map<rna_read_key ,rna_read_query *> queries;	
-		load_transcript_data(transcripts_info[i],ptrans, mtrans);
-		load_read_data(transcripts_info[i],ptrans,mtrans,queries);
-		identify_sources(ptrans,queries,1);
-		identify_sources(mtrans,queries,2);
 
+		Earrings earrings(transcripts_info[i]);
 		
-		label_mismatches_perbase(ptrans, mtrans, queries);
-
-
-		for (auto j=queries.begin();
-			 j!=queries.end();
-			 j++){
-			//test_match_snp(ptrans[0],mtrans[0],j->second);
-			;
-		}
-
-		generate_landscape(transcripts_info[i],ptrans,queries);
+		
+		// load_read_data(transcripts_info[i],ptrans,mtrans,queries);
+		// identify_sources(ptrans,queries,1);
+		// identify_sources(mtrans,queries,2);
+		// label_mismatches_perbase(ptrans, mtrans, queries);
+		// for (auto j=queries.begin();
+		// 	 j!=queries.end();
+		// 	 j++){
+		// 	//test_match_snp(ptrans[0],mtrans[0],j->second);
+		// 	;
+		// }
+		// generate_landscape(transcripts_info[i],ptrans,queries);
 	}
 	return 0;
 }
