@@ -23,6 +23,7 @@ public:
 	vector<int> maternal;
 	vector<int> is_snp;
 	vector<int> exon_jump;
+	vector<int> genome_pos;
 	int num_maternal, num_paternal, num_unknown;
 	string transcript_name;
 
