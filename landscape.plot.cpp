@@ -20,6 +20,7 @@ LandscapePlot::LandscapePlot(Transcript * maternal_transcript,
 	maternal.resize(size,0);
 	is_snp.resize(size,0);
 	exon_jump.resize(size,0); // the last position that an exon ends
+	genome_pos=maternal_transcript->genome_pos;
 	this->num_maternal=maternal_transcript->allele_aligned_reads.size();
 	this->num_paternal=paternal_transcript->allele_aligned_reads.size();
 	this->num_unknown=unknown_reads.size();
@@ -129,7 +130,7 @@ int LandscapePlot::generate_landscape_plot(FILE * info, FILE * output){
 	fprintf(info,"%s\t%d\t%d\t%d\n",transcript_name.c_str(),num_unknown,num_paternal,num_maternal);
 	
 	for (i=0;i<unknown.size();i++){
-		fprintf(output,"%d\t%d\t%d\t%d\t%d\n", unknown[i], paternal[i], maternal[i], is_snp[i], exon_jump[i]);
+		fprintf(output,"%d\t%d\t%d\t%d\t%d\t%d\n", genome_pos[i],unknown[i], paternal[i], maternal[i], is_snp[i], exon_jump[i]);
 	}
 			
 }
