@@ -151,7 +151,6 @@ int Earrings::align_reads(){
 	int total_alleles;
 	set<BamAlignment *> unaligned;
 	set<BamAlignment *> cleared;
-	set<BamAlignment *> uncleared;
 	vector<set<BamAlignment *> >noninfo;
 	vector<int> paternal_alleles;
 	vector<int> maternal_alleles;
@@ -174,7 +173,7 @@ int Earrings::align_reads(){
 				//fprintf(stdout,"%d\n",total_alleles);
 				if ( total_alleles>0){
 					if (num_paternal_alleles == num_maternal_alleles)
-						uncleared.insert(bam_reads[i]);
+						noninfo.insert(bam_reads[i]);
 					else {
 						cleared.insert(bam_reads[i]);
 						if (num_maternal_alleles!=0){
