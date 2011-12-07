@@ -1,6 +1,6 @@
 CC=-g -std=gnu++0x
-INC=-Ilib/bamtools/include/ -Ilib/fastahack/ -I$HOME/bin/include
-LIB=-Llib/bamtools/lib/ -I$HOME/bin/lib
+INC=-Ilib/bamtools/include/ -Ilib/fastahack/ -I$(HOME)/bin/include
+LIB=-Llib/bamtools/lib/ -I$(HOME)/bin/lib
 
 
 all: jeweler appraiser
@@ -35,7 +35,7 @@ gtf.o: gtf.cpp gtf.hpp
 	g++ $(INC) $(CC) -c gtf.cpp
 
 rna_read.o: rna_read.cpp rna_read.hpp
-	g++ $(CC) -c rna_read.cpp
+	g++ $(INC) $(CC) -c rna_read.cpp
 
 clean: 
 	rm *.o
