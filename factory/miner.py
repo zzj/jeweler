@@ -5,6 +5,7 @@ import traceback
 import argparse
 from subprocess import call
 
+
 def split_gff_files(left_strain_ref_seq, right_strain_ref_seq,
 					left_strain_id, right_strain_id,
 					bam_file,

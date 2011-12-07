@@ -19,7 +19,7 @@ bool operator < (const seq_read &a, const seq_read &b);
 /* 
    all existing data in the reads vector will be removed.
  */
-int load_fasta_file(string fasta_filename, vector<seq_read> &reads);
+int load_fasta_file(string fasta_filename, vector<seq_read *> &reads);
 
 
 

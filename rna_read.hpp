@@ -57,9 +57,9 @@ public:
 	bool is_reversed();
 };
 
-bool operator < (const rna_read_query &a, const rna_read_query  &b);
-bool is_better_alignment(const rna_read_query &a, const rna_read_query  &b);
+bool operator < (const rna_read_query& a, const rna_read_query&  b);
+bool is_better_alignment(const rna_read_query* a, const rna_read_query*  b);
 int recover_original_read(string &seq);
-int load_psl_file(string psl_filename, vector<rna_read_query> & queries);
+int load_psl_file(string psl_filename, vector<rna_read_query *> & queries);
 
 #endif /* _RNA_READ_H_ */

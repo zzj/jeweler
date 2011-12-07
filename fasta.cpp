@@ -18,7 +18,7 @@ bool operator < (const seq_read &a, const seq_read &b){
 
 }
 
-int load_fasta_file(string fasta_filename, vector<seq_read> &seq_reads){
+int load_fasta_file(string fasta_filename, vector<seq_read *> &seq_reads){
 	FILE *fd=file_open(fasta_filename.c_str(),"r");
 	string name;
 	string seq;
@@ -32,7 +32,7 @@ int load_fasta_file(string fasta_filename, vector<seq_read> &seq_reads){
 		line=trim(temp);
 		if (strlen(line)==0 || line[0]=='>') {
 			if (seq.size()>0){
-				seq_read r=seq_read(name,seq);
+				seq_read * r=new seq_read(name,seq);
 				seq_reads.push_back(r);
 			}
 			seq.clear();
@@ -44,7 +44,7 @@ int load_fasta_file(string fasta_filename, vector<seq_read> &seq_reads){
 		}
 	}
 	if (seq.size()>0){
-		seq_read r=seq_read(name,seq);
+		seq_read * r=new seq_read(name,seq);
 		seq_reads.push_back(r);
 	}
 	fclose(fd);

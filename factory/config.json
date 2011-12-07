@@ -1,7 +1,7 @@
 {
 "paternal_reference_file" : "/csbiodata02/sanger/Projects/data/genomes_wSNPs_1106/PWK.fasta",
 "maternal_reference_file" : "/csbiodata02/sanger/Projects/data/genomes_wSNPs_1106/129.fasta",
-"gtf_input_file"          : "../../data/cufflinks/129xPWK/transcripts.gtf",
+"gtf_input_file"          : "../data/cufflinks/129xPWK/transcripts.gtf",
 "result_folder"           : "result/cuffsequence/",
 "alias"                : "test",
 "result_file"          : "129xPWK.info",
