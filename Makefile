@@ -1,6 +1,6 @@
 CC=-g -std=gnu++0x
-INC=-Ilib/bamtools/include/ -Ilib/fastahack/
-LIB=-Llib/bamtools/lib/
+INC=-Ilib/bamtools/include/ -Ilib/fastahack/ -I$HOME/bin/include
+LIB=-Llib/bamtools/lib/ -I$HOME/bin/lib
 
 
 all: jeweler appraiser
