@@ -42,10 +42,10 @@ int jeweler::load_info_file(){
 	int id=0;
 	while(fscanf(fd,"%s%s%s%s%s%s",
 				 gene_id, folder, gtf_filename,
-				 paternal_seq_filename, maternal_seq_filename, bam_read_filename)==6){
+				 maternal_seq_filename, paternal_seq_filename, bam_read_filename)==6){
 		TranscriptInfo * ti= 
 			new TranscriptInfo(gene_id,folder,gtf_filename,
-								paternal_seq_filename,maternal_seq_filename,
+								maternal_seq_filename,paternal_seq_filename,
 								bam_read_filename);
 		transcripts_info.push_back(ti);
 		id++;

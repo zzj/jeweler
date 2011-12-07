@@ -51,10 +51,10 @@ int Earrings::load_read_data(TranscriptInfo *info){
 int Earrings::load_transcript_data(TranscriptInfo * info){
 	int i,j,k;
 
-	transcript_helper(info->paternal_seq_filename,info->gtf_filename, 
-					  paternal_transcripts );
 	transcript_helper(info->maternal_seq_filename,info->gtf_filename, 
 					  maternal_transcripts );
+	transcript_helper(info->paternal_seq_filename,info->gtf_filename, 
+					  paternal_transcripts );
 	if (paternal_transcripts.size()!=maternal_transcripts.size() 
 		|| paternal_transcripts.size()==0){
 		fprintf(stderr, 

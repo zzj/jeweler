@@ -127,10 +127,10 @@ int LandscapePlot::add_coverage(Transcript * transcript, BamAlignment *al, vecto
 
 int LandscapePlot::generate_landscape_plot(FILE * info, FILE * output){
 	int i;
-	fprintf(info,"%s\t%d\t%d\t%d\n",transcript_name.c_str(),num_unknown,num_paternal,num_maternal);
-	
+	fprintf(info,"%s\t%d\t%d\t%d\n",transcript_name.c_str(),num_unknown,num_maternal,num_paternal);
+	fprintf(output,"location\tunknown\tmaternal\tpaternal\tis_snp\texon_jump\n");
 	for (i=0;i<unknown.size();i++){
-		fprintf(output,"%d\t%d\t%d\t%d\t%d\t%d\n", genome_pos[i],unknown[i], paternal[i], maternal[i], is_snp[i], exon_jump[i]);
+		fprintf(output,"%d\t%d\t%d\t%d\t%d\t%d\n", genome_pos[i],unknown[i], maternal[i], paternal[i], is_snp[i], exon_jump[i]);
 	}
 			
 }
