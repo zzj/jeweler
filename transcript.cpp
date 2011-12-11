@@ -74,7 +74,7 @@ bool Transcript::is_compatible(BamAlignment *al ){
 			// only increase one segment if it matches the end of exon
 		    // otherwise, does not increase segments, because it may
 		    // be deletion
-			if (start_pos==exon_end[start_seg]-1){
+			if (start_pos==exon_end[start_seg]+1){
 				start_pos+=op.Length;
 				start_seg++;
 				if (!(exon_start[start_seg]==start_pos )){

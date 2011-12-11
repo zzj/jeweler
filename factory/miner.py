@@ -145,6 +145,11 @@ def main():
 							action='store_true',
 							dest='is_single')
 
+		parser.add_argument('--cuffcompare',
+							help='Run cuffcompare',
+							dest='cuffcompare')
+
+
 		parser.add_argument('--cufflinks',
 							action='store_true',
 							dest='is_cufflinks')
@@ -152,6 +157,10 @@ def main():
 		parser.add_argument('--jeweler',
 							action='store_true',
 							dest='is_jeweler')
+
+		parser.add_argument('--jeweler_only',
+							action='store_true',
+							dest='is_jeweler_only')
 
 
 
@@ -198,7 +207,6 @@ def main():
 			return
 				
 		else :
-
 			refidtable=dict()
 			reffiletable=dict()
 			if (args.reftable is not None and os.path.exists(args.reftable)):
@@ -227,6 +235,7 @@ def main():
 						if not os.path.exists(resultsubfolder):
 							os.makedirs(resultsubfolder)
 						print('cufflinks -o '+resultsubfolder+' '+f.strip())
+					
 				elif (args.is_jeweler):
 					resultfolder='result/'+os.path.basename(args.filelist)+'/jeweler/'
 					if not os.path.exists(resultfolder):
@@ -245,17 +254,21 @@ def main():
 						result_file=alias+'.info'
 						cuffresultfolder='result/'+os.path.basename(args.filelist)+'/cufflinks/'
 						gtf_input_file=	cuffresultfolder+'/'+os.path.basename(f.strip().replace('.bam',''))+'/transcripts.gtf'
-						print('python3.2 factory/miner.py --single '+
-							  '--maternal_strain_ref_seq '+maternal_strain_ref_seq +' ' +
-							  '--paternal_strain_ref_seq '+paternal_strain_ref_seq +' ' +
-							  '--maternal_strain_id '+maternal_strain_id +' ' +
-							  '--paternal_strain_id '+paternal_strain_id +' ' +
-							  '--bam_file '+bam_file +' ' +
-							  '--alias '+alias +' ' +
-							  '--result_file '+result_file +' ' +
-							  '--result_folder '+result_folder +' '+
-							  '--gtf_input_file '+gtf_input_file
-							)
+						if (args.is_jeweler_only):
+							print('./jeweler -i '+result_folder+'/'+alias+'/'+result_file)
+						else:
+							print('python3.2 factory/miner.py --single '+
+								  '--maternal_strain_ref_seq '+maternal_strain_ref_seq +' ' +
+								  '--paternal_strain_ref_seq '+paternal_strain_ref_seq +' ' +
+								  '--maternal_strain_id '+maternal_strain_id +' ' +
+								  '--paternal_strain_id '+paternal_strain_id +' ' +
+								  '--bam_file '+bam_file +' ' +
+								  '--alias '+alias +' ' +
+								  '--result_file '+result_file +' ' +
+								  '--result_folder '+result_folder +' '+
+								  '--gtf_input_file '+gtf_input_file
+								)
+					
 
 					
 					

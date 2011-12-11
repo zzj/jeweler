@@ -208,11 +208,14 @@ int Earrings::align_reads(){
 		}
 		if (is_compatible==false){
 			unaligned.insert(bam_reads[i]);
-			//maternal_transcripts[0]->output_segments();
-			
-			//fprintf(stdout,"%d\n",maternal_transcripts[0]->get_transcript_location(bam_reads[i]->Position+1));
-			//fprintf(stdout,"%s\n",get_cigar_string(*bam_reads[i]).c_str());
-
+			string c=get_cigar_string(*bam_reads[i]);
+			if (c.find('N')!=c.npos &&bam_reads[i]->Name=="UNC9-SN296_0254:5:1201:10502:167862#TTAGGC"){
+				maternal_transcripts[0]->output_segments();
+				fprintf(stdout,"%s\n",(bam_reads[i]->Name.c_str()));
+				fprintf(stdout,"%d\n",(bam_reads[i]->Position+1));
+				fprintf(stdout,"%d\n",maternal_transcripts[0]->get_transcript_location(bam_reads[i]->Position+1));
+				fprintf(stdout,"%s\n",get_cigar_string(*bam_reads[i]).c_str());
+			}
 
 			//fprintf(stdout,"%s\n",bam_reads[i]->QueryBases.c_str());
 			//fprintf(stdout,"error\n");
