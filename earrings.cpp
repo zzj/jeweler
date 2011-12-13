@@ -10,6 +10,9 @@ Earrings::Earrings(TranscriptInfo *info){
 	// align reads back to the transcripts
 	align_reads();
 	
+	// build graph;
+	build_graph();
+
 	test_allele_specific_transcript();
 }
 
@@ -123,7 +126,6 @@ int Earrings::transcript_helper(string seq_filename,string gtf_file,
 		fprintf(stderr, "ERROR: sequence file (%d sequences) does not match gtf file (%d transcripts) at %s:%d\n",
 				(int)sr.size(),(int)transcripts.size(),__FILE__, __LINE__);
 		exit(0);
-
 	}
 
 	// TODO: put these code into gtf.cpp files.
@@ -264,4 +266,12 @@ int Earrings::test_allele_specific_transcript(){
 		
 	}
 
+}
+
+
+int Earrings::build_graph(){
+	int i;
+	for (i=0;i<maternal_transcripts.size();i++){
+		;
+	}
 }

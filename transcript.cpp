@@ -5,7 +5,6 @@ Transcript::Transcript(){
 	is_initialized=false;
 }
 
-
 int Transcript::insert_aligned_reads(BamAlignment *al ){
 	aligned_reads.insert(al);
 	return 0;
@@ -14,7 +13,6 @@ int Transcript::insert_aligned_reads(BamAlignment *al ){
 bool Transcript::is_aligned(BamAlignment *al ){
 	return aligned_reads.find(al)!=aligned_reads.end();
 }
-
 
 bool Transcript::is_compatible(BamAlignment *al ){
 	// justify whether the sequences contains the BamAlignment
@@ -102,11 +100,6 @@ bool Transcript::is_compatible(BamAlignment *al ){
 	return true;
 }
 
-
-
-
-
-
 int Transcript::output_segments(){
 	for (int i=0;i<exon_start.size();i++){
 		fprintf(stdout,"(%d,%d)",exon_start[i],exon_end[i]);
@@ -114,75 +107,6 @@ int Transcript::output_segments(){
 	fprintf(stdout,"\n");
 }
 
-
-string Transcript::get_transcript_aligned_seq(BamAlignment * al){
-	// must perform the compatible test first!
-	// justify whether the sequences contains the BamAlignment
-
-	// not sure this is the case, but the coordinates are messed up
-	// sometimes. TODO: read the samtools's specification, and make
-	// the coordinates right.
-	int start_pos=al->Position+1;
-	int start;
-	string aligned_string;
-	
-	std::vector< CigarOp > &cigar_data = al->CigarData;
-	vector<CigarOp>::const_iterator cigar_iter = cigar_data.begin();
-	vector<CigarOp>::const_iterator cigar_end  = cigar_data.end();
-	
-	for ( ; cigar_iter != cigar_end; ++cigar_iter ) {
-		const CigarOp& op = (*cigar_iter);
-		
-		switch ( op.Type ) {
-			
-			// for 'M', '=', 'X' - write bases
-		case (Constants::BAM_CIGAR_MATCH_CHAR)    :
-		case (Constants::BAM_CIGAR_SEQMATCH_CHAR) :
-		case (Constants::BAM_CIGAR_MISMATCH_CHAR) :
-			// the beginning and end of the matched sequence must 
-			// be belong to the same sequences. 
-			start=get_transcript_location(start_pos);
-			if (start==-1){
-				fprintf(stderr,"cannot find transcript postition, did you run Transcript::is_compatible ?\n %d\n%d\n", start_pos,genome_pos.size());
-
-				output_segments();
-				exit(0);
-			}
-			aligned_string+=seq.substr(start,op.Length);
-			start_pos+=op.Length;
-			break;
-			
-		case (Constants::BAM_CIGAR_INS_CHAR)      :			
-				// fall through
-			break;
-		// for 'S' - soft clip, do not write bases
-		// but increment placeholder 'k'
-		case (Constants::BAM_CIGAR_SOFTCLIP_CHAR) :
-
-			break;
-			
-		// for 'D' - write gap character
-		// for 'N' - write N's, skip bases in original query sequence
-		// for 'P' - write padding character			
-		case (Constants::BAM_CIGAR_DEL_CHAR) :
-		case (Constants::BAM_CIGAR_PAD_CHAR) :
-		case (Constants::BAM_CIGAR_REFSKIP_CHAR) :
-			start_pos+=op.Length;
-			break;
-			
-			// for 'H' - hard clip, do nothing to AlignedBases, move to next op
-		case (Constants::BAM_CIGAR_HARDCLIP_CHAR) :
-			break;
-			
-			// invalid CIGAR op-code
-		default:
-			const string message = string("invalid CIGAR operation type: ") + op.Type;
-			return false;
-		}
-	}
-	return aligned_string;
-	
-}
 
 string Transcript::get_query_aligned_seq(BamAlignment * al){
 	// must perform the compatible test first!
@@ -248,7 +172,8 @@ string Transcript::get_query_aligned_seq(BamAlignment * al){
 int Transcript::match_alleles(BamAlignment *al, int &total_alleles, int &num_matched_alleles,
 							  vector<int> &matched_alleles){
 	int i;
-	string transcript_seq=get_transcript_aligned_seq(al);
+
+	string transcript_seq=get_transcript_aligned_info<string>(al, get_seq_info);
 	string query_seq=get_query_aligned_seq(al);
 	int transcript_location=get_transcript_location(al->Position+1);
 	alleles.clear();
@@ -276,22 +201,19 @@ int Transcript::match_alleles(BamAlignment *al, int &total_alleles, int &num_mat
 	return 0;
 }
 
-
-
 bool Transcript::is_allele(int transcript_location){
 	return find(snp_pos.begin(),snp_pos.end(),transcript_location) !=snp_pos.end();
 }
-
 
 char Transcript::get_allele_char(int transcript_location){
 	return alleles[lower_bound(snp_pos.begin(),snp_pos.end(),transcript_location) 
 				   -snp_pos.begin()];
 }
+
 int Transcript::get_allele_exon(int transcript_location){
 	return allele_exon[lower_bound(snp_pos.begin(),snp_pos.end(),transcript_location) 
 				   -snp_pos.begin()];
 }
-
 
 int Transcript::get_transcript_location(int genome_location){
 
@@ -302,6 +224,18 @@ int Transcript::get_transcript_location(int genome_location){
 	return ret;
 }
 
+int Transcript::get_transcript_exon(int genome_location){
+	
+	int i;
+	for (i=0;i<exon_start.size();i++){
+		if (genome_location>=exon_start[i] && 
+			genome_location<=exon_end[i]){
+			return i;
+		}
+	}
+
+	return NOT_FOUND;
+}
 
 int Transcript::register_read(BamAlignment *al){
 	int total_alleles;
@@ -318,5 +252,31 @@ int Transcript::register_read(BamAlignment *al){
 	if (num_matched_alleles>0)
 		allele_aligned_reads.insert(al);
 	
+	return 0;
+}
+
+
+int get_seq_info(Transcript * ti, int genome_start, int length, string &ret){
+	int transcript_start=ti->get_transcript_location(genome_start);
+	if (transcript_start==NOT_FOUND){
+		fprintf(stderr,"cannot find transcript postition, did you run Transcript::is_compatible ?\n %d\n%d\n", genome_start,ti->genome_pos.size());
+		
+		ti->output_segments();
+		exit(0);
+	}
+	ret+=ti->seq.substr(transcript_start,length);
+	return 0;
+}
+
+int get_exon_info(Transcript * ti, int genome_start, int length, vector<int> &ret){
+
+	int transcript_start=ti->get_transcript_location(genome_start);
+	if (transcript_start==NOT_FOUND){
+		fprintf(stderr,"cannot find transcript postition, did you run Transcript::is_compatible ?\n %d\n%d\n", genome_start,ti->genome_pos.size());
+		
+		ti->output_segments();
+		exit(0);
+	}
+	ret.push_back(ti->get_transcript_exon(genome_start));
 	return 0;
 }

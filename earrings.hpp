@@ -48,7 +48,8 @@ public :
 	// test allele specific transcript
 	int test_allele_specific_transcript();
 
-	
+	// build graph
+	int build_graph();
 };
 
 
