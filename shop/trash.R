@@ -90,9 +90,9 @@ S <- 1-S
 rownames(S) <- c('CAST_1','CAST_2','PWK_1','PWK_2','WSB_1','WSB_2')
 colnames(S) <- c('CAST_1','CAST_2','PWK_1','PWK_2','WSB_1','WSB_2')
 tr <- fastme.bal(S)
-###tr <- read.tree(text="((CAST_1:0.2885666223,CAST_2:0.2910210608):0.1,((PWK_1:0.2737770449,PWK_2:0.2673013275):0.2218329502,(WSB_1:0.2762423346,WSB_2:0.2786957348):0.2160633933):0.1357675731);")
+tr <- read.tree(text="(((PWK_2:0.2737770449,PWK_1:0.2673013275):0.2218329502,(WSB_2:0.2762423346,WSB_1:0.2786957348):0.2160633933):0.1357675731,(CAST_2:0.2885666223,CAST_1:0.2910210608):0.1);")
 
-pdf('rna_seq_tree.pdf')
+pdf('rna_seq_tree.pdf',width=3.4,height=3.4)
 plot(tr)
 dev.off()
 
@@ -132,6 +132,5 @@ for (i in 1:dim(cuffcompare.info)[1]){
   for (j in 1:12){
     if (!is.list(info[[j]])) next
     counts[j]=sum(meta[[j]][1,2]+meta[[j]][1,3]+meta[[j]][1,4])
-  }
-  counts.result[[i]] <- counts 
+  }  counts.result[[i]] <- counts 
 }
