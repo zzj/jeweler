@@ -35,9 +35,12 @@ public :
 	set<BamAlignment *> alignments;
 
 	vector<ExonNode *> in_nodes;
+	set<ExonNode *> in_nodes_checklist;
 	vector<int> in_edge_weight;
 	vector<set<BamAlignment *> > in_edge_reads;
+	
 	vector<ExonNode *> out_nodes;
+	set<ExonNode *> out_nodes_checklist;
 	vector<int> out_edge_weight;
 	vector<set<BamAlignment *> > out_edge_reads;
 

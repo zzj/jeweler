@@ -27,10 +27,16 @@ int Graph::add_edge(ExonNode * first, ExonNode *second, int num_reads){
 	if (first->origin==EXON_NO_INFO || second->origin==EXON_NO_INFO ||
 		(first->origin==second->origin)
 		){
-		first->out_nodes.push_back(second);
-		first->out_edge_weight.push_back(num_reads);
-		second->in_nodes.push_back(first);
-		second->in_edge_weight.push_back(num_reads);
+		if (first->out_nodes_checklist.find(second)==first->out_nodes_checklist.end()){
+			first->out_nodes.push_back(second);
+			first->out_edge_weight.push_back(num_reads);
+			first->out_nodes_checklist.insert(second);
+		}
+		if (second->out_nodes_checklist.find(first)==first->out_nodes_checklist.end()){
+			second->in_nodes.push_back(first);
+			second->in_edge_weight.push_back(num_reads);
+			second->out_nodes_checklist.insert(first);
+		}
 	}
 	else {
 		fprintf(stdout, "Invalid Edge!\n");
@@ -59,18 +65,23 @@ int Graph::dump_graph(FILE *foutput){
 	vector<ExonNode *> queue;
 	set<ExonNode *> checklist;
 	int top=0;
+	for (auto i=nodes.begin();i!=nodes.end();i++){
+		fprintf(foutput,"\t%s;\n",(*i)->detach().c_str());
+	}
 	queue=get_starting_nodes();
+	
 	while(queue.size()!=top){
 		ExonNode *current=queue[top];
 		top++;
 		string current_node_name=current->detach();
+
 		for (auto j=current->out_nodes.begin();
 			 j!=current->out_nodes.end();
 			 j++){
 			string next_node_name=(*j)->detach();
-			fprintf(foutput,"\t%s -> %s\n", 
+			fprintf(foutput,"\t%s -> %s;\n", 
 					current_node_name.c_str(), next_node_name.c_str());
-			if (checklist.find((*j))!=checklist.end()){
+			if (checklist.find((*j))==checklist.end()){
 				queue.push_back(*j);
 				checklist.insert(*j);
 			}

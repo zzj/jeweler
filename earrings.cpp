@@ -282,6 +282,6 @@ int Earrings::build_graph(){
 		maternal_transcripts[i]->add_transcript_to_graph(&graph);
 		paternal_transcripts[i]->add_transcript_to_graph(&graph);
 	}
-	graph.dump_graph(foutput);
+	graph.dump_graph(stdout);
 	fclose(foutput);
 }
