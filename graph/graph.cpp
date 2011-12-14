@@ -32,10 +32,10 @@ int Graph::add_edge(ExonNode * first, ExonNode *second, int num_reads){
 			first->out_edge_weight.push_back(num_reads);
 			first->out_nodes_checklist.insert(second);
 		}
-		if (second->out_nodes_checklist.find(first)==first->out_nodes_checklist.end()){
+		if (second->in_nodes_checklist.find(first)==second->in_nodes_checklist.end()){
 			second->in_nodes.push_back(first);
 			second->in_edge_weight.push_back(num_reads);
-			second->out_nodes_checklist.insert(first);
+			second->in_nodes_checklist.insert(first);
 		}
 	}
 	else {
