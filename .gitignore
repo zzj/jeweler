@@ -1,6 +1,7 @@
 circos
 *.pdf
 *.o
+*.P
 jeweler
 result
 test.info

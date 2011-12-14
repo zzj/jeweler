@@ -243,14 +243,16 @@ int Transcript::register_read(BamAlignment *al){
 	int num_matched_alleles;
 	int i;
 	match_alleles(al,total_alleles,num_matched_alleles,matched_alleles);
-	for (i=0;i<num_matched_alleles;i++){
-		num_info_reads_per_exon[get_allele_exon(matched_alleles[i])]++;
+
+	if (num_matched_alleles>0){
+		allele_aligned_reads.insert(al);
+		for (i=0;i<num_matched_alleles;i++){
+			num_info_reads_per_exon[get_allele_exon(matched_alleles[i])]++;
+		}
 	}
 
 	aligned_reads.insert(al);
 
-	if (num_matched_alleles>0)
-		allele_aligned_reads.insert(al);
 	
 	return 0;
 }
@@ -278,5 +280,34 @@ int get_exon_info(Transcript * ti, int genome_start, int length, vector<int> &re
 		exit(0);
 	}
 	ret.push_back(ti->get_transcript_exon(genome_start));
+	return 0;
+}
+
+
+
+int Transcript::add_transcript_to_graph(Graph *graph){
+	vector<ExonNode *> exon_chain;
+	exon_chain.resize(exon_start.size(),NULL);
+	for (int i=0;i<exon_start.size();i++){
+		int exon_origin=EXON_NO_INFO;
+		if (num_alleles_per_exon[i]>0){
+			if (num_info_reads_per_exon[i]>0){
+				exon_origin=origin;
+			}
+			else {
+				// do not insert this exon, because there is no reads
+				// found to be informative, though there are several alleles
+				continue;
+			}
+		}
+		exon_chain[i]=graph->add_exon_node(exon_start[i],exon_end[i],exon_origin);
+		if (i==0) {
+			continue;
+		}
+		// TODO: fix the number of reads
+		if (exon_chain[i-1]!=NULL){
+			graph->add_edge(exon_chain[i-1],exon_chain[i],1);
+		}
+	}
 	return 0;
 }

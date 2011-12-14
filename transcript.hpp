@@ -11,6 +11,7 @@
 #include <api/BamReader.h>
 #include <api/BamWriter.h>
 #include "constants.hpp"
+#include "graph/graph.hpp"
 using namespace BamTools;
 
 
@@ -31,12 +32,14 @@ public:
 	// TODO: exon class
 	vector<int> exon_start;
 	vector<int> exon_end; //end is inclusive 
+	vector<int> num_alleles_per_exon; 
 	
 	// SNP info
 	// TODO: snp class
 	vector<int> snp_pos;
 	vector<char> alleles;
 	vector<int> allele_exon; // the number of exon for the given snp
+
 
 	// the number of informative reads per exon
 	vector<int> num_info_reads_per_exon;
@@ -103,7 +106,7 @@ public:
 	/*****************
 	 * Graph utility
 	 *****************/
-	int add_exons_to_graph();
+	int add_transcript_to_graph(Graph *);
 	
 	/******************
      * Landscape plot 

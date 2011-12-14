@@ -9,6 +9,7 @@ const int TRANSCRIPT_MATERNAL=1;
 const int TRANSCRIPT_PATERNAL=2;
 
 const int NOT_FOUND=-1;
+const int GRAPH_EXON_NOT_FOUND=NULL;
 
 #endif /* _CONSTANTS_H_ */
 

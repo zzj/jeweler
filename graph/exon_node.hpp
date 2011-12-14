@@ -6,11 +6,8 @@
 #include <api/BamReader.h>
 #include <api/BamWriter.h>
 #include <Fasta.h>
-#include "jeweler.hpp"
-#include "transcript_info.hpp"
-#include "transcript.hpp"
-#include "laboratory/cigar_holder.hpp"
-#include "landscape.plot.hpp"
+#include <set> 
+#include "../constants.hpp"
 using namespace BamTools;
 using namespace std;
 
@@ -31,12 +28,21 @@ public :
 	// 1 for maternal
 	// 2 for paternal
 	int origin; 
+	
 	// only valid when origin != NO_INFO
-	Exon * paried_exon;
-	set<BamAlignment *> alignments;
-	set<ExonNode *> in_nodes;
-	set<ExonNode *> out_nodes;
 
+	ExonNode * paried_exon;
+	set<BamAlignment *> alignments;
+
+	vector<ExonNode *> in_nodes;
+	vector<int> in_edge_weight;
+	vector<set<BamAlignment *> > in_edge_reads;
+	vector<ExonNode *> out_nodes;
+	vector<int> out_edge_weight;
+	vector<set<BamAlignment *> > out_edge_reads;
+
+	ExonNode(int start, int end, int origin);
+	string detach();
 };
 
 

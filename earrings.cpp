@@ -9,10 +9,8 @@ Earrings::Earrings(TranscriptInfo *info){
 	load_read_data(info);
 	// align reads back to the transcripts
 	align_reads();
-	
 	// build graph;
 	build_graph();
-
 	test_allele_specific_transcript();
 }
 
@@ -32,7 +30,6 @@ int Earrings::load_read_data(TranscriptInfo *info){
 	string bam_filename=info->read_seq_filename;
 
 	BamReader reader;
-
 
 	if (!reader.Open(bam_filename)){
 		fprintf(stderr,"Cannot open bam file!\n");
@@ -70,7 +67,6 @@ int Earrings::load_transcript_data(TranscriptInfo * info){
 		Transcript *p=paternal_transcripts[i];
 		Transcript *m=maternal_transcripts[i];
 		if (p->seq.size()!=m->seq.size()){
-
 			fprintf(stderr, 
 					"ERROR: transcript sequence size does not match at gene %s  at %s:%d\n",
 					p->name.c_str(),__FILE__, __LINE__);
@@ -93,6 +89,11 @@ int Earrings::load_transcript_data(TranscriptInfo * info){
 		m->allele_exon.resize(m->snp_pos.size());
 		p->num_info_reads_per_exon.resize(p->exon_start.size(),0);
 		m->num_info_reads_per_exon.resize(m->exon_start.size(),0);
+		p->origin=EXON_PATERNAL;
+		m->origin=EXON_MATERNAL;
+		p->num_alleles_per_exon.resize(p->exon_start.size(),0);
+		m->num_alleles_per_exon.resize(p->exon_start.size(),0);
+
 		for (j=0;j<m->snp_pos.size();j++){
 			// find the exon
 			int exon_id=-1;
@@ -105,6 +106,9 @@ int Earrings::load_transcript_data(TranscriptInfo * info){
 			if (exon_id!=-1){
 				m->allele_exon[j]=exon_id;
 				p->allele_exon[j]=exon_id;
+				m->num_alleles_per_exon[exon_id]++;
+				p->num_alleles_per_exon[exon_id]++;
+
 			}
 			else {
 				fprintf(stdout,"error\n");
@@ -153,6 +157,7 @@ int Earrings::transcript_helper(string seq_filename,string gtf_file,
 			}
 		}
 	}
+	
 	return 0;
 }
 
@@ -271,7 +276,12 @@ int Earrings::test_allele_specific_transcript(){
 
 int Earrings::build_graph(){
 	int i;
+	Graph graph;
+	FILE *foutput=fopen(string(info->folder+"/"+info->gene_id+".allele.specific.graph").c_str(),"w+");
 	for (i=0;i<maternal_transcripts.size();i++){
-		;
+		maternal_transcripts[i]->add_transcript_to_graph(&graph);
+		paternal_transcripts[i]->add_transcript_to_graph(&graph);
 	}
+	graph.dump_graph(foutput);
+	fclose(foutput);
 }
