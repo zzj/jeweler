@@ -1,11 +1,11 @@
 CC=g++
-CFLAGS=-O3 -std=gnu++0x
+CFLAGS=-g -std=gnu++0x
 INC=-Ilib/bamtools/include/ -Ilib/fastahack/ -I$(HOME)/bin/include
 LIB=-Llib/bamtools/lib/ -I$(HOME)/bin/lib
 LDFLAGS= -lz lib/bamtools/lib/libbamtools.a 
 
 
-JEWELER_SOURCES= jeweler.cpp transcript_info.cpp landscape.plot.cpp transcript.cpp earrings.cpp common.cpp fasta.cpp gtf.cpp rna_read.cpp laboratory/cigar_holder.cpp 
+JEWELER_SOURCES= jeweler.cpp transcript_info.cpp landscape.plot.cpp transcript.cpp earrings.cpp common.cpp fasta.cpp gtf.cpp rna_read.cpp laboratory/cigar_holder.cpp graph/exon_node.cpp graph/graph.cpp 
 JEWELER_EXECUTABLE=jeweler 
 JEWELER_OBJECTS=$(JEWELER_SOURCES:.cpp=.o) 
 
@@ -38,8 +38,16 @@ $(TEST_BAM_EXECUTABLE): $(TEST_BAM_OBJECTS)
 	$(CC) $(LIB) $(TEST_BAM_OBJECTS) $(LDFLAGS) -o $@
 
 .cpp.o:
-	$(CC) $(INC) $(CFLAGS) $< -c -o $@
+	$(CC) $(INC) $(CFLAGS) -MD -c -o $@ $<
+	cp $*.d $*.P; \
+		sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
+			-e '/^$$/ d' -e 's/$$/ :/' < $*.d >> $*.P; \
+			rm -f $*.d
+
+-include $(OBJECTS:.o=.P)
+
 
 clean:
 	rm $(sort $(OBJECTS)) $(EXECUTABLE)
+	rm *.o
 
