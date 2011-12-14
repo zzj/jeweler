@@ -106,7 +106,7 @@ public:
 	/*****************
 	 * Graph utility
 	 *****************/
-	int add_transcript_to_graph(Graph *);
+	int add_transcript_to_graph(Graph *, vector<Path> &records);
 	
 	/******************
      * Landscape plot 

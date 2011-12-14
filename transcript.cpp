@@ -285,7 +285,7 @@ int get_exon_info(Transcript * ti, int genome_start, int length, vector<int> &re
 
 
 
-int Transcript::add_transcript_to_graph(Graph *graph){
+int Transcript::add_transcript_to_graph(Graph *graph, vector<Path> &records){
 	vector<ExonNode *> exon_chain;
 	exon_chain.resize(exon_start.size(),NULL);
 	for (int i=0;i<exon_start.size();i++){
@@ -309,5 +309,6 @@ int Transcript::add_transcript_to_graph(Graph *graph){
 			graph->add_edge(exon_chain[i-1],exon_chain[i],1);
 		}
 	}
+	records.push_back(Path(exon_chain));
 	return 0;
 }

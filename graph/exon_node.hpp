@@ -46,6 +46,8 @@ public :
 
 	ExonNode(int start, int end, int origin);
 	string detach();
+	bool is_mirrored(ExonNode *a);
+	bool is_equal(ExonNode *a);
 };
 
 

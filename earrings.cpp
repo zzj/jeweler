@@ -275,13 +275,51 @@ int Earrings::test_allele_specific_transcript(){
 
 
 int Earrings::build_graph(){
-	int i;
+	int i,j;
 	Graph graph;
+	fprintf(stdout,"%s\n",info->gene_id.c_str());
 	FILE *foutput=fopen(string(info->folder+"/"+info->gene_id+".allele.specific.graph").c_str(),"w+");
+	vector<Path> cufflink_records;
 	for (i=0;i<maternal_transcripts.size();i++){
-		maternal_transcripts[i]->add_transcript_to_graph(&graph);
-		paternal_transcripts[i]->add_transcript_to_graph(&graph);
+		maternal_transcripts[i]->add_transcript_to_graph(&graph,cufflink_records);
+		paternal_transcripts[i]->add_transcript_to_graph(&graph,cufflink_records);
 	}
-	graph.dump_graph(stdout);
+	graph.dump_graph(foutput);
 	fclose(foutput);
+
+	vector<Path> records;
+	graph.get_all_paths(records);
+	// get allele specific isoforms
+	for ( i=0;i<records.size(); i++){
+		bool is_mirrored=false;
+		for ( j=0;j<records.size(); j++){
+			if (records[i].is_mirrored(records[j])){
+				is_mirrored=true;
+				break;
+			}
+		}
+		if (!is_mirrored &&records[i].is_informative()){
+			//records[i].dump_path(stdout);
+		}
+	}
+	//get allele specific isoforms that is not from cufflinks
+	for ( i=0;i<cufflink_records.size();i++){
+		cufflink_records[i].dump_path(stdout);
+	}
+	fprintf(stdout,"new\n");
+	for ( j=0;j<records.size();j++){
+		bool is_new=true;
+		for ( i=0;i<cufflink_records.size();i++){
+			if (cufflink_records[i].is_valid()){
+				if (cufflink_records[i].is_equal(records[j])){
+					is_new=false;
+				}
+			}
+
+		}
+		if (is_new){
+			records[j].dump_path(stdout);
+		}
+	}
+	return 0;
 }

@@ -101,3 +101,30 @@ vector<ExonNode *> Graph::get_starting_nodes(){
 	}
 	return ret;
 }
+
+int Graph::get_all_paths(vector<Path> & records){
+	records.clear();
+	vector<ExonNode *> starting_nodes;
+	starting_nodes=get_starting_nodes();
+	vector<ExonNode *> path;
+	for (auto i =starting_nodes.begin(); i!=starting_nodes.end(); i++){
+		traverse_graph((*i),  path, records);
+	}
+	return 0;
+}
+	
+int Graph::traverse_graph( ExonNode * current_node, vector<ExonNode *> &path, vector<Path> &records){
+	path.push_back(current_node);
+	if (current_node->out_nodes.size()==0){
+		records.push_back(Path(path));
+	}
+	else {
+		for (auto i=current_node->out_nodes.begin(); 
+			 i!=current_node->out_nodes.end();
+			 i++){
+			traverse_graph((*i), path, records);
+		}
+	}
+	path.pop_back();
+	return 0;
+}
