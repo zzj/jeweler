@@ -69,6 +69,7 @@ def split_gtf_file(gtf_input_file,maternal_strain_ref_seq, paternal_strain_ref_s
 					print("\t".join([last_id, gene_folder, gene_folder+last_id,
 									 maternal_output_seq, paternal_output_seq, read_seq]),
 						  file=result_file_fd)
+					result_file_fd.flush();
 
 				gene_folder=result_folder + gene_id + '/'
 				if ( not os.path.exists(gene_folder)):
@@ -83,7 +84,7 @@ def split_gtf_file(gtf_input_file,maternal_strain_ref_seq, paternal_strain_ref_s
 		info[6]='+'
 		print("\t".join(info),file=tranfile)
 	result_file_fd.close()
-	os.system('./jeweler -i '+result_file)
+	##os.system('./jeweler -i '+result_file)
 	return 
 
 
