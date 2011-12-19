@@ -5,13 +5,13 @@ Transcript::Transcript(){
 	is_initialized=false;
 }
 
-int Transcript::insert_aligned_reads(BamAlignment *al ){
-	aligned_reads.insert(al);
+int Transcript::insert_reads(BamAlignment *al ){
+	reads.insert(al);
 	return 0;
 }
 
 bool Transcript::is_aligned(BamAlignment *al ){
-	return aligned_reads.find(al)!=aligned_reads.end();
+	return reads.find(al)!=reads.end();
 }
 
 bool Transcript::is_compatible(BamAlignment *al ){
@@ -257,14 +257,15 @@ int Transcript::register_read(BamAlignment *al){
 	match_alleles(al,total_alleles,num_matched_alleles,matched_alleles);
 
 	if (num_matched_alleles>0){
-		allele_aligned_reads.insert(al);
+		allele_reads.insert(al);
 		for (i=0;i<num_matched_alleles;i++){
-			num_info_reads_per_exon[get_allele_exon(matched_alleles[i])]++;
+			int exon_id=get_allele_exon(matched_alleles[i]);
+			num_info_reads_per_exon[exon_id]++;
+			allele_reads_per_exon[exon_id].insert(al);
 		}
 	}
 
-	aligned_reads.insert(al);
-
+	reads.insert(al);
 	
 	return 0;
 }
@@ -316,7 +317,8 @@ int Transcript::add_transcript_to_graph(Graph *graph, vector<Path> &records){
 				break;
 			}
 		}
-		exon_chain[i]=graph->add_exon_node(exon_start[i],exon_end[i],exon_origin);
+		exon_chain[i]=graph->add_exon_node(exon_start[i],exon_end[i],
+										   exon_origin, allele_reads_per_exon[i]);
 		if (i==0) {
 			continue;
 		}

@@ -58,8 +58,10 @@ public:
 	
 	// contains informative reads (with reference alleles)
 	// and non informative reads (without reference alleles)
-	set<BamAlignment *> aligned_reads;
-	set<BamAlignment *> allele_aligned_reads;
+	set<BamAlignment *> reads;
+	set<BamAlignment *> allele_reads;
+
+	vector<set<BamAlignment *> > allele_reads_per_exon;
 
 	// Check the BamAlignment is compatible with the transcript
 	bool is_compatible(BamAlignment *);
@@ -69,7 +71,7 @@ public:
 					  vector<int> &alleles);
 	
 	// insert the Alignment to the aligned_reads
-	int insert_aligned_reads(BamAlignment *);
+	int insert_reads(BamAlignment *);
 
 	// check whether the BamAlignment exists in the aligned_reads
 	bool is_aligned(BamAlignment *);

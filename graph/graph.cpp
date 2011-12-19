@@ -19,12 +19,15 @@ ExonNode * Graph::find_exon_node(int start, int end, int origin){
 	return GRAPH_EXON_NOT_FOUND;
 }
 
-ExonNode * Graph::add_exon_node(int start, int end, int origin){
+ExonNode * Graph::add_exon_node(int start, int end, int origin, 
+								set< BamAlignment *> &allele_reads){
 	ExonNode * ret;
 	if ((ret=find_exon_node(start, end, origin))!=GRAPH_EXON_NOT_FOUND){
+		ret->insert_allele_reads(allele_reads);
 		return ret;
 	}
 	ret=new ExonNode(start, end, origin);
+	ret->insert_allele_reads(allele_reads);
 	nodes.insert(ret);
 	return ret;
 }
@@ -72,7 +75,16 @@ int Graph::dump_graph(FILE *foutput){
 	set<ExonNode *> checklist;
 	int top=0;
 	for (auto i=nodes.begin();i!=nodes.end();i++){
-		fprintf(foutput,"\t%s;\n",(*i)->detach().c_str());
+		string color="black";
+		if ((*i)->origin!=EXON_NO_INFO){
+			if ((*i)->origin==EXON_MATERNAL){
+				color="pink";
+			}
+			else {
+				color="lightblue";
+			}
+		}
+		fprintf(foutput,"\t\"%s\" [color=%s];\n",(*i)->detach().c_str(),color.c_str());
 	}
 	queue=get_starting_nodes();
 	
@@ -85,7 +97,7 @@ int Graph::dump_graph(FILE *foutput){
 			 j!=current->out_nodes.end();
 			 j++){
 			string next_node_name=(*j)->detach();
-			fprintf(foutput,"\t%s -> %s;\n", 
+			fprintf(foutput,"\t\"%s\" -> \"%s\";\n", 
 					current_node_name.c_str(), next_node_name.c_str());
 			if (checklist.find((*j))==checklist.end()){
 				queue.push_back(*j);

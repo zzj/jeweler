@@ -63,3 +63,21 @@ bool Path::is_valid(){
 	}
 	return true;
 }
+
+bool Path::is_compatible(){
+	bool maternal=false, paternal=false;
+	
+	for (int i=0;i<path.size();i++){
+		if (path[i]==NULL){
+			continue;
+		}
+		if (path[i]->origin==EXON_PATERNAL){
+			paternal=true;
+		}
+		if (path[i]->origin==EXON_MATERNAL){
+			maternal=true;
+		}
+	}
+	return !(paternal && maternal);
+	
+}

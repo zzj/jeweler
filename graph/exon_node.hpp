@@ -32,7 +32,8 @@ public :
 	// only valid when origin != NO_INFO
 
 	ExonNode * paried_exon;
-	set<BamAlignment *> alignments;
+	set<BamAlignment *> reads;
+	set<BamAlignment *> allele_reads;
 
 	vector<ExonNode *> in_nodes;
 	set<ExonNode *> in_nodes_checklist;
@@ -48,6 +49,8 @@ public :
 	string detach();
 	bool is_mirrored(ExonNode *a);
 	bool is_equal(ExonNode *a);
+	int insert_reads(set<BamAlignment *> &al);
+	int insert_allele_reads(set<BamAlignment *> &al);
 };
 
 

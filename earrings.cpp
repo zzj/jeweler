@@ -93,7 +93,8 @@ int Earrings::load_transcript_data(TranscriptInfo * info){
 		m->origin=EXON_MATERNAL;
 		p->num_alleles_per_exon.resize(p->exon_start.size(),0);
 		m->num_alleles_per_exon.resize(p->exon_start.size(),0);
-
+		p->allele_reads_per_exon.resize(p->exon_start.size());
+		m->allele_reads_per_exon.resize(p->exon_start.size());
 		for (j=0;j<m->snp_pos.size();j++){
 			// find the exon
 			int exon_id=-1;
@@ -304,7 +305,8 @@ int Earrings::build_graph(){
 	}
 
 	for ( i=0;i<cufflink_records.size();i++){
-		//cufflink_records[i].dump_path(stdout);
+		if (!cufflink_records[i].is_compatible())
+			cufflink_records[i].dump_path(stdout);
 	}
 	//get allele specific isoforms that is not from cufflinks
 	fprintf(stdout,"new\n");

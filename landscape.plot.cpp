@@ -21,8 +21,8 @@ LandscapePlot::LandscapePlot(Transcript * maternal_transcript,
 	is_snp.resize(size,0);
 	exon_jump.resize(size,0); // the last position that an exon ends
 	genome_pos=maternal_transcript->genome_pos;
-	this->num_maternal=maternal_transcript->allele_aligned_reads.size();
-	this->num_paternal=paternal_transcript->allele_aligned_reads.size();
+	this->num_maternal=maternal_transcript->allele_reads.size();
+	this->num_paternal=paternal_transcript->allele_reads.size();
 	this->num_unknown=unknown_reads.size();
 
 	for (i=0;i<maternal_transcript->snp_pos.size();i++){
@@ -36,10 +36,10 @@ LandscapePlot::LandscapePlot(Transcript * maternal_transcript,
 	}
 
 	add_transcript_to_landscape(maternal_transcript, 
-								maternal_transcript->allele_aligned_reads,
+								maternal_transcript->allele_reads,
 								maternal);
 	add_transcript_to_landscape(paternal_transcript, 
-								paternal_transcript->allele_aligned_reads,
+								paternal_transcript->allele_reads,
 								paternal);
 
 	add_transcript_to_landscape(paternal_transcript /* either one is

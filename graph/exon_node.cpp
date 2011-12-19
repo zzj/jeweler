@@ -6,10 +6,19 @@ ExonNode::ExonNode(int start, int end, int origin){
 	this->origin=origin;
 }
 
+int ExonNode::insert_reads( set<BamAlignment *> & reads){
+	this->reads.insert(reads.begin(),reads.end());
+}
+
+
+int ExonNode::insert_allele_reads( set<BamAlignment *> & reads){
+	this->allele_reads.insert(reads.begin(),reads.end());
+}
+
 string ExonNode::detach(){
 	string ret;
 	char temp[1000];
-	sprintf(temp,"%d:%d:%d",start, end, origin);
+	sprintf(temp,"%d:%d:%d:%d",start, end, allele_reads.size(), origin);
 	ret=temp;
 	return ret;
 }
