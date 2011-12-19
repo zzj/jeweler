@@ -249,9 +249,10 @@ int Transcript::get_transcript_exon(int genome_location){
 	return NOT_FOUND;
 }
 
-int Transcript::register_read(BamAlignment *al){
+int Transcript::register_allele_read(BamAlignment *al){
 	int total_alleles;
 	vector<int> matched_alleles;
+	vector<int> matched_exons;
 	int num_matched_alleles;
 	int i;
 	match_alleles(al,total_alleles,num_matched_alleles,matched_alleles);
@@ -263,10 +264,21 @@ int Transcript::register_read(BamAlignment *al){
 			num_info_reads_per_exon[exon_id]++;
 			allele_reads_per_exon[exon_id].insert(al);
 		}
+	
 	}
 
+	return 0;
+}
+int Transcript::register_read(BamAlignment *al){
+
+
+	vector<int> matched_exons;
+	int i;
+	matched_exons=get_transcript_aligned_info<vector<int> > (al,get_exon_info);
+	for (i = 0; i < matched_exons.size(); i++){
+		reads_per_exon[matched_exons[i]].insert(al);
+	}
 	reads.insert(al);
-	
 	return 0;
 }
 
@@ -319,7 +331,7 @@ int Transcript::add_transcript_to_graph(Graph *graph, vector<Path> &records){
 			}
 		}
 		exon_chain[i]=graph->add_exon_node(exon_start[i],exon_end[i],
-										   exon_origin, allele_reads_per_exon[i]);
+										   exon_origin, reads_per_exon[i],allele_reads_per_exon[i]);
 		if (i==0) {
 			continue;
 		}

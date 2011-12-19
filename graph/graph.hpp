@@ -11,7 +11,9 @@ public:
 	
 	set<ExonNode *> nodes;
 	ExonNode * find_exon_node(int start, int end, int origin);
-	ExonNode * add_exon_node(int start, int end, int origin, set<BamAlignment *> &);
+	ExonNode * add_exon_node(int start, int end, int origin, 
+							 set<BamAlignment *> &reads,
+							 set<BamAlignment *> &allele_reads);
 	int add_edge(ExonNode * first, ExonNode *second, vector<BamAlignment *> reads);
 	int add_edge(ExonNode * first, ExonNode *second, int num_reads);
 	vector<ExonNode *> get_starting_nodes();

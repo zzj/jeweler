@@ -20,14 +20,14 @@ ExonNode * Graph::find_exon_node(int start, int end, int origin){
 }
 
 ExonNode * Graph::add_exon_node(int start, int end, int origin, 
+								set<BamAlignment *> &reads,
 								set< BamAlignment *> &allele_reads){
 	ExonNode * ret;
-	if ((ret=find_exon_node(start, end, origin))!=GRAPH_EXON_NOT_FOUND){
-		ret->insert_allele_reads(allele_reads);
-		return ret;
+	if ((ret=find_exon_node(start, end, origin))==GRAPH_EXON_NOT_FOUND){
+		ret=new ExonNode(start, end, origin);
 	}
-	ret=new ExonNode(start, end, origin);
 	ret->insert_allele_reads(allele_reads);
+	ret->insert_reads(reads);
 	nodes.insert(ret);
 	return ret;
 }

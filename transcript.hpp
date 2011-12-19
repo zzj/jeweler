@@ -62,6 +62,7 @@ public:
 	set<BamAlignment *> allele_reads;
 
 	vector<set<BamAlignment *> > allele_reads_per_exon;
+	vector<set<BamAlignment *> > reads_per_exon;
 
 	// Check the BamAlignment is compatible with the transcript
 	bool is_compatible(BamAlignment *);
@@ -100,8 +101,12 @@ public:
 	// check whether it is allele or not
 	bool is_allele(int transcript_location);
 	
+	// register reads
+	int register_read(BamAlignment *);	
+	
 	// register informative reads by exon
-	int register_read(BamAlignment *);
+	int register_allele_read(BamAlignment *);
+
 
     int output_segments();
 

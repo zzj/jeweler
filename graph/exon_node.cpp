@@ -18,7 +18,7 @@ int ExonNode::insert_allele_reads( set<BamAlignment *> & reads){
 string ExonNode::detach(){
 	string ret;
 	char temp[1000];
-	sprintf(temp,"%d:%d:%d:%d",start, end, allele_reads.size(), origin);
+	sprintf(temp,"%d:%d:%d:%d:%d",start, end, reads.size(),allele_reads.size(), origin);
 	ret=temp;
 	return ret;
 }

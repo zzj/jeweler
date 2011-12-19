@@ -95,6 +95,8 @@ int Earrings::load_transcript_data(TranscriptInfo * info){
 		m->num_alleles_per_exon.resize(p->exon_start.size(),0);
 		p->allele_reads_per_exon.resize(p->exon_start.size());
 		m->allele_reads_per_exon.resize(p->exon_start.size());
+		p->reads_per_exon.resize(p->exon_start.size());
+		m->reads_per_exon.resize(p->exon_start.size());
 		for (j=0;j<m->snp_pos.size();j++){
 			// find the exon
 			int exon_id=-1;
@@ -177,9 +179,14 @@ int Earrings::align_reads(){
 	noninfo.resize(maternal_transcripts.size());
 	for(i=0;i<bam_reads.size();i++){
 		is_compatible=false;
+
 		for (j=0;j<maternal_transcripts.size();j++){
 			// the maternal_transcript should be the same with the paternal_transcript
 			if (maternal_transcripts[j]->is_compatible(bam_reads[i])){
+
+				maternal_transcripts[j]->register_read(bam_reads[i]);
+				paternal_transcripts[j]->register_read(bam_reads[i]);
+				
 				is_compatible=true;
 				maternal_transcripts[j]->match_alleles(bam_reads[i],
 													   total_alleles,
@@ -191,15 +198,17 @@ int Earrings::align_reads(){
 													   paternal_alleles);
 				//fprintf(stdout,"%d\n",total_alleles);
 				if ( total_alleles>0){
-					if (num_paternal_alleles == num_maternal_alleles)
+					if (num_paternal_alleles == num_maternal_alleles){
 						noninfo[j].insert(bam_reads[i]);
+						
+					}
 					else {
 						cleared.insert(bam_reads[i]);
 						if (num_maternal_alleles!=0){
-							maternal_transcripts[j]->register_read(bam_reads[i]);
+							maternal_transcripts[j]->register_allele_read(bam_reads[i]);
 						}
 						else{
-							paternal_transcripts[j]->register_read(bam_reads[i]);
+							paternal_transcripts[j]->register_allele_read(bam_reads[i]);
 						}
 					}
 				}
@@ -252,22 +261,24 @@ int Earrings::align_reads(){
 
 int Earrings::test_allele_specific_transcript(){
 	int i,j;
+	bool maternal_dominance=false, paternal_dominance=false;
 	for (i=0;i<maternal_transcripts.size();i++){
-		bool maternal_dominance=false, paternal_dominance=false;
+
 		vector<int>& maternal=maternal_transcripts[i]->num_info_reads_per_exon;
 		vector<int>& paternal=paternal_transcripts[i]->num_info_reads_per_exon;
 		for (j=0;j<maternal.size();j++){
 			//if (maternal[j]>(paternal[j]+1)*3){
-			if (maternal[j]>10 && paternal[j]==0){
+			if (maternal[j]>paternal[j]*10){
 				maternal_dominance=true;
 			}
 			//if (paternal[j]>(maternal[j]+1)*3){
-			if (paternal[j]>10 && maternal[j]==0){
+			if (paternal[j]>10* maternal[j]){
 				paternal_dominance=true;
 			} 
 		}
-		
+
 	}
+	return (maternal_dominance || paternal_dominance);
 
 }
 
@@ -322,5 +333,13 @@ int Earrings::build_graph(){
 		}
 	}
 	fclose(foutput_path);
+	FILE *foutput_info=fopen(string(info->folder+"/"+info->gene_id+".allele.specific.info").c_str(),"w+");
+	if (test_allele_specific_transcript()){
+		fprintf(foutput_info,"%s","Yes");
+	}
+	else {
+		fprintf(foutput_info,"%s","No");
+	}
+	fclose(foutput_info);
 	return 0;
 }
