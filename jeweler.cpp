@@ -598,22 +598,7 @@ int jeweler::run(){
 	load_info_file();
 	for (i=0;i<transcripts_info.size();i++){
 		if (i%10==0) fprintf(log_file,"%d\n",i);
-
 		Earrings earrings(transcripts_info[i]);
-		
-		
-		// load_read_data(transcripts_info[i],ptrans,mtrans,queries);
-		// identify_sources(ptrans,queries,1);
-		// identify_sources(mtrans,queries,2);
-		// label_mismatches_perbase(ptrans, mtrans, queries);
-		// for (auto j=queries.begin();
-		// 	 j!=queries.end();
-		// 	 j++){
-		// 	//test_match_snp(ptrans[0],mtrans[0],j->second);
-		// 	;
-		// }
-		// generate_landscape(transcripts_info[i],ptrans,queries);
-
 	}
 	return 0;
 }

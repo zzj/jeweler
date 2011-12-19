@@ -313,8 +313,9 @@ int Transcript::add_transcript_to_graph(Graph *graph, vector<Path> &records){
 				// do not insert this exon, because there is no reads
 				// found to be informative, though there are several
 				// alleles
+				fprintf(stdout, "here\n");
 				is_valid=false;
-				break;
+				continue;
 			}
 		}
 		exon_chain[i]=graph->add_exon_node(exon_start[i],exon_end[i],
@@ -327,7 +328,7 @@ int Transcript::add_transcript_to_graph(Graph *graph, vector<Path> &records){
 			graph->add_edge(exon_chain[i-1],exon_chain[i],1);
 		}
 	}
-	if (is_valid)
-		records.push_back(Path(exon_chain));
+
+	records.push_back(Path(exon_chain));
 	return 0;
 }

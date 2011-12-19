@@ -266,9 +266,6 @@ int Earrings::test_allele_specific_transcript(){
 				paternal_dominance=true;
 			} 
 		}
-		if (maternal_dominance || paternal_dominance) {
-			fprintf(stdout,"here\n");
-		}
 		
 	}
 
@@ -305,11 +302,12 @@ int Earrings::build_graph(){
 	}
 
 	for ( i=0;i<cufflink_records.size();i++){
-		if (!cufflink_records[i].is_compatible())
+		if (!cufflink_records[i].is_valid())
 			cufflink_records[i].dump_path(stdout);
 	}
 	//get allele specific isoforms that is not from cufflinks
-	fprintf(stdout,"new\n");
+
+	FILE *foutput_path=fopen(string(info->folder+"/"+info->gene_id+".allele.specific.path").c_str(),"w+");
 	for ( j=0;j<records.size();j++){
 		bool is_new=true;
 		for ( i=0;i<cufflink_records.size();i++){
@@ -320,8 +318,9 @@ int Earrings::build_graph(){
 			}
 		}
 		if (is_new){
-			records[j].dump_path(stdout);
+			records[j].dump_path(foutput_path);
 		}
 	}
+	fclose(foutput_path);
 	return 0;
 }
