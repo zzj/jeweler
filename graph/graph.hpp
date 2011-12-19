@@ -7,6 +7,8 @@
 #include "path.hpp"
 class Graph{
 public:
+	~Graph();
+	
 	set<ExonNode *> nodes;
 	ExonNode * find_exon_node(int start, int end, int origin);
 	ExonNode * add_exon_node(int start, int end, int origin);
@@ -15,7 +17,8 @@ public:
 	vector<ExonNode *> get_starting_nodes();
 	int dump_graph(FILE * filename);
 	int get_all_paths(vector<Path> &records);
-	int traverse_graph( ExonNode * current_node, vector<ExonNode *> &path, vector<Path> &records);
+	int traverse_graph( ExonNode * current_node, vector<ExonNode *> &path, vector<Path> &records, int origin);
+	
 };
 
 #endif /* _GRAPH_H_ */

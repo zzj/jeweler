@@ -172,10 +172,11 @@ string Transcript::get_query_aligned_seq(BamAlignment * al){
 int Transcript::match_alleles(BamAlignment *al, int &total_alleles, int &num_matched_alleles,
 							  vector<int> &matched_alleles){
 	int i;
-
 	string transcript_seq=get_transcript_aligned_info<string>(al, get_seq_info);
 	string query_seq=get_query_aligned_seq(al);
+	
 	int transcript_location=get_transcript_location(al->Position+1);
+	vector<int> unmartched_alleles;
 	alleles.clear();
 	total_alleles=0;
 	num_matched_alleles=0;
@@ -183,6 +184,7 @@ int Transcript::match_alleles(BamAlignment *al, int &total_alleles, int &num_mat
 		fprintf(stderr,"The aligned sequences from the transcript and the query do not match\n");
 		exit(0);
 	}
+	
 	// TODO: increase the performance
 	for (i=0;i<transcript_seq.size();i++){
 		// is it a SNP?
@@ -190,14 +192,24 @@ int Transcript::match_alleles(BamAlignment *al, int &total_alleles, int &num_mat
 			total_alleles++;
 
 			if (transcript_seq[i]!=query_seq[i]){
-				;
+				unmartched_alleles.push_back(i);
 			}
 			else {
 				num_matched_alleles++;
 				matched_alleles.push_back(transcript_location+i);
 			}
 		}
+		else {
+			// is a mismatch			
+			;
+		}
 	}
+	if (total_alleles>0 && num_matched_alleles==0){
+		//fprintf(stdout, "%d\t%d\n", total_alleles, num_matched_alleles);
+		//fprintf(stdout, "transcript_seq: %s\n", transcript_seq.c_str());
+		//fprintf(stdout, "query_seq:      %s\n", query_seq.c_str());
+	}
+
 	return 0;
 }
 
@@ -287,7 +299,9 @@ int get_exon_info(Transcript * ti, int genome_start, int length, vector<int> &re
 
 int Transcript::add_transcript_to_graph(Graph *graph, vector<Path> &records){
 	vector<ExonNode *> exon_chain;
+	bool is_valid=true;
 	exon_chain.resize(exon_start.size(),NULL);
+	
 	for (int i=0;i<exon_start.size();i++){
 		int exon_origin=EXON_NO_INFO;
 		if (num_alleles_per_exon[i]>0){
@@ -296,8 +310,10 @@ int Transcript::add_transcript_to_graph(Graph *graph, vector<Path> &records){
 			}
 			else {
 				// do not insert this exon, because there is no reads
-				// found to be informative, though there are several alleles
-				continue;
+				// found to be informative, though there are several
+				// alleles
+				is_valid=false;
+				break;
 			}
 		}
 		exon_chain[i]=graph->add_exon_node(exon_start[i],exon_end[i],exon_origin);
@@ -309,6 +325,7 @@ int Transcript::add_transcript_to_graph(Graph *graph, vector<Path> &records){
 			graph->add_edge(exon_chain[i-1],exon_chain[i],1);
 		}
 	}
-	records.push_back(Path(exon_chain));
+	if (is_valid)
+		records.push_back(Path(exon_chain));
 	return 0;
 }

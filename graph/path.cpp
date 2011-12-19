@@ -8,9 +8,12 @@ Path::Path(vector<ExonNode*> &current_path){
 bool Path::is_mirrored(Path &a){
 	// must be informative path (at least contain one allele specific
 	// exon)
-
+	
 	bool ret=false;
-
+	if (a.path.size()!=path.size()){
+		return false;
+	}
+	
 	for (int i=0;i<path.size();i++){
 		if (!path[i]->is_mirrored(a.path[i])){
 			return false;
@@ -32,9 +35,6 @@ bool Path::is_informative(){
 }
 
 bool Path::is_equal(Path &a){
-	if (a.path.size()!=path.size()){
-		return false;
-	}
 	for (int i=0;i<path.size();i++){
 		if (!path[i]->is_equal(a.path[i])){
 			return false;

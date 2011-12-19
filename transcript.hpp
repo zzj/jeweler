@@ -152,12 +152,10 @@ T Transcript::get_transcript_aligned_info(BamAlignment * al, get_info gi){
 			break;
 			
 		case (Constants::BAM_CIGAR_INS_CHAR)      :			
-				// fall through
 			break;
 		// for 'S' - soft clip, do not write bases
 		// but increment placeholder 'k'
 		case (Constants::BAM_CIGAR_SOFTCLIP_CHAR) :
-
 			break;
 			
 		// for 'D' - write gap character
@@ -176,7 +174,7 @@ T Transcript::get_transcript_aligned_info(BamAlignment * al, get_info gi){
 			// invalid CIGAR op-code
 		default:
 			const string message = string("invalid CIGAR operation type: ") + op.Type;
-			return false;
+			return T();
 		}
 	}
 	return ret;

@@ -1,5 +1,11 @@
 #include "graph.hpp"
 
+Graph::~Graph(){
+	for (auto i=nodes.begin();i!=nodes.end();i++){
+		delete (*i);
+	}
+}
+
 ExonNode * Graph::find_exon_node(int start, int end, int origin){
 	auto i=nodes.begin();
 	for (; i!=nodes.end();i++){
@@ -108,13 +114,24 @@ int Graph::get_all_paths(vector<Path> & records){
 	starting_nodes=get_starting_nodes();
 	vector<ExonNode *> path;
 	for (auto i =starting_nodes.begin(); i!=starting_nodes.end(); i++){
-		traverse_graph((*i),  path, records);
+		traverse_graph((*i),  path, records, (*i)->origin);
 	}
 	return 0;
 }
 	
-int Graph::traverse_graph( ExonNode * current_node, vector<ExonNode *> &path, vector<Path> &records){
+int Graph::traverse_graph( ExonNode * current_node, vector<ExonNode *> &path, vector<Path> &records, int origin){
+	
+	if (origin!=EXON_NO_INFO) {
+		if (current_node->origin!=EXON_NO_INFO &&
+			current_node->origin!=origin){
+			return 0;
+		}
+	}
+
+	if (current_node->origin!=EXON_NO_INFO) origin=current_node->origin;
+
 	path.push_back(current_node);
+	
 	if (current_node->out_nodes.size()==0){
 		records.push_back(Path(path));
 	}
@@ -122,7 +139,7 @@ int Graph::traverse_graph( ExonNode * current_node, vector<ExonNode *> &path, ve
 		for (auto i=current_node->out_nodes.begin(); 
 			 i!=current_node->out_nodes.end();
 			 i++){
-			traverse_graph((*i), path, records);
+			traverse_graph((*i), path, records, origin);
 		}
 	}
 	path.pop_back();

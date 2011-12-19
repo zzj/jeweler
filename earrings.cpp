@@ -98,7 +98,7 @@ int Earrings::load_transcript_data(TranscriptInfo * info){
 			// find the exon
 			int exon_id=-1;
 			for (k=0; k<m->exon_start.size();k++){
-				if (m->exon_start[k]<=m->genome_pos[j] && m->exon_end[k]>=m->genome_pos[j]){
+				if (m->exon_start[k]<=m->genome_pos[m->snp_pos[j]] && m->exon_end[k]>=m->genome_pos[m->snp_pos[j]]){
 					exon_id=k;
 					break;
 				}
@@ -302,10 +302,11 @@ int Earrings::build_graph(){
 			//records[i].dump_path(stdout);
 		}
 	}
-	//get allele specific isoforms that is not from cufflinks
+
 	for ( i=0;i<cufflink_records.size();i++){
-		cufflink_records[i].dump_path(stdout);
+		//cufflink_records[i].dump_path(stdout);
 	}
+	//get allele specific isoforms that is not from cufflinks
 	fprintf(stdout,"new\n");
 	for ( j=0;j<records.size();j++){
 		bool is_new=true;
@@ -315,7 +316,6 @@ int Earrings::build_graph(){
 					is_new=false;
 				}
 			}
-
 		}
 		if (is_new){
 			records[j].dump_path(stdout);
