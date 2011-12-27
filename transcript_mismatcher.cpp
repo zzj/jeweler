@@ -41,7 +41,8 @@ int TranscriptMismatcher::add_transcript(Transcript *t, int origin){
 
 int TranscriptMismatcher::add_mismatches(Transcript *transcript, BamAlignment *al, 
 										 vector<int> &locations,
-										 vector<int> &mismatch_locations){
+										 vector<int> &mismatch_locations,
+										 vector<char> & mismatchars){
 	if (reads.find(al) == reads.end()){
 		for (int i = 0; i < locations.size(); i++){
 			coverage[genome_pos2idx[transcript->genome_pos[locations[i]]]]++;
@@ -57,7 +58,7 @@ int TranscriptMismatcher::add_mismatches(Transcript *transcript, BamAlignment *a
 		}
 		mismatched_reads[idx].insert(al);
 
-		char mismatchar = transcript->seq[mismatch_locations[i]];
+		char mismatchar = mismatchars[i];
 		mismatches[idx]++;
 
 		switch (mismatchar) {

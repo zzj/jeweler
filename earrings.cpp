@@ -193,6 +193,8 @@ int Earrings::align_reads(){
 			if (maternal_transcripts[j]->is_compatible(bam_reads[i])){
 				vector<int> paternal_mismatches;
 				vector<int> maternal_mismatches;
+				vector<char> paternal_mismatchars;
+				vector<char> maternal_mismatchars;
 				vector<int> maternal_locations;
 				vector<int> paternal_locations;
 				
@@ -205,12 +207,14 @@ int Earrings::align_reads(){
 													   total_alleles,
 													   maternal_locations,
 													   maternal_alleles,
-													   maternal_mismatches);
+													   maternal_mismatches,
+													   maternal_mismatchars);
 				paternal_transcripts[j]->match_alleles(bam_reads[i],
 													   total_alleles,
 													   paternal_locations,
 													   paternal_alleles,
-													   paternal_mismatches);
+													   paternal_mismatches,
+													   paternal_mismatchars);
 
 				//fprintf(stdout,"%d\n",total_alleles);
 				num_maternal_alleles=maternal_alleles.size();
@@ -221,7 +225,8 @@ int Earrings::align_reads(){
 						mismatcher->add_mismatches(maternal_transcripts[j],
 												   bam_reads[i],
 												   maternal_locations,
-												   maternal_mismatches);
+												   maternal_mismatches, 
+												   maternal_mismatchars);
 					}
 					else {
 						cleared.insert(bam_reads[i]);
@@ -230,14 +235,16 @@ int Earrings::align_reads(){
 							mismatcher->add_mismatches(maternal_transcripts[j],
 													   bam_reads[i],
 													   maternal_locations,
-													   maternal_mismatches);
+													   maternal_mismatches,
+													   maternal_mismatchars);
 						}
 						else{
 							paternal_transcripts[j]->register_allele_read(bam_reads[i]);
 							mismatcher->add_mismatches(paternal_transcripts[j],
 													   bam_reads[i],
 													   paternal_locations,
-													   paternal_mismatches);
+													   paternal_mismatches,
+													   paternal_mismatchars);
 
 						}
 					}
@@ -246,7 +253,9 @@ int Earrings::align_reads(){
 					mismatcher->add_mismatches(maternal_transcripts[j],
 											   bam_reads[i],
 											   maternal_locations,
-											   maternal_mismatches);
+											   maternal_mismatches,
+											   maternal_mismatchars
+											   );
 					noninfo[j].insert(bam_reads[i]);
  				}
 				//string mret=maternal_transcripts[j]->get_aligned_seq(bam_reads[i]);

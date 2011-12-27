@@ -150,7 +150,6 @@ def main():
 							help='Run cuffcompare',
 							dest='cuffcompare')
 
-
 		parser.add_argument('--cufflinks',
 							action='store_true',
 							dest='is_cufflinks')
@@ -162,8 +161,6 @@ def main():
 		parser.add_argument('--jeweler_only',
 							action='store_true',
 							dest='is_jeweler_only')
-
-
 
 		args=parser.parse_args();
 
@@ -269,11 +266,6 @@ def main():
 								  '--result_folder '+result_folder +' '+
 								  '--gtf_input_file '+gtf_input_file
 								)
-					
-
-					
-					
-		
 		
 	except: 
 		exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()

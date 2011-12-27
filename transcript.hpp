@@ -63,7 +63,9 @@ public:
 	// Check whether it is a better alignment comparing with other transcript
 	int match_alleles(BamAlignment *, int &total_alleles,
 					  vector<int> &transcript_aligned_locations,
-					  vector<int> &alleles, vector<int> &mismatches);
+					  vector<int> &alleles, 
+					  vector<int> &mismatches,
+					  vector<char> &mismachars);
 	
 	// insert the Alignment to the aligned_reads
 	int insert_reads(BamAlignment *);

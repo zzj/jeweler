@@ -80,7 +80,6 @@ int Appraiser::run(){
 	while (reader.GetNextAlignment(al)){
 		mb.add_alignment(al);
 		sm.add_alignment(al);
-
 		i++;
 		if (test_num>0 && i>test_num) break;
 	}

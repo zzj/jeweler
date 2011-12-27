@@ -15,7 +15,8 @@ public:
 	
 	int add_mismatches(Transcript *transcript, BamAlignment *al, 
 					   vector<int> &locations,
-					   vector<int> &transcript_locations);
+					   vector<int> &transcript_locations,
+					   vector<char> & mismatchars);
 
 	int dump(FILE *);
 	
