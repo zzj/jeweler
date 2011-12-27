@@ -169,17 +169,18 @@ string Transcript::get_query_aligned_seq(BamAlignment * al){
 	
 }
 
-int Transcript::match_alleles(BamAlignment *al, int &total_alleles, int &num_matched_alleles,
-							  vector<int> &matched_alleles){
+int Transcript::match_alleles(BamAlignment *al, int &total_alleles, 
+							  vector<int> &transcript_aligned_locations,
+							  vector<int> &matched_alleles, vector<int> &mismatches){
 	int i;
-	string transcript_seq=get_transcript_aligned_info<string>(al, get_seq_info);
+	string transcript_seq = get_transcript_aligned_info<string>(al, get_seq_info);
+	transcript_aligned_locations =
+		get_transcript_aligned_info<vector<int> >(al, get_location_info);
 	string query_seq=get_query_aligned_seq(al);
 	
-	int transcript_location=get_transcript_location(al->Position+1);
-	vector<int> unmartched_alleles;
 	alleles.clear();
 	total_alleles=0;
-	num_matched_alleles=0;
+
 	if (transcript_seq.size()!=query_seq.size()){
 		fprintf(stderr,"The aligned sequences from the transcript and the query do not match\n");
 		exit(0);
@@ -188,28 +189,23 @@ int Transcript::match_alleles(BamAlignment *al, int &total_alleles, int &num_mat
 	// TODO: increase the performance
 	for (i=0;i<transcript_seq.size();i++){
 		// is it a SNP?
-		if (is_allele(transcript_location+i)){
+		if (is_allele(transcript_aligned_locations[i])){
 			total_alleles++;
-
-			if (transcript_seq[i]!=query_seq[i]){
-				unmartched_alleles.push_back(i);
-			}
-			else {
-				num_matched_alleles++;
-				matched_alleles.push_back(transcript_location+i);
+			if (transcript_seq[i]==query_seq[i]){
+				matched_alleles.push_back(transcript_aligned_locations[i]);
+				continue;
 			}
 		}
-		else {
-			// is a mismatch			
-			;
+		// is a mismatch			
+		if (transcript_seq[i] != query_seq[i]){
+			mismatches.push_back(transcript_aligned_locations[i]);
 		}
 	}
-	if (total_alleles>0 && num_matched_alleles==0){
+	if (total_alleles>0 && matched_alleles.size()==0){
 		//fprintf(stdout, "%d\t%d\n", total_alleles, num_matched_alleles);
 		//fprintf(stdout, "transcript_seq: %s\n", transcript_seq.c_str());
 		//fprintf(stdout, "query_seq:      %s\n", query_seq.c_str());
 	}
-
 	return 0;
 }
 
@@ -252,11 +248,13 @@ int Transcript::get_transcript_exon(int genome_location){
 int Transcript::register_allele_read(BamAlignment *al){
 	int total_alleles;
 	vector<int> matched_alleles;
+	vector<int> locations;
+	vector<int> mismatches;
 	vector<int> matched_exons;
 	int num_matched_alleles;
 	int i;
-	match_alleles(al,total_alleles,num_matched_alleles,matched_alleles);
-
+	match_alleles(al,total_alleles,locations, matched_alleles,mismatches);
+	num_matched_alleles=matched_alleles.size();
 	if (num_matched_alleles>0){
 		allele_reads.insert(al);
 		for (i=0;i<num_matched_alleles;i++){
@@ -264,9 +262,9 @@ int Transcript::register_allele_read(BamAlignment *al){
 			num_info_reads_per_exon[exon_id]++;
 			allele_reads_per_exon[exon_id].insert(al);
 		}
-	
+		
 	}
-
+	register_read(al);
 	return 0;
 }
 int Transcript::register_read(BamAlignment *al){
@@ -279,23 +277,43 @@ int Transcript::register_read(BamAlignment *al){
 		reads_per_exon[matched_exons[i]].insert(al);
 	}
 	reads.insert(al);
+	
+	
 	return 0;
 }
 
 
-int get_seq_info(Transcript * ti, int genome_start, int length, string &ret){
+int get_seq_info(Transcript * ti, BamAlignment *al,
+				 int genome_start, int alignment_start, int length, 
+				 string &ret){
 	int transcript_start=ti->get_transcript_location(genome_start);
 	if (transcript_start==NOT_FOUND){
 		fprintf(stderr,"cannot find transcript postition, did you run Transcript::is_compatible ?\n %d\n%d\n", genome_start,ti->genome_pos.size());
-		
 		ti->output_segments();
 		exit(0);
 	}
 	ret+=ti->seq.substr(transcript_start,length);
 	return 0;
 }
+int get_location_info(Transcript * ti, BamAlignment *al,
+					  int genome_start, int alignment_start, int length, 
+					  vector<int>  &ret){
+	int transcript_start = ti->get_transcript_location(genome_start);
+	int i;
+	if (transcript_start == NOT_FOUND){
+		fprintf(stderr,"cannot find transcript postition, did you run Transcript::is_compatible ?\n %d\n%d\n", genome_start,ti->genome_pos.size());
+		ti->output_segments();
+		exit(0);
+	}
+	for (i = 0 ; i < length ; i++){
+		ret.push_back(transcript_start+i);
+	}
+	return 0;
+}
 
-int get_exon_info(Transcript * ti, int genome_start, int length, vector<int> &ret){
+int get_exon_info(Transcript * ti,  BamAlignment * al, 
+				  int genome_start, int alignment_start, int length, 
+				  vector<int> &ret){
 
 	int transcript_start=ti->get_transcript_location(genome_start);
 	if (transcript_start==NOT_FOUND){
@@ -308,7 +326,26 @@ int get_exon_info(Transcript * ti, int genome_start, int length, vector<int> &re
 	return 0;
 }
 
-
+int insert_mismatch_info(Transcript *ti,  BamAlignment * al, 
+						 int genome_start, int alignment_start, int length, 
+						 vector<int> &mismatches){
+	int i;
+	int transcript_start=ti->get_transcript_location(genome_start);
+	if (transcript_start==NOT_FOUND){
+		fprintf(stderr,"cannot find transcript postition, did you run Transcript::is_compatible ?\n %d\n%d\n", genome_start,ti->genome_pos.size());
+		
+		ti->output_segments();
+		exit(0);
+	}
+	string genome_seq    = ti->seq.substr(transcript_start, length);
+	string alignment_seq = al->QueryBases.substr(alignment_start, length);
+	for ( i = 0; i < genome_seq.size(); i++){
+		if (genome_seq[i] != alignment_seq[i]){
+			mismatches.push_back( genome_start + i );
+		}
+	}
+	return 0;
+}
 
 int Transcript::add_transcript_to_graph(Graph *graph, vector<Path> &records){
 	vector<ExonNode *> exon_chain;
@@ -325,13 +362,13 @@ int Transcript::add_transcript_to_graph(Graph *graph, vector<Path> &records){
 				// do not insert this exon, because there is no reads
 				// found to be informative, though there are several
 				// alleles
-				fprintf(stdout, "here\n");
 				is_valid=false;
 				continue;
 			}
 		}
 		exon_chain[i]=graph->add_exon_node(exon_start[i],exon_end[i],
-										   exon_origin, reads_per_exon[i],allele_reads_per_exon[i]);
+										   exon_origin, reads_per_exon[i],
+										   allele_reads_per_exon[i]);
 		if (i==0) {
 			continue;
 		}
@@ -343,4 +380,19 @@ int Transcript::add_transcript_to_graph(Graph *graph, vector<Path> &records){
 
 	records.push_back(Path(exon_chain));
 	return 0;
+}
+
+bool Transcript::is_equal(Transcript *t){
+	if (t->exon_start.size()!=this->exon_start.size()){
+		return false;
+	}
+	for (int i=0;i<t->exon_start.size();i++){
+		if (t->exon_start[i]!=this->exon_start[i]){
+			return false;
+		}
+		if (t->exon_end[i]!=this->exon_end[i]){
+			return false;
+		}
+	}
+	return true;
 }

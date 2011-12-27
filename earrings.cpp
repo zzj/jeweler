@@ -3,6 +3,7 @@
 Earrings::Earrings(TranscriptInfo *info){
 
 	this->info=info;
+	this->mismatcher=new TranscriptMismatcher();
 	// load maternal and paternal transcripts sequences.
 	load_transcript_data(info);	
 	// load bamalignment by bamtools.
@@ -24,6 +25,7 @@ Earrings::~Earrings(){
 	for (i=0;i<bam_reads.size();i++){
 		delete bam_reads[i];
 	}
+	delete mismatcher;
 }
 
 int Earrings::load_read_data(TranscriptInfo *info){
@@ -76,7 +78,6 @@ int Earrings::load_transcript_data(TranscriptInfo * info){
 
 		// find SNP position by given both paternal and maternal transcripts sequences
 		for (j=0;j<p->seq.size();j++){
-
 			if (p->seq[j]!=m->seq[j]){
 				p->snp_pos.push_back(j);
 				m->snp_pos.push_back(j);
@@ -85,6 +86,8 @@ int Earrings::load_transcript_data(TranscriptInfo * info){
 				num++;
 			}
 		}
+		
+		// transcript initialization
 		p->allele_exon.resize(m->snp_pos.size());
 		m->allele_exon.resize(m->snp_pos.size());
 		p->num_info_reads_per_exon.resize(p->exon_start.size(),0);
@@ -97,6 +100,9 @@ int Earrings::load_transcript_data(TranscriptInfo * info){
 		m->allele_reads_per_exon.resize(p->exon_start.size());
 		p->reads_per_exon.resize(p->exon_start.size());
 		m->reads_per_exon.resize(p->exon_start.size());
+
+
+
 		for (j=0;j<m->snp_pos.size();j++){
 			// find the exon
 			int exon_id=-1;
@@ -118,7 +124,13 @@ int Earrings::load_transcript_data(TranscriptInfo * info){
 				exit(0);
 			}
 		}
+
+		// mismatcher initialization
+		mismatcher->add_transcript(p, TRANSCRIPT_PATERNAL);
+		mismatcher->add_transcript(m, TRANSCRIPT_MATERNAL);
+
 	}
+	mismatcher->initialize();
 	return 0;
 }
 
@@ -143,21 +155,16 @@ int Earrings::transcript_helper(string seq_filename,string gtf_file,
 				continue;
 			}
 			transcripts[j]->seq=sr[i]->seq;
-			transcripts[j]->noninformative_mismatches.resize(transcripts[j]->seq.size(),0);
-			//check errors
+
+			//check whether seq and genome_pos are the same length or
+			//not, this is the earliest point to do such check. 
+		   
 			if (transcripts[j]->seq.size() != transcripts[j]->genome_pos.size())
 			{
 				fprintf(stderr, "something wrong in inferring the genome position");
 				exit(0);
 			}
-			else
-			{
-				//fprintf(stderr, "size the transcirpt is %d bases\n", transcripts[j]->genome_pos.size());
-				transcripts[j]->Anoninformative_mismatches.resize(transcripts[j]->genome_pos.size());
-				transcripts[j]->Cnoninformative_mismatches.resize(transcripts[j]->genome_pos.size());
-				transcripts[j]->Gnoninformative_mismatches.resize(transcripts[j]->genome_pos.size());
-				transcripts[j]->Tnoninformative_mismatches.resize(transcripts[j]->genome_pos.size());
-			}
+
 		}
 	}
 	
@@ -176,6 +183,7 @@ int Earrings::align_reads(){
 	vector<int> paternal_alleles;
 	vector<int> maternal_alleles;
 
+
 	noninfo.resize(maternal_transcripts.size());
 	for(i=0;i<bam_reads.size();i++){
 		is_compatible=false;
@@ -183,44 +191,63 @@ int Earrings::align_reads(){
 		for (j=0;j<maternal_transcripts.size();j++){
 			// the maternal_transcript should be the same with the paternal_transcript
 			if (maternal_transcripts[j]->is_compatible(bam_reads[i])){
-
+				vector<int> paternal_mismatches;
+				vector<int> maternal_mismatches;
+				vector<int> maternal_locations;
+				vector<int> paternal_locations;
+				
 				maternal_transcripts[j]->register_read(bam_reads[i]);
 				paternal_transcripts[j]->register_read(bam_reads[i]);
 				
 				is_compatible=true;
 				maternal_transcripts[j]->match_alleles(bam_reads[i],
 													   total_alleles,
-													   num_maternal_alleles,
-													   maternal_alleles);
+													   maternal_locations,
+													   maternal_alleles,
+													   maternal_mismatches);
 				paternal_transcripts[j]->match_alleles(bam_reads[i],
 													   total_alleles,
-													   num_paternal_alleles,
-													   paternal_alleles);
+													   paternal_locations,
+													   paternal_alleles,
+													   paternal_mismatches);
 				//fprintf(stdout,"%d\n",total_alleles);
+				num_maternal_alleles=maternal_alleles.size();
+				num_paternal_alleles=paternal_alleles.size();
+				
 				if ( total_alleles>0){
 					if (num_paternal_alleles == num_maternal_alleles){
 						noninfo[j].insert(bam_reads[i]);
-						
 					}
 					else {
 						cleared.insert(bam_reads[i]);
-						if (num_maternal_alleles!=0){
+						if (num_maternal_alleles > num_paternal_alleles){
 							maternal_transcripts[j]->register_allele_read(bam_reads[i]);
+							mismatcher->add_mismatches(maternal_transcripts[j],
+													   bam_reads[i],
+													   maternal_locations,
+													   maternal_mismatches);
 						}
 						else{
 							paternal_transcripts[j]->register_allele_read(bam_reads[i]);
+							mismatcher->add_mismatches(paternal_transcripts[j],
+													   bam_reads[i],
+													   paternal_locations,
+													   paternal_mismatches);
+
 						}
 					}
 				}
 				else {
+					mismatcher->add_mismatches(maternal_transcripts[j],
+											   bam_reads[i],
+											   maternal_locations,
+											   maternal_mismatches);
 					noninfo[j].insert(bam_reads[i]);
-				}
-									
+ 				}
 				//string mret=maternal_transcripts[j]->get_aligned_seq(bam_reads[i]);
 				//string pret=paternal_transcripts[j]->get_aligned_seq(bam_reads[i]);
 				//fprintf(stdout,"%s\n",ret.c_str());
-			
-	//fprintf(stdout,"%s\n",bam_reads[i]->QueryBases.c_str());
+				//fprintf(stdout,"%s\n",bam_reads[i]->QueryBases.c_str());
 			}
 		}
 		if (is_compatible==false){
@@ -244,20 +271,21 @@ int Earrings::align_reads(){
 		FILE *foutput;
 		foutput=fopen(string(info->folder+"/"+maternal_transcripts[i]->name+".landscape.plot.info").c_str(),"w+");
 		string name=maternal_transcripts[i]->name;
-		LandscapePlot lp(maternal_transcripts[i],paternal_transcripts[i],noninfo[i]);
-		lp.generate_landscape_plot(finfo, foutput);
+		PileupPlot lp(maternal_transcripts[i],paternal_transcripts[i],noninfo[i]);
+		lp.generate_pileup_plot(finfo, foutput);
 		fclose(foutput);
 	}
+	fclose(finfo);
+
+	finfo=fopen(string(info->folder+"/"+info->gene_id+".mismacher").c_str(),"w+");
+	mismatcher->dump(finfo);
 	fclose(finfo);
 	//fprintf(stdout,"Unaligned\tUncleared\tCleared\tNoninfo\tTotal\n");
 	//fprintf(stdout,"%d\t%d\t%d\t%d\t%d\n",unaligned.size(),
 	//uncleared.size(),
 	//cleared.size(),noninfo.size(),bam_reads.size());
 	
-	
 }
-
-
 
 int Earrings::test_allele_specific_transcript(){
 	int i,j;

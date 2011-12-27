@@ -5,6 +5,9 @@ const int EXON_NO_INFO=0;
 const int EXON_MATERNAL=1;
 const int EXON_PATERNAL=2;
 
+const int UNKNOWN=0;
+
+
 const int TRANSCRIPT_MATERNAL=1;
 const int TRANSCRIPT_PATERNAL=2;
 

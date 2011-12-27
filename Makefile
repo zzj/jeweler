@@ -1,11 +1,11 @@
 CC=g++
-CFLAGS=-O3 -std=gnu++0x
+CFLAGS=-g -std=gnu++0x
 INC=-Ilib/bamtools/include/ -Ilib/fastahack/ -I$(HOME)/bin/include
 LIB=-Llib/bamtools/lib/ -I$(HOME)/bin/lib
 LDFLAGS= -lz lib/bamtools/lib/libbamtools.a 
 
 
-JEWELER_SOURCES= jeweler.cpp transcript_info.cpp landscape.plot.cpp transcript.cpp earrings.cpp common.cpp fasta.cpp gtf.cpp rna_read.cpp laboratory/cigar_holder.cpp graph/exon_node.cpp graph/graph.cpp  graph/path.cpp
+JEWELER_SOURCES= jeweler.cpp transcript_info.cpp pileup.plot.cpp transcript.cpp transcript_mismatcher.cpp earrings.cpp common.cpp fasta.cpp gtf.cpp rna_read.cpp laboratory/cigar_holder.cpp graph/exon_node.cpp graph/graph.cpp  graph/path.cpp
 JEWELER_EXECUTABLE=jeweler 
 JEWELER_OBJECTS=$(JEWELER_SOURCES:.cpp=.o) 
 
@@ -49,5 +49,4 @@ $(TEST_BAM_EXECUTABLE): $(TEST_BAM_OBJECTS)
 
 clean:
 	rm $(sort $(OBJECTS)) $(EXECUTABLE)
-	rm *.o
 

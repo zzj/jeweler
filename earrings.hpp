@@ -11,8 +11,9 @@
 #include "jeweler.hpp"
 #include "transcript_info.hpp"
 #include "transcript.hpp"
+#include "transcript_mismatcher.hpp"
 #include "laboratory/cigar_holder.hpp"
-#include "landscape.plot.hpp"
+#include "pileup.plot.hpp"
 using namespace BamTools;
 using namespace std;
 
@@ -28,6 +29,7 @@ public :
 
 	~Earrings();
 	TranscriptInfo * info;
+	TranscriptMismatcher *mismatcher;
 	vector<Transcript *> maternal_transcripts;
 	vector<Transcript *> paternal_transcripts;
 	vector<BamAlignment *> bam_reads;

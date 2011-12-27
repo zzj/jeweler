@@ -37,42 +37,6 @@ public:
 	int load_info_file();
 	
 
-	// load read data,
-	int load_read_data(TranscriptInfo * ti, 
-					   vector<Transcript *> &ptrans,
-					   vector<Transcript *> &mtrans,
-					   map<rna_read_key,rna_read_query *>& queires);
-	int merge_paired_reads(vector<Transcript *> &ref,
-						  vector<rna_read_query *> & blat_result);
-	//  [outdated] add queries, match the read sequences to the transcript's sequences. 
-	// If the reads are not flipped and reversed, do that. 
-	int add_queries(vector<Transcript *> &ref, 
-					multimap<string,string> &srmap,
-					vector<rna_read_query *> &pqueries,
-					map<rna_read_key,rna_read_query *>& queires);
-
-	// return wether the read map to the transcript. 
-	bool match_snp(Transcript * t, rna_read_query * rrq);
-
-	// record all mismatches in transcript
-	// this function will change transcript. Please be careful about it.
-	// make sure for each read, it is be called once. Otherwise,
-	// the statistics for mismaches are wrong. 
-	int annotate_mismatch_pos(Transcript * t, rna_read_query * rrq);
-	// 
-	int label_mismatches_perbase(vector<Transcript *> &ptrans, 
-								 vector<Transcript *> &mtrans,
-								 map<rna_read_key,rna_read_query *>& queires);
-	// given a set of transcripts, check whether the read can be aligned to
-	// the transcript by matching all the SNPs in the transcript. 
-	int identify_sources(vector<Transcript *> &source,
-						 map<rna_read_key,rna_read_query *> &queries,
-						 int source_id);
-	// return the number of mismatches
-	int count_mismatches(Transcript *t, rna_read_query *rrq);
-	int generate_landscape(TranscriptInfo * ti,
-						   vector<Transcript *> &ref,
-						   map<rna_read_key,rna_read_query *> &queries);
 
 };
 
