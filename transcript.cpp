@@ -179,6 +179,9 @@ int Transcript::match_alleles(BamAlignment *al, int &total_alleles,
 	string query_seq=get_query_aligned_seq(al);
 	
 	alleles.clear();
+
+	matched_alleles.clear();
+	mismatches.clear();
 	total_alleles=0;
 
 	if (transcript_seq.size()!=query_seq.size()){

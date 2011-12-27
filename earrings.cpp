@@ -200,6 +200,7 @@ int Earrings::align_reads(){
 				paternal_transcripts[j]->register_read(bam_reads[i]);
 				
 				is_compatible=true;
+
 				maternal_transcripts[j]->match_alleles(bam_reads[i],
 													   total_alleles,
 													   maternal_locations,
@@ -210,13 +211,17 @@ int Earrings::align_reads(){
 													   paternal_locations,
 													   paternal_alleles,
 													   paternal_mismatches);
+
 				//fprintf(stdout,"%d\n",total_alleles);
 				num_maternal_alleles=maternal_alleles.size();
 				num_paternal_alleles=paternal_alleles.size();
-				
 				if ( total_alleles>0){
 					if (num_paternal_alleles == num_maternal_alleles){
 						noninfo[j].insert(bam_reads[i]);
+						mismatcher->add_mismatches(maternal_transcripts[j],
+												   bam_reads[i],
+												   maternal_locations,
+												   maternal_mismatches);
 					}
 					else {
 						cleared.insert(bam_reads[i]);
