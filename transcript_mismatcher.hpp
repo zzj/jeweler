@@ -39,6 +39,8 @@ public:
 	vector<int> G_mismatches; 
 	// number of non informative mismatches equaling to T per base
 	vector<int> T_mismatches; 
+	// number of non informative mismatches equaling to N per base
+	vector<int> N_mismatches; 
 	
 };
 

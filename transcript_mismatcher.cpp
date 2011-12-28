@@ -21,6 +21,7 @@ int TranscriptMismatcher::initialize(){
 	C_mismatches.resize( size, 0);
 	G_mismatches.resize( size, 0);
 	T_mismatches.resize( size, 0);
+	N_mismatches.resize( size, 0);
 	return 0;
 }
 
@@ -73,6 +74,9 @@ int TranscriptMismatcher::add_mismatches(Transcript *transcript, BamAlignment *a
 			break;
 		case 'G': 
 			G_mismatches[idx]++;
+			break;
+		case 'N': 
+			N_mismatches[idx]++;
 			break;
 		default:
 			fprintf(stderr, "%c is unknown sequence charactar\n", mismatchar);
