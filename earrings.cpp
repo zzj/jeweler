@@ -45,10 +45,11 @@ int Earrings::load_read_data(TranscriptInfo *info){
 	}
 	delete al; // delete the last unused one
 	
+	AlignmentGlue ag;
+
+	ag.glue(bam_reads, bam_reads);
 	return 0;
 }
-
-
 
 int Earrings::load_transcript_data(TranscriptInfo * info){
 	int i,j,k;

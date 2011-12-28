@@ -40,15 +40,15 @@ def split_gtf_file(gtf_input_file,maternal_strain_ref_seq, paternal_strain_ref_s
 			if (last_id==gene_id):
 				# new transcript, but same gene with previous one
 				chr=info[0]
-				if ((maternal_region)<0):
-					maternal_region = int(info[3])
+				if ((left_region)<0):
+					left_region = int(info[3])
 				else :
-					maternal_region = min(int(info[3]),maternal_region)
+					left_region = min(int(info[3]),left_region)
 
-				if (paternal_region<0):
-					paternal_region=int(info[4])
+				if (right_region<0):
+					right_region=int(info[4])
 				else :
-					paternal_region=max(int(info[4]),paternal_region)
+					right_region=max(int(info[4]),right_region)
 			else :
 				# new transcript, new gene
 				if (tranfile!=None):
@@ -63,7 +63,7 @@ def split_gtf_file(gtf_input_file,maternal_strain_ref_seq, paternal_strain_ref_s
 					call(['gffread', '-w', paternal_output_seq, '-g', paternal_strain_ref_seq, 
 						  gene_folder+last_id])
 					call(["samtools","view", bam_file , 
-						 chr +":" +str(maternal_region)  +"-" +str(paternal_region) ,
+						 chr +":" +str(left_region)  +"-" +str(right_region) ,
 						 "-b","-o", read_seq])
 
 					print("\t".join([last_id, gene_folder, gene_folder+last_id,
@@ -77,8 +77,8 @@ def split_gtf_file(gtf_input_file,maternal_strain_ref_seq, paternal_strain_ref_s
 				tranfile=open(gene_folder+gene_id,"w+")
 				last_id=gene_id
 				chr=info[0]
-				maternal_region=int(info[3])
-				paternal_region=int(info[4])
+				left_region=int(info[3])
+				right_region=int(info[4])
 
 
 		info[6]='+'
@@ -149,6 +149,7 @@ def main():
 		parser.add_argument('--cuffcompare',
 							help='Run cuffcompare',
 							dest='cuffcompare')
+
 
 		parser.add_argument('--cufflinks',
 							action='store_true',

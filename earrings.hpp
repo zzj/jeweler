@@ -14,6 +14,7 @@
 #include "transcript_mismatcher.hpp"
 #include "laboratory/cigar_holder.hpp"
 #include "pileup.plot.hpp"
+#include "alignment_glue.hpp"
 using namespace BamTools;
 using namespace std;
 
