@@ -88,7 +88,7 @@ int TranscriptMismatcher::add_mismatches(Transcript *transcript, BamAlignment *a
 
 int TranscriptMismatcher::dump(FILE *file){
 	int i;
-	fprintf(file,"locations\ttotal\tmismatches\tA\tT\tC\tG\n");
+	fprintf(file,"locations\ttotal\tmismatches\tA\tT\tC\tGN\tMaternal\tPaternal\n");
 	auto j=genome_pos2idx.begin();
 	auto m=genome_pos2maternal.begin();
 	auto p=genome_pos2paternal.begin();
@@ -96,6 +96,7 @@ int TranscriptMismatcher::dump(FILE *file){
 		fprintf(file,"%d\t%d\t%d\t%d\t%d\t%d\t%d\t%c\t%c\n",
 				j->first, coverage[i], mismatches[i],
 				A_mismatches[i],T_mismatches[i], C_mismatches[i], G_mismatches[i],
+				N_mismatches[i],
 				m->second, p->second);
 		j++; m++; p++;
 	}
