@@ -34,6 +34,9 @@ public :
 	vector<Transcript *> maternal_transcripts;
 	vector<Transcript *> paternal_transcripts;
 	vector<BamAlignment *> bam_reads;
+	vector<BamAlignment *> unaligned;
+	vector<BamAlignment *> noused;
+
 
 	// create paternal and maternal transcripts databases
 	// annotate SNPs for paternal  and maternal transcripts' sequence

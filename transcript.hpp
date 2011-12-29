@@ -12,6 +12,7 @@
 #include <api/BamWriter.h>
 #include "constants.hpp"
 #include "graph/graph.hpp"
+#include "laboratory/cigar_holder.hpp"
 using namespace BamTools;
 
 
@@ -24,6 +25,8 @@ class Transcript{
 
 public:
 	Transcript();
+
+	const static int tolerate = 2;
 
 	bool is_initialized;
 	int origin;
@@ -91,7 +94,10 @@ public:
 
 	// get covered exons for a given aligment
 	int get_transcript_exon(int genome_location);
-		
+
+	// get next exons
+	int get_next_exon(int start_pos, int start_seg );
+
 	// get allele char
 	char get_allele_char(int transcript_location);
 	
@@ -160,7 +166,7 @@ T Transcript::get_transcript_aligned_info(BamAlignment * al, get_info gi){
 		
 		switch ( op.Type ) {
 			
-			// for 'M', '=', 'X' - write bases
+			// for 'M', '=', 'X' - aligned string
 		case (Constants::BAM_CIGAR_MATCH_CHAR)    :
 		case (Constants::BAM_CIGAR_SEQMATCH_CHAR) :
 		case (Constants::BAM_CIGAR_MISMATCH_CHAR) :
@@ -170,18 +176,15 @@ T Transcript::get_transcript_aligned_info(BamAlignment * al, get_info gi){
 			genome_start+=op.Length;
 			alignment_start+=op.Length;
 			break;
-			
+			// none aligned string in reads
 		case (Constants::BAM_CIGAR_INS_CHAR)      :			
-
-		// for 'S' - soft clip, do not write bases
-		// but increment placeholder 'k'
 		case (Constants::BAM_CIGAR_SOFTCLIP_CHAR) :
+
 			alignment_start+=op.Length;
 			break;
-			
-		// for 'D' - write gap character
-		// for 'N' - write N's, skip bases in original query sequence
-		// for 'P' - write padding character			
+
+			// none aligned string in reference genome
+		case 'J'      :						
 		case (Constants::BAM_CIGAR_DEL_CHAR) :
 		case (Constants::BAM_CIGAR_PAD_CHAR) :
 		case (Constants::BAM_CIGAR_REFSKIP_CHAR) :

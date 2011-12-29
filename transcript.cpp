@@ -1,6 +1,8 @@
 
 #include "transcript.hpp"
 
+}
+
 Transcript::Transcript(){
 	is_initialized=false;
 }
@@ -14,6 +16,17 @@ bool Transcript::is_aligned(BamAlignment *al ){
 	return reads.find(al)!=reads.end();
 }
 
+int Transcript::get_next_exon(int start_pos, int start_seg = 0 ) {
+
+	while(!(exon_start[start_seg]<=start_pos &&
+			exon_end[start_seg]>=start_pos)){
+		start_seg++;
+		if (start_seg>=exon_start.size())
+			return NOT_FOUND;
+	}
+	return start_seg;
+}
+
 bool Transcript::is_compatible(BamAlignment *al ){
 	// justify whether the sequences contains the BamAlignment
 
@@ -24,13 +37,10 @@ bool Transcript::is_compatible(BamAlignment *al ){
 	// Get start segments
 	int start_seg=0;
 	int start_pos=al->Position+1;
-	while(!(exon_start[start_seg]<=start_pos &&
-			exon_end[start_seg]>=start_pos)){
-		start_seg++;
-		if (start_seg>=exon_start.size())
-			return false;
-	}
 
+	if ( (start_seg = get_next_exon (  start_pos, start_seg) ) == NOT_FOUND ){
+		return false;
+	}
 	std::vector< CigarOp > &cigar_data = al->CigarData;
 	vector<CigarOp>::const_iterator cigar_iter = cigar_data.begin();
 	vector<CigarOp>::const_iterator cigar_end  = cigar_data.end();
@@ -40,42 +50,40 @@ bool Transcript::is_compatible(BamAlignment *al ){
 		
 		switch ( op.Type ) {
 			
-			// for 'M', '=', 'X' - write bases
+			// for 'M', '=', 'X' - ;
+			// check wether the matched string belong to the same exon
+
 		case (Constants::BAM_CIGAR_MATCH_CHAR)    :
 		case (Constants::BAM_CIGAR_SEQMATCH_CHAR) :
 		case (Constants::BAM_CIGAR_MISMATCH_CHAR) :
 			// the beginning and end of the matched sequence must 
 			// be belong to the same sequences. 
-			start_pos+=op.Length;
-			if (!(exon_start[start_seg]<=start_pos &&
-				  exon_end[start_seg]>=start_pos-1)) // the end of
-													 // last alignment 
+			start_pos += op.Length;
+			if ( !( exon_start[start_seg]  <= start_pos &&
+					exon_end[start_seg]  >= start_pos )
+				 ) // the end of last alignment 
 			    return false;
 			break;
 			
 		case (Constants::BAM_CIGAR_INS_CHAR)      :			
-			// fall through
 			break;
-		// for 'S' - soft clip, do not write bases
-		// but increment placeholder 'k'
 		case (Constants::BAM_CIGAR_SOFTCLIP_CHAR) :
 			break;
 			
-		// for 'D' - write gap character
-		// for 'N' - write N's, skip bases in original query sequence
-		// for 'P' - write padding character			
+		// for 'D', 'N', 'P', go to next exon
+		// Only 'N' should be presented, because 'D' and 'P' are not
+		// defined in RNA-seq data based on the Samtools document.
 		case (Constants::BAM_CIGAR_DEL_CHAR) :
 		case (Constants::BAM_CIGAR_PAD_CHAR) :
 		case (Constants::BAM_CIGAR_REFSKIP_CHAR) :
-			
 
 			// only increase one segment if it matches the end of exon
 		    // otherwise, does not increase segments, because it may
 		    // be deletion
-			if (start_pos==exon_end[start_seg]+1){
-				start_pos+=op.Length;
-				start_seg++;
-				if (!(exon_start[start_seg]==start_pos )){
+			if (start_pos - 1 == exon_end[ start_seg ]){
+				start_pos += op.Length;
+				start_seg ++;
+				if (!(exon_start[start_seg] == start_pos )){
 					//fprintf(stdout,"no matched! %d\t %d\t\n", start_pos, exon_start[start_seg]);
 					return false;
 				}
@@ -89,7 +97,13 @@ bool Transcript::is_compatible(BamAlignment *al ){
 			// for 'H' - hard clip, do nothing to AlignedBases, move to next op
 		case (Constants::BAM_CIGAR_HARDCLIP_CHAR) :
 			break;
-			
+
+		case ('J') :
+			start_pos += op.Length;
+			if ( (start_seg = get_next_exon (  start_pos, start_seg) ) == NOT_FOUND ){
+				return false;
+			}
+			break;
 			// invalid CIGAR op-code
 		default:
 			const string message = string("invalid CIGAR operation type: ") + op.Type;
@@ -97,6 +111,7 @@ bool Transcript::is_compatible(BamAlignment *al ){
 		}
 	}
 	
+
 	return true;
 }
 
@@ -139,20 +154,19 @@ string Transcript::get_query_aligned_seq(BamAlignment * al){
 			break;
 			
 		case (Constants::BAM_CIGAR_INS_CHAR)      :			
-			// insertion, not aligned 
+		case (Constants::BAM_CIGAR_SOFTCLIP_CHAR) :
+			// insertion, soft clipnot aligned 
 			start_pos+=op.Length;
 			break;
-		// for 'S' - soft clip, do not write bases
-		// but increment placeholder 'k'
-		case (Constants::BAM_CIGAR_SOFTCLIP_CHAR) :
-			break;
-			
+
+
 		// for 'D' - write gap character
 		// for 'N' - write N's, skip bases in original query sequence
 		// for 'P' - write padding character			
 		case (Constants::BAM_CIGAR_DEL_CHAR) :
 		case (Constants::BAM_CIGAR_PAD_CHAR) :
 		case (Constants::BAM_CIGAR_REFSKIP_CHAR) :
+		case ('J'):
 			break;
 			
 			// for 'H' - hard clip, do nothing to AlignedBases, move to next op
@@ -188,6 +202,9 @@ int Transcript::match_alleles(BamAlignment *al, int &total_alleles,
 	total_alleles=0;
 
 	if (transcript_seq.size()!=query_seq.size()){
+		fprintf(stderr,"%d\t%s\n", transcript_seq.size(), transcript_seq.c_str());
+		fprintf(stderr,"%d\t%s\n", query_seq.size(), query_seq.c_str());
+		fprintf(stderr,"%s\n", get_cigar_string(*al).c_str());
 		fprintf(stderr,"The aligned sequences from the transcript and the query do not match\n");
 		exit(0);
 	}
@@ -285,7 +302,6 @@ int Transcript::register_read(BamAlignment *al){
 		reads_per_exon[matched_exons[i]].insert(al);
 	}
 	reads.insert(al);
-	
 	
 	return 0;
 }

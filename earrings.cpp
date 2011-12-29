@@ -25,6 +25,12 @@ Earrings::~Earrings(){
 	for (i=0;i<bam_reads.size();i++){
 		delete bam_reads[i];
 	}
+	for (i = 0; i < unaligned.size(); i++){
+		delete unaligned[i];
+	}
+	for (i = 0; i < noused.size(); i++){
+		delete noused[i];
+	}
 	delete mismatcher;
 }
 
@@ -45,9 +51,6 @@ int Earrings::load_read_data(TranscriptInfo *info){
 	}
 	delete al; // delete the last unused one
 	
-	AlignmentGlue ag;
-
-	ag.glue(bam_reads, bam_reads);
 	return 0;
 }
 
@@ -178,12 +181,16 @@ int Earrings::align_reads(){
 	int num_maternal_alleles;
 	int num_paternal_alleles;
 	int total_alleles;
-	set<BamAlignment *> unaligned;
+	
 	set<BamAlignment *> cleared;
 	vector<set<BamAlignment *> >noninfo;
 	vector<int> paternal_alleles;
 	vector<int> maternal_alleles;
+	vector<BamAlignment *> compatible_reads;
+	vector<BamAlignment *> new_bam_reads;
 
+   
+	AlignmentGlue ag;
 
 	noninfo.resize(maternal_transcripts.size());
 	for(i=0;i<bam_reads.size();i++){
@@ -192,31 +199,54 @@ int Earrings::align_reads(){
 		for (j=0;j<maternal_transcripts.size();j++){
 			// the maternal_transcript should be the same with the paternal_transcript
 			if (maternal_transcripts[j]->is_compatible(bam_reads[i])){
+				compatible_reads.push_back(bam_reads[i]);
+				is_compatible=true;
+				break;
+			}
+		}
+
+		if ( !is_compatible){
+			unaligned.push_back(bam_reads[i]);
+		}
+	}
+
+	bam_reads=compatible_reads;
+
+	ag.glue(bam_reads, new_bam_reads, noused);
+	bam_reads=new_bam_reads;
+
+	int num_compatible_reads = 0;
+	for (i = 0 ; i < bam_reads.size(); i++) {
+
+		is_compatible = false;
+		for (j=0;j<maternal_transcripts.size();j++){
+			// the maternal_transcript should be the same with the paternal_transcript
+			if (maternal_transcripts[j]->is_compatible(bam_reads[i])){
+				is_compatible = true;
 				vector<int> paternal_mismatches;
 				vector<int> maternal_mismatches;
 				vector<char> paternal_mismatchars;
 				vector<char> maternal_mismatchars;
 				vector<int> maternal_locations;
 				vector<int> paternal_locations;
-				
+		
 				maternal_transcripts[j]->register_read(bam_reads[i]);
 				paternal_transcripts[j]->register_read(bam_reads[i]);
-				
-				is_compatible=true;
-
+			
 				maternal_transcripts[j]->match_alleles(bam_reads[i],
 													   total_alleles,
 													   maternal_locations,
 													   maternal_alleles,
 													   maternal_mismatches,
 													   maternal_mismatchars);
+
 				paternal_transcripts[j]->match_alleles(bam_reads[i],
 													   total_alleles,
 													   paternal_locations,
 													   paternal_alleles,
 													   paternal_mismatches,
 													   paternal_mismatchars);
-
+		
 				//fprintf(stdout,"%d\n",total_alleles);
 				num_maternal_alleles=maternal_alleles.size();
 				num_paternal_alleles=paternal_alleles.size();
@@ -246,7 +276,7 @@ int Earrings::align_reads(){
 													   paternal_locations,
 													   paternal_mismatches,
 													   paternal_mismatchars);
-
+					
 						}
 					}
 				}
@@ -258,28 +288,23 @@ int Earrings::align_reads(){
 											   maternal_mismatchars
 											   );
 					noninfo[j].insert(bam_reads[i]);
- 				}
-				//string mret=maternal_transcripts[j]->get_aligned_seq(bam_reads[i]);
-				//string pret=paternal_transcripts[j]->get_aligned_seq(bam_reads[i]);
-				//fprintf(stdout,"%s\n",ret.c_str());
-				//fprintf(stdout,"%s\n",bam_reads[i]->QueryBases.c_str());
+				}
 			}
 		}
-		if (is_compatible==false){
-			unaligned.insert(bam_reads[i]);
-			string c=get_cigar_string(*bam_reads[i]);
-			if (c.find('N')!=c.npos &&bam_reads[i]->Name=="UNC9-SN296_0254:5:1201:10502:167862#TTAGGC"){
-				maternal_transcripts[0]->output_segments();
-				fprintf(stdout,"%s\n",(bam_reads[i]->Name.c_str()));
-				fprintf(stdout,"%d\n",(bam_reads[i]->Position+1));
-				fprintf(stdout,"%d\n",maternal_transcripts[0]->get_transcript_location(bam_reads[i]->Position+1));
-				fprintf(stdout,"%s\n",get_cigar_string(*bam_reads[i]).c_str());
-			}
-
-			//fprintf(stdout,"%s\n",bam_reads[i]->QueryBases.c_str());
-			//fprintf(stdout,"error\n");
+		
+		if (is_compatible) {
+			num_compatible_reads ++;
+		}
+		else {
+			output_bamalignment(bam_reads[i]);
 		}
 	}
+	 
+	fprintf(stdout, "%d compatible reads in %d reads\n", 
+			num_compatible_reads, 
+			bam_reads.size()
+			);
+
 	FILE *finfo=fopen(string(info->folder+"/"+info->gene_id+".landscape.plot.meta").c_str(),"w+");
 
 	for (i=0;i<maternal_transcripts.size();i++){
