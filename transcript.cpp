@@ -1,8 +1,6 @@
 
 #include "transcript.hpp"
 
-}
-
 Transcript::Transcript(){
 	is_initialized=false;
 }
@@ -16,10 +14,9 @@ bool Transcript::is_aligned(BamAlignment *al ){
 	return reads.find(al)!=reads.end();
 }
 
-int Transcript::get_next_exon(int start_pos, int start_seg = 0 ) {
-
-	while(!(exon_start[start_seg]<=start_pos &&
-			exon_end[start_seg]>=start_pos)){
+int Transcript::get_next_exon(int start_pos, int start_seg = 0, int tolerate = 0) {
+	while(!(exon_start[start_seg] - tolerate <= start_pos &&
+			exon_end[start_seg] + tolerate >= start_pos)){
 		start_seg++;
 		if (start_seg>=exon_start.size())
 			return NOT_FOUND;
@@ -27,20 +24,26 @@ int Transcript::get_next_exon(int start_pos, int start_seg = 0 ) {
 	return start_seg;
 }
 
-bool Transcript::is_compatible(BamAlignment *al ){
-	// justify whether the sequences contains the BamAlignment
+int Transcript::get_overlapped_alignment(BamAlignment *al , int &penalty){
+
+	penalty = 0;
 
 	if (exon_start.size()!=exon_end.size()){
 		fprintf(stderr,"the sizes does not match.\n");
 		exit(0);
 	}
 	// Get start segments
-	int start_seg=0;
-	int start_pos=al->Position+1;
+	int start_seg = 0;
+	int start_pos = al->Position + 1;
 
-	if ( (start_seg = get_next_exon (  start_pos, start_seg) ) == NOT_FOUND ){
-		return false;
-	}
+	int new_length = 0;
+
+	int alignment_start = 0;
+	string new_querybases;
+	vector<CigarOp> new_cigar_data;
+	int begin_seg, end_seg;
+	int begin_err, end_err;
+	int temp_length;
 	std::vector< CigarOp > &cigar_data = al->CigarData;
 	vector<CigarOp>::const_iterator cigar_iter = cigar_data.begin();
 	vector<CigarOp>::const_iterator cigar_end  = cigar_data.end();
@@ -53,51 +56,192 @@ bool Transcript::is_compatible(BamAlignment *al ){
 			// for 'M', '=', 'X' - ;
 			// check wether the matched string belong to the same exon
 
-		case (Constants::BAM_CIGAR_MATCH_CHAR)    :
-		case (Constants::BAM_CIGAR_SEQMATCH_CHAR) :
-		case (Constants::BAM_CIGAR_MISMATCH_CHAR) :
+		case ( Constants::BAM_CIGAR_MATCH_CHAR )    :
+		case ( Constants::BAM_CIGAR_SEQMATCH_CHAR ) :
+		case ( Constants::BAM_CIGAR_MISMATCH_CHAR ) :
+			// the beginning and end of the matched sequence must 
+			// be belong to the same sequences. 
+
+
+			// two cases will be completely ignored
+			// Case ONE: beginning and end of the matched region does
+			// not belong to any exon region
+			// Case TWO: beginning and end of the matched region
+			// belong to two different exon region
+			begin_seg = get_next_exon(start_pos);
+			end_seg = get_next_exon(start_pos + op.Length -1);
+			if  (( begin_seg == NOT_FOUND && begin_seg == end_seg)
+				 ||( begin_seg != NOT_FOUND && end_seg != NOT_FOUND &&
+					 begin_seg != end_seg) ) {
+
+				// TODO: 
+				// An anti-example the matched region can be covered
+				// one or several exon regions.
+				penalty += op.Length;
+				start_pos += op.Length;
+				new_cigar_data.push_back(CigarOp(Constants::BAM_CIGAR_REFSKIP_CHAR, 
+												 op.Length));
+			}
+			else{ 
+				begin_err = 0; end_err = 0;
+
+				if ( begin_seg == NOT_FOUND && end_seg != NOT_FOUND ){
+					// the begin of the read exceeds the exon region
+					begin_err = exon_start[end_seg] - start_pos;
+					new_cigar_data.push_back(CigarOp(Constants::BAM_CIGAR_REFSKIP_CHAR, 
+													 begin_err));
+				}
+				if ( begin_seg != NOT_FOUND && end_seg == NOT_FOUND ){
+					// the end of the read exceeds the exon region
+					end_err =  start_pos + op.Length -1 - exon_end[ begin_seg ];
+				}
+				start_pos += op.Length;
+				temp_length = op.Length - begin_err - end_err;
+				new_cigar_data.push_back(CigarOp(op.Type, temp_length));
+
+				new_querybases += al->QueryBases.substr(alignment_start + begin_err,
+														temp_length);
+				new_length += temp_length;
+				alignment_start += op.Length;
+				if (end_err > 0 ){
+					new_cigar_data.push_back(CigarOp(Constants::BAM_CIGAR_REFSKIP_CHAR, 
+													 end_err));
+				}
+				penalty += begin_err + end_err;
+			}
+					 
+			break;
+			
+		case (Constants::BAM_CIGAR_INS_CHAR)      :			
+		case (Constants::BAM_CIGAR_SOFTCLIP_CHAR) :
+		case (Constants::BAM_CIGAR_HARDCLIP_CHAR) :
+			if (get_next_exon(start_pos) != NOT_FOUND) {
+				new_cigar_data.push_back(op);
+				new_length += op.Length;
+				new_querybases += al->QueryBases.substr(alignment_start, op.Length);
+				alignment_start += op.Length;
+			}
+		    else {
+				penalty += op.Length;
+			}
+			break;
+			
+		// for 'N', goto next exon
+		// Only 'N' should be presented as an intron, because 'D' and 'P' are not
+		// defined in RNA-seq data based on the Samtools document.
+		case (Constants::BAM_CIGAR_REFSKIP_CHAR) :
+		case (Constants::BAM_CIGAR_DEL_CHAR) :
+		case (Constants::BAM_CIGAR_PAD_CHAR) :
+			// no 'J', because all reads should be call this function
+			// first to make them only have the region covered by the transcripts
+			// case ('J') :
+			start_pos += op.Length;
+			new_cigar_data.push_back(op);
+			break;
+			// invalid CIGAR op-code
+		case ('J'):
+			fprintf(stderr, "Should call Transcript::get_overlapped_alignment first before AlignmentGlue class\n");
+		default:
+			const string message = string("invalid CIGAR operation type: ") + op.Type;
+			fprintf(stderr, "%s\n", message.c_str());
+			exit(0);
+
+		}
+	}
+	
+	if (penalty > 0) {
+		fprintf(stdout, "Find a read need to be fixed!\n");
+		output_segments();
+		fprintf(stdout,"%s\n",al->QueryBases.c_str());
+		fprintf(stdout,"%d\n",al->Position + 1);
+		fprintf(stdout,"%s\n",get_cigar_string((*al)).c_str());
+		al->Length = new_length;
+		al->CigarData = new_cigar_data;
+		al->QueryBases = new_querybases;
+		cigar_trim(al);
+		fprintf(stdout,"%s\n",al->QueryBases.c_str());
+		fprintf(stdout,"%d\n",al->Position + 1);
+		fprintf(stdout,"%s\n",get_cigar_string((*al)).c_str());
+
+	}
+
+	return true;
+}
+
+bool Transcript::is_compatible(BamAlignment *al ){
+	// justify whether the sequences contains the BamAlignment
+	// if it contains most of the read, this will adjust the read to
+	// make it completely compatible 
+	// check it out with Transcript::tolerate
+
+	if (exon_start.size()!=exon_end.size()){
+		fprintf(stderr,"the sizes does not match.\n");
+		exit(0);
+	}
+	// Get start segments
+	int start_seg=0;
+	int start_pos=al->Position+1;
+
+	int err;
+	if ( (start_seg = get_next_exon (  start_pos, start_seg) ) == NOT_FOUND ){
+		return false;
+	}
+	
+	int new_length = 0;
+	string new_querybases = "";
+
+	std::vector< CigarOp > &cigar_data = al->CigarData;
+	vector<CigarOp>::const_iterator cigar_iter = cigar_data.begin();
+	vector<CigarOp>::const_iterator cigar_end  = cigar_data.end();
+	
+	for ( ; cigar_iter != cigar_end; ++cigar_iter ) {
+		const CigarOp& op = (*cigar_iter);
+		
+		switch ( op.Type ) {
+			
+			// for 'M', '=', 'X' - ;
+			// check wether the matched string belong to the same exon
+
+		case ( Constants::BAM_CIGAR_MATCH_CHAR )    :
+		case ( Constants::BAM_CIGAR_SEQMATCH_CHAR ) :
+		case ( Constants::BAM_CIGAR_MISMATCH_CHAR ) :
 			// the beginning and end of the matched sequence must 
 			// be belong to the same sequences. 
 			start_pos += op.Length;
-			if ( !( exon_start[start_seg]  <= start_pos &&
-					exon_end[start_seg]  >= start_pos )
+			if ( !( exon_start[start_seg] - tolerate <= start_pos &&
+					exon_end[start_seg] + tolerate >= start_pos -1 )
 				 ) // the end of last alignment 
 			    return false;
 			break;
 			
 		case (Constants::BAM_CIGAR_INS_CHAR)      :			
-			break;
 		case (Constants::BAM_CIGAR_SOFTCLIP_CHAR) :
-			break;
-			
-		// for 'D', 'N', 'P', go to next exon
-		// Only 'N' should be presented, because 'D' and 'P' are not
-		// defined in RNA-seq data based on the Samtools document.
-		case (Constants::BAM_CIGAR_DEL_CHAR) :
-		case (Constants::BAM_CIGAR_PAD_CHAR) :
-		case (Constants::BAM_CIGAR_REFSKIP_CHAR) :
-
-			// only increase one segment if it matches the end of exon
-		    // otherwise, does not increase segments, because it may
-		    // be deletion
-			if (start_pos - 1 == exon_end[ start_seg ]){
-				start_pos += op.Length;
-				start_seg ++;
-				if (!(exon_start[start_seg] == start_pos )){
-					//fprintf(stdout,"no matched! %d\t %d\t\n", start_pos, exon_start[start_seg]);
-					return false;
-				}
-				else {
-					//fprintf(stdout,"matched! %d\t %d\t\n", start_pos, exon_start[start_seg]);
-				}
-			}
-			else 			start_pos+=op.Length;
-			break;
-			
-			// for 'H' - hard clip, do nothing to AlignedBases, move to next op
 		case (Constants::BAM_CIGAR_HARDCLIP_CHAR) :
 			break;
 
+		case (Constants::BAM_CIGAR_REFSKIP_CHAR) :
+		// for 'N', goto next exon
+		// Only 'N' should be presented as an intron, because 'D' and 'P' are not
+		// defined in RNA-seq data based on the Samtools document.
+			err = (start_pos - 1 - exon_end[ start_seg ]);
+			if (  abs(err) <= tolerate){
+				// start postion at the end of current exon
+				start_pos += op.Length;
+				start_seg ++;
+				err = start_pos - exon_start[ start_seg ];
+				if ( abs(err) > tolerate) {
+					// not at the beginning of the exon
+					return false;
+				}
+			}
+			else {
+				// not at the end of exon
+				return false;
+			}
+			break;
+			
+		case (Constants::BAM_CIGAR_DEL_CHAR) :
+		case (Constants::BAM_CIGAR_PAD_CHAR) :
 		case ('J') :
 			start_pos += op.Length;
 			if ( (start_seg = get_next_exon (  start_pos, start_seg) ) == NOT_FOUND ){
@@ -202,10 +346,15 @@ int Transcript::match_alleles(BamAlignment *al, int &total_alleles,
 	total_alleles=0;
 
 	if (transcript_seq.size()!=query_seq.size()){
+		
 		fprintf(stderr,"%d\t%s\n", transcript_seq.size(), transcript_seq.c_str());
 		fprintf(stderr,"%d\t%s\n", query_seq.size(), query_seq.c_str());
-		fprintf(stderr,"%s\n", get_cigar_string(*al).c_str());
+		fprintf(stderr,"%d\t%s\n", al->Position + 1, get_cigar_string(*al).c_str());
+
+		output_segments();
+		
 		fprintf(stderr,"The aligned sequences from the transcript and the query do not match\n");
+
 		exit(0);
 	}
 	
@@ -260,8 +409,8 @@ int Transcript::get_transcript_exon(int genome_location){
 	
 	int i;
 	for (i=0;i<exon_start.size();i++){
-		if (genome_location>=exon_start[i] && 
-			genome_location<=exon_end[i]){
+		if (genome_location >= exon_start[i]-tolerate  && 
+			genome_location <= exon_end[i] + tolerate){
 			return i;
 		}
 	}

@@ -34,9 +34,9 @@ public :
 	vector<Transcript *> maternal_transcripts;
 	vector<Transcript *> paternal_transcripts;
 	vector<BamAlignment *> bam_reads;
-	vector<BamAlignment *> unaligned;
-	vector<BamAlignment *> noused;
-
+	vector<BamAlignment *> unaligned_reads;
+	vector<BamAlignment *> noused_reads;
+	vector<BamAlignment *> compatible_reads;
 
 	// create paternal and maternal transcripts databases
 	// annotate SNPs for paternal  and maternal transcripts' sequence
@@ -56,6 +56,13 @@ public :
 
 	// build graph
 	int build_graph();
+	
+	// study compatible reads
+	int study_compatible_reads();
+
+	// get compatible reads
+	int get_compatible_reads();
+
 };
 
 

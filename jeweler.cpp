@@ -70,6 +70,8 @@ int jeweler::run(){
 	return 0;
 }
 
+int Transcript::tolerate=0;
+
 int main(int argc, char * argv[]){
 	jeweler j=jeweler(argc, argv);
 	j.run();

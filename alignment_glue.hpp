@@ -1,5 +1,6 @@
 #ifndef _ALIGNMENT_GLUE_HPP_
 #define _ALIGNMENT_GLUE_HPP_
+
 #include <iostream>
 #include <string> 
 #include <api/BamReader.h>
@@ -20,6 +21,8 @@ public:
 	int glue_cigar_data(BamAlignment *first, BamAlignment *second, int overlapped);	
 	int get_skipped_region(BamAlignment *al, int overlapped, 
 						   vector<CigarOp> &cigar_data, int &skipped_length);
+	
+
 	int glue(vector<BamAlignment *> &in_reads, 
 			 vector<BamAlignment *> &new_reads,
 			 vector<BamAlignment *> &noused);
@@ -27,4 +30,5 @@ public:
 
 int output_bamalignment(BamAlignment *al);
 
+int cigar_trim(BamAlignment *al);
 #endif // _ALIGNMENT_GLUE_HPP_

@@ -93,7 +93,7 @@ int TranscriptMismatcher::dump(FILE *file){
 	auto m=genome_pos2maternal.begin();
 	auto p=genome_pos2paternal.begin();
 	for (i = 0 ; i < mismatches.size() ; i++){
-		fprintf(file,"%d\t%d\t%d\t%d\t%d\t%d\t%d\t%c\t%c\n",
+		fprintf(file,"%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%c\t%c\n",
 				j->first, coverage[i], mismatches[i],
 				A_mismatches[i],T_mismatches[i], C_mismatches[i], G_mismatches[i],
 				N_mismatches[i],

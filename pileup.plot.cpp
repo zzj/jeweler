@@ -43,9 +43,8 @@ PileupPlot::PileupPlot(Transcript * maternal_transcript,
 							 paternal);
 
 	add_transcript_to_pileup(paternal_transcript /* either one is fine */,   
-								unknown_reads, 
-								unknown);
-
+							 unknown_reads, 
+							 unknown);
 
 }
 
@@ -105,6 +104,7 @@ int PileupPlot::add_coverage(Transcript * transcript,  BamAlignment *al,  vector
 		// for 'D' - write gap character
 		// for 'N' - write N's,  skip bases in original query sequence
 		// for 'P' - write padding character			
+		case ('J'):
 		case (Constants::BAM_CIGAR_DEL_CHAR) :
 		case (Constants::BAM_CIGAR_PAD_CHAR) :
 		case (Constants::BAM_CIGAR_REFSKIP_CHAR) :
@@ -118,6 +118,8 @@ int PileupPlot::add_coverage(Transcript * transcript,  BamAlignment *al,  vector
 			// invalid CIGAR op-code
 		default:
 			const string message = string("invalid CIGAR operation type: ") + op.Type;
+			fprintf(stderr, "%s\n", message.c_str());
+			exit(0);
 			return false;
 		}
 	}

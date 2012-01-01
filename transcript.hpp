@@ -13,6 +13,7 @@
 #include "constants.hpp"
 #include "graph/graph.hpp"
 #include "laboratory/cigar_holder.hpp"
+#include "alignment_glue.hpp"
 using namespace BamTools;
 
 
@@ -21,13 +22,13 @@ using namespace BamTools;
 
 
 using namespace std;
+
 class Transcript{
 
 public:
 	Transcript();
-
-	const static int tolerate = 2;
-
+	
+	static int tolerate ;
 	bool is_initialized;
 	int origin;
 	string name;
@@ -59,6 +60,8 @@ public:
 
 	vector<set<BamAlignment *> > allele_reads_per_exon;
 	vector<set<BamAlignment *> > reads_per_exon;
+
+	int get_overlapped_alignment(BamAlignment *, int &penalty);
 
 	// Check the BamAlignment is compatible with the transcript
 	bool is_compatible(BamAlignment *);
@@ -96,7 +99,7 @@ public:
 	int get_transcript_exon(int genome_location);
 
 	// get next exons
-	int get_next_exon(int start_pos, int start_seg );
+	int get_next_exon(int start_pos, int start_seg , int tolerate);
 
 	// get allele char
 	char get_allele_char(int transcript_location);

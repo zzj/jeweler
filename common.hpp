@@ -11,6 +11,9 @@
 #include <stdio.h>
 #include <map>
 #include <string> 
+#include <api/BamReader.h>
+#include <api/BamWriter.h>
+#include <api/BamAlignment.h>
 
 
 #define MAXLINE 10000
@@ -18,4 +21,7 @@
 FILE * file_open( const char *name, const char * mode);
 
 char * trim(char *);
+
+
+
 #endif /* _COMMON_H_ */

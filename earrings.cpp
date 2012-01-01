@@ -1,9 +1,11 @@
 #include "earrings.hpp"
 
+
+
 Earrings::Earrings(TranscriptInfo *info){
 
-	this->info=info;
-	this->mismatcher=new TranscriptMismatcher();
+	this->info = info;
+	this->mismatcher = new TranscriptMismatcher();
 	// load maternal and paternal transcripts sequences.
 	load_transcript_data(info);	
 	// load bamalignment by bamtools.
@@ -25,11 +27,11 @@ Earrings::~Earrings(){
 	for (i=0;i<bam_reads.size();i++){
 		delete bam_reads[i];
 	}
-	for (i = 0; i < unaligned.size(); i++){
-		delete unaligned[i];
+	for (i = 0; i < unaligned_reads.size(); i++){
+		delete unaligned_reads[i];
 	}
-	for (i = 0; i < noused.size(); i++){
-		delete noused[i];
+	for (i = 0; i < noused_reads.size(); i++){
+		delete noused_reads[i];
 	}
 	delete mismatcher;
 }
@@ -175,47 +177,72 @@ int Earrings::transcript_helper(string seq_filename,string gtf_file,
 	return 0;
 }
 
-int Earrings::align_reads(){
-	int i,j,k;
+
+int Earrings::study_compatible_reads(){
+	Transcript::tolerate = 0;
+	for (int t = 0; t < 10; t++){
+		Transcript::tolerate=t;
+		get_compatible_reads();
+	}
+	return 0;
+}
+
+
+int Earrings::get_compatible_reads() {
+	int i,j;
 	bool is_compatible=false;
-	int num_maternal_alleles;
-	int num_paternal_alleles;
-	int total_alleles;
-	
-	set<BamAlignment *> cleared;
-	vector<set<BamAlignment *> >noninfo;
-	vector<int> paternal_alleles;
-	vector<int> maternal_alleles;
-	vector<BamAlignment *> compatible_reads;
-	vector<BamAlignment *> new_bam_reads;
-
-   
-	AlignmentGlue ag;
-
-	noninfo.resize(maternal_transcripts.size());
+	compatible_reads.clear();
+	unaligned_reads.clear();
 	for(i=0;i<bam_reads.size();i++){
 		is_compatible=false;
-
+		
 		for (j=0;j<maternal_transcripts.size();j++){
 			// the maternal_transcript should be the same with the paternal_transcript
 			if (maternal_transcripts[j]->is_compatible(bam_reads[i])){
+				int penalty;
+				maternal_transcripts[j]->get_overlapped_alignment(bam_reads[i], penalty);
 				compatible_reads.push_back(bam_reads[i]);
 				is_compatible=true;
 				break;
 			}
 		}
-
+		
 		if ( !is_compatible){
-			unaligned.push_back(bam_reads[i]);
+			unaligned_reads.push_back(bam_reads[i]);
 		}
 	}
+	
+	fprintf(stderr, "Tolerate %d\tTotal reads: %d\t Compatible: %d\t unaligned: %d\n",
+			Transcript::tolerate,
+			bam_reads.size(),
+			bam_reads.size()  - unaligned_reads.size(),
+			unaligned_reads.size());
+}
 
+int Earrings::align_reads(){
+	int i,j,k;
+
+	int num_maternal_alleles;
+	int num_paternal_alleles;
+	int total_alleles;
+	bool is_compatible=false;	
+	set<BamAlignment *> cleared;
+	vector<set<BamAlignment *> >noninfo;
+	vector<int> paternal_alleles;
+	vector<int> maternal_alleles;
+
+	vector<BamAlignment *> new_bam_reads;
+
+   
+	AlignmentGlue ag;
+	Transcript::tolerate = 0;
+	get_compatible_reads();
 	bam_reads=compatible_reads;
-
-	ag.glue(bam_reads, new_bam_reads, noused);
+	ag.glue(bam_reads, new_bam_reads, noused_reads);
 	bam_reads=new_bam_reads;
 
 	int num_compatible_reads = 0;
+	noninfo.resize(maternal_transcripts.size());	
 	for (i = 0 ; i < bam_reads.size(); i++) {
 
 		is_compatible = false;
@@ -296,6 +323,9 @@ int Earrings::align_reads(){
 			num_compatible_reads ++;
 		}
 		else {
+			
+			fprintf(stderr, "WARNING: Find an incompatible read.\n");
+			paternal_transcripts[0]->output_segments();
 			output_bamalignment(bam_reads[i]);
 		}
 	}
