@@ -37,7 +37,9 @@ public :
 	vector<BamAlignment *> unaligned_reads;
 	vector<BamAlignment *> noused_reads;
 	vector<BamAlignment *> compatible_reads;
+	
 
+	int num_total_reads;
 	// create paternal and maternal transcripts databases
 	// annotate SNPs for paternal  and maternal transcripts' sequence
 	int load_transcript_data(TranscriptInfo * ti); // load transcript data 
@@ -62,7 +64,9 @@ public :
 
 	// get compatible reads
 	int get_compatible_reads();
+	
 
+	void test_memory_leak();
 };
 
 

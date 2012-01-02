@@ -6,6 +6,7 @@
 #include <api/BamReader.h>
 #include <api/BamWriter.h>
 #include <map>
+#include <set>
 #include <Fasta.h>
 #include <algorithm>
 #include "laboratory/cigar_holder.hpp"

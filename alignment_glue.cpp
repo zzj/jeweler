@@ -150,6 +150,7 @@ int AlignmentGlue::glue(vector<BamAlignment *> &in_reads,
 						vector<BamAlignment *> &new_reads,
 						vector<BamAlignment *> &noused_reads){
 	int i;
+	set<BamAlignment *> checklist;
 	
 	name2reads.clear();
 	
@@ -162,6 +163,7 @@ int AlignmentGlue::glue(vector<BamAlignment *> &in_reads,
 			if ( name2reads.find(in_reads[i]->Name) != name2reads.end()) {
 				vector<BamAlignment *> alignments = name2reads[in_reads[i]->Name];
 				if ( alignments.size() == 1 ) {
+					// TODO:
 					// not paired, but still counted as a valid alignment.
 					continue;
 				}
@@ -169,13 +171,15 @@ int AlignmentGlue::glue(vector<BamAlignment *> &in_reads,
 					
 					if (alignments[0]->IsFirstMate() && alignments[1]->IsSecondMate()) {
 						glue_paired_alignments(alignments[0], alignments[1]);
-						noused_reads.push_back(alignments[1]);
 						new_reads.push_back(alignments[0]);
+						checklist.insert(alignments[0]);
+
 					}
 					else if (alignments[1]->IsFirstMate() && alignments[0]->IsSecondMate()) {
 						glue_paired_alignments(alignments[1], alignments[0]);
-						noused_reads.push_back(alignments[0]);
 						new_reads.push_back(alignments[1]);
+						checklist.insert(alignments[1]);
+
 					}
 					else {
 						//fprintf(stdout, "not properly mapped\n");
@@ -189,6 +193,12 @@ int AlignmentGlue::glue(vector<BamAlignment *> &in_reads,
 					//}
 				}
 			}
+		}
+	}
+
+	for ( i = 0; i < in_reads.size(); i++){
+		if (checklist.find(in_reads[i]) == checklist.end()){
+			noused_reads.push_back(in_reads[i]);
 		}
 	}
 	

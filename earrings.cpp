@@ -12,14 +12,18 @@ Earrings::Earrings(TranscriptInfo *info){
 	load_read_data(info);
 	// align reads back to the transcripts
 	align_reads();
+
 	// build graph;
 	build_graph();
 	test_allele_specific_transcript();
 }
 
 
+
+
 Earrings::~Earrings(){
 	int i=0;
+	test_memory_leak();
 	for (i=0;i<maternal_transcripts.size();i++){
 		delete maternal_transcripts[i];
 		delete paternal_transcripts[i];
@@ -36,7 +40,17 @@ Earrings::~Earrings(){
 	delete mismatcher;
 }
 
+void Earrings::test_memory_leak(){
+	if (num_total_reads != 
+		bam_reads.size() + unaligned_reads.size() + noused_reads.size())
+		fprintf (stderr, "WARNING: Memory Leaking: total reads %d\t record reads%d\n", num_total_reads,  bam_reads.size() + unaligned_reads.size() + noused_reads.size());
+
+}
+
 int Earrings::load_read_data(TranscriptInfo *info){
+	
+	num_total_reads = 0;
+
 	string bam_filename=info->read_seq_filename;
 
 	BamReader reader;
@@ -48,6 +62,7 @@ int Earrings::load_read_data(TranscriptInfo *info){
 	BamAlignment *al=new BamAlignment();
 
 	while(reader.GetNextAlignment(*al)){
+		num_total_reads ++;
 		bam_reads.push_back(al);
 		al=new BamAlignment();
 	}
@@ -173,6 +188,10 @@ int Earrings::transcript_helper(string seq_filename,string gtf_file,
 
 		}
 	}
+	// delete fasta sequence file
+	for (int i=0; i<sr.size(); i++){
+		delete sr[i];
+	}
 	
 	return 0;
 }
@@ -193,7 +212,6 @@ int Earrings::get_compatible_reads() {
 	int num_unaligned_reads = 0;
 	bool is_compatible=false;
 	compatible_reads.clear();
-	
 	for(i=0;i<bam_reads.size();i++){
 		is_compatible=false;
 		
@@ -238,8 +256,11 @@ int Earrings::align_reads(){
    
 	AlignmentGlue ag;
 	Transcript::tolerate = 0;
+
 	get_compatible_reads();
+
 	bam_reads=compatible_reads;
+
 	ag.glue(bam_reads, new_bam_reads, noused_reads);
 	bam_reads=new_bam_reads;
 
@@ -336,6 +357,7 @@ int Earrings::align_reads(){
 			num_compatible_reads, 
 			bam_reads.size()
 			);
+
 
 	FILE *finfo=fopen(string(info->folder+"/"+info->gene_id+".landscape.plot.meta").c_str(),"w+");
 
