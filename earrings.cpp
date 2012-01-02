@@ -190,9 +190,10 @@ int Earrings::study_compatible_reads(){
 
 int Earrings::get_compatible_reads() {
 	int i,j;
+	int num_unaligned_reads = 0;
 	bool is_compatible=false;
 	compatible_reads.clear();
-	unaligned_reads.clear();
+	
 	for(i=0;i<bam_reads.size();i++){
 		is_compatible=false;
 		
@@ -209,14 +210,15 @@ int Earrings::get_compatible_reads() {
 		
 		if ( !is_compatible){
 			unaligned_reads.push_back(bam_reads[i]);
+			num_unaligned_reads ++;
 		}
 	}
 	
 	fprintf(stderr, "Tolerate %d\tTotal reads: %d\t Compatible: %d\t unaligned: %d\n",
 			Transcript::tolerate,
 			bam_reads.size(),
-			bam_reads.size()  - unaligned_reads.size(),
-			unaligned_reads.size());
+			bam_reads.size()  - num_unaligned_reads,
+			num_unaligned_reads);
 }
 
 int Earrings::align_reads(){
