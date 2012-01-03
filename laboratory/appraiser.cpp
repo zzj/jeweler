@@ -10,7 +10,14 @@ Appraiser::Appraiser(int argc, char* argv[]){
 	quality_file=stdout;
 	test_num=-1;
 	
+
 	for (i=1; i<argc; i++){
+
+		if (strcmp(argv[i],"-h")==0){
+			fprintf(stdout, "help information for Appraiser:\n");
+			fprintf(stdout, " command: appraiser -b bamfile -f fastafile -l logifile -manf mapfile -qf quality file -tn num_of_tests\n");
+			exit(0);
+		}
 		if (strcmp(argv[i],"-b")==0){
 			i++;
 			if (i<argc){
