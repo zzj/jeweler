@@ -105,29 +105,36 @@ plot = function () {
   for ( i in 2:dim(cuffcompare.info)[1]){
     info <- list()
     meta <- list()
+    mismatcher <- list()
     if (i>3) break
     print(i)
     for ( j in 2:dim(cuffcompare.info)[2]) {
       if ( !is.na(cuffcompare.info[i,j]) ) {
         transcript.id <- cuffcompare.info[i,j]
-        ## get gene id from ttranscript id
         gene.id <- paste(strsplit(transcript.id,'\\.')[[1]][1:2],collapse='.')
-        plot.info.file <- paste('../',jeweler.result.info[[j-1]][gene.id,2], '/',
+        data.folder <- jeweler.result.info[[j-1]][gene.id,2]
+        plot.info.file <- paste('../', data.folder, '/',
                                 transcript.id, '.landscape.plot.info',sep="")
-        plot.meta.file <- paste('../',jeweler.result.info[[j-1]][gene.id,2], '/',
-                                transcript.id, '.landscape.plot.meta',sep="")
+        plot.meta.file <- paste('../', data.folder, '/',
+                                gene.id, '.landscape.plot.meta',sep="")
+        plot.mismatcher.file <- paste('../', data.folder, '/',
+                                gene.id, '.mismacher',sep="")
         if (file.exists(plot.info.file)) {
           info[[j-1]] <- read.table(plot.info.file,header=T)
-          meta[[j-1]] <- read.table(plot.info.file,header=F)
+          meta[[j-1]] <- read.table(plot.meta.file,header=F)
+          ## skip the heaer row due to the bug in mismatcher.cpp
+          mismatcher[[j-1]] <- read.table(plot.mismatcher.file, header=T)
         }
         else {
           info[[j-1]] <- NA
           meta[[j-1]] <- NA
+          mismatcher[[j-1]] <- NA
         }
       }
       else {
         info[[j-1]] <- NA
         meta[[j-1]] <- NA
+        mismatcher[[j-1]] <- NA
       }
     }
 
@@ -135,20 +142,21 @@ plot = function () {
     for ( j in 1:num.samples){
       if (!is.list(info[[j]])) next
       locations <- union(locations,info[[j]]$location)
+      locations <- union(locations,mismatcher$location)
     }
     locations <- sort(locations)
     if (is.null(locations)) next
-    pdf ( paste(result.folder,"/", rownames(cuffcompare.info)[i],".pdf", sep=""),
-         height =20)
+    pdf(paste(result.folder,"/", rownames(cuffcompare.info)[i],".pdf", sep=""),
+        height =20)
     par(mfrow=c(4,1))
-    for (j in 1:num.samples)
-      transcript.pileup.plot(locations, plot.data=info[[j]], jeweler.result.list[j])
+    for (j in 1:num.samples){
+      transcript.pileup.plot(locations = locations,
+                             plot.data = info[[j]],
+                             mismatcher = mismatcher[[j]],
+                             title.text = jeweler.result.list[j])
+    }
     dev.off()
-
-
   }
-
-
 }
 )
 
