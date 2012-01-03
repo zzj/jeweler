@@ -69,8 +69,6 @@ get.cuffcompare.info = function ( ) {
                                  )
                                )
     for (i in 1:dim(result.info)[1]) {
-      print(i)
-      if (i>10) break
       transcript.name <- result.info[i,3]
       transcript.pattern <- result.info[i,4]
       if (is.na(cuffcompare.info.temp[transcript.name,'pattern']) ||
@@ -106,7 +104,6 @@ plot = function () {
     info <- list()
     meta <- list()
     mismatcher <- list()
-    if (i>3) break
     print(i)
     for ( j in 2:dim(cuffcompare.info)[2]) {
       if ( !is.na(cuffcompare.info[i,j]) ) {
