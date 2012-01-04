@@ -5,167 +5,94 @@ import traceback
 import argparse
 from subprocess import call
 
+import split_gtf_file
 
-def split_gtf_file(gtf_input_file,maternal_strain_ref_seq, paternal_strain_ref_seq,
-					maternal_strain_id, paternal_strain_id,
-					bam_file,
-					result_folder,  result_file):
-	result_file_fd= open(result_file,"w+")
-	try:
-		os.makedirs()
-	except:
-		print("Notice: the folder was created.\n")
+def initialize_parser():
+	parser=argparse.ArgumentParser(description=
+								   'The main batch script for RNA-seq analysis.')
+	
+	parser.add_argument('--json',
+						help='legendary json function. Process one json file a time',
+						dest='json')
 
+	parser.add_argument('--filelist',
+						help='A list of bam files, for multipe bamfiles. ',
+						dest='filelist')
 
-	with open(gtf_input_file) as f:
-		gene_meta = f.readlines()
+	parser.add_argument('--reftable',
+						help='A reference table for reference genomes',
+						dest='reftable')
 
-	last_id		  = ""
-	chr			 = ""
-	maternal_region	 = -1
-	paternal_region	= -1
-	is_file_created = False
-	tranfile		= None
-	id			  = 0
-
-	for line in gene_meta:
-
-		info=line.strip().split('\t')
-		if (len(info)!=9):
-			break
-		# Find a new start of a transcript
-		if (info[2]=='transcript'):
-			gene_id=info[8].split(';')[0].split('"')[1]
-
-			if (last_id==gene_id):
-				# new transcript, but same gene with previous one
-				chr=info[0]
-				if ((left_region)<0):
-					left_region = int(info[3])
-				else :
-					left_region = min(int(info[3]),left_region)
-
-				if (right_region<0):
-					right_region=int(info[4])
-				else :
-					right_region=max(int(info[4]),right_region)
-			else :
-				# new transcript, new gene
-				if (tranfile!=None):
-					tranfile.close()
-					id=id+1
-					print(str(id)+"\n")
-					maternal_output_seq  = gene_folder+last_id+'.'+maternal_strain_id+".fa"
-					paternal_output_seq = gene_folder+last_id+'.'+paternal_strain_id+".fa"
-					read_seq		 = gene_folder+last_id+".seq.bam";
-					call(['gffread', '-w', maternal_output_seq, '-g', maternal_strain_ref_seq, 
-						  gene_folder+last_id])
-					call(['gffread', '-w', paternal_output_seq, '-g', paternal_strain_ref_seq, 
-						  gene_folder+last_id])
-					call(["samtools","view", bam_file , 
-						 chr +":" +str(left_region)  +"-" +str(right_region) ,
-						 "-b","-o", read_seq])
-
-					print("\t".join([last_id, gene_folder, gene_folder+last_id,
-									 maternal_output_seq, paternal_output_seq, read_seq]),
-						  file=result_file_fd)
-					result_file_fd.flush();
-
-				gene_folder=result_folder + gene_id + '/'
-				if ( not os.path.exists(gene_folder)):
-					os.makedirs(gene_folder)
-				tranfile=open(gene_folder+gene_id,"w+")
-				last_id=gene_id
-				chr=info[0]
-				left_region=int(info[3])
-				right_region=int(info[4])
-
-
-		info[6]='+'
-		print("\t".join(info),file=tranfile)
-	result_file_fd.close()
-	##os.system('./jeweler -i '+result_file)
-	return 
-
-
-def main():
-	try:
-		
-		parser=argparse.ArgumentParser(description=
-									   'The main batch script for RNA-seq analysis.')
-		
-		parser.add_argument('--json',
-						   help='legendary json function. Process one json file a time',
-						   dest='json')
-
-		parser.add_argument('--filelist',
-							help='A list of bam files, for multipe bamfiles. ',
-							dest='filelist')
-
-		parser.add_argument('--reftable',
-							help='A reference table for reference genomes',
-							dest='reftable')
-
-		parser.add_argument('--result_folder',
+	parser.add_argument('--result_folder',
 							help='result folder',
 							dest='result_folder')
 
-		parser.add_argument('--alias',
-							help='project alias',
-							dest='alias')
-		
-		parser.add_argument('--maternal_strain_ref_seq',
-							help='matran strain fasta file',
-							dest='maternal_strain_ref_seq')
-		
-		parser.add_argument('--maternal_strain_id',
-							help='matran strain id',
-							dest='maternal_strain_id')
-		
-		parser.add_argument('--paternal_strain_ref_seq',
-							help='matran strain fasta file',
-							dest='paternal_strain_ref_seq')
+	parser.add_argument('--alias',
+						help='project alias',
+						dest='alias')
 
-		parser.add_argument('--paternal_strain_id',
-							help='matran strain id',
-							dest='paternal_strain_id')
+	parser.add_argument('--maternal_strain_ref_seq',
+						help='matran strain fasta file',
+						dest='maternal_strain_ref_seq')
 
-		parser.add_argument('--bam_file',
-							help='bam files',
-							dest='bam_file')
+	parser.add_argument('--maternal_strain_id',
+						help='matran strain id',
+						dest='maternal_strain_id')
 
-		parser.add_argument('--gtf_input_file',
-							help='gtf input file',
-							dest='gtf_input_file')
+	parser.add_argument('--paternal_strain_ref_seq',
+						help='matran strain fasta file',
+						dest='paternal_strain_ref_seq')
 
-		parser.add_argument('--result_file',
-							help='result files',
-							dest='result_file');
+	parser.add_argument('--paternal_strain_id',
+						help='matran strain id',
+						dest='paternal_strain_id')
 
-		parser.add_argument('--single',
-							action='store_true',
-							dest='is_single')
+	parser.add_argument('--bam_file',
+						help='bam files',
+						dest='bam_file')
 
-		parser.add_argument('--cuffcompare',
-							help='Run cuffcompare',
-							dest='cuffcompare')
+	parser.add_argument('--gtf_input_file',
+						help='gtf input file',
+						dest='gtf_input_file')
+
+	parser.add_argument('--result_file',
+						help='result files',
+						dest='result_file');
+
+	parser.add_argument('--single',
+						action='store_true',
+						dest='is_single')
+
+	parser.add_argument('--cuffcompare',
+						help='Run cuffcompare',
+						dest='cuffcompare')
 
 
-		parser.add_argument('--cufflinks',
-							action='store_true',
-							dest='is_cufflinks')
+	parser.add_argument('--cufflinks',
+						action='store_true',
+						dest='is_cufflinks')
 
-		parser.add_argument('--jeweler',
-							action='store_true',
-							dest='is_jeweler')
+	parser.add_argument('--jeweler',
+						action='store_true',
+						dest='is_jeweler')
 
-		parser.add_argument('--jeweler_only',
-							action='store_true',
-							dest='is_jeweler_only')
+	parser.add_argument('--appraiser',
+						action='store_true',
+						dest='is_appraiser')
+
+	parser.add_argument('--jeweler_only',
+						action='store_true',
+						dest='is_jeweler_only')
+	return parser
+
+def main():
+	try:
+		parser = initialize_parser()
 
 		args=parser.parse_args();
 
 		if (args.is_single):
+			## process a single bam file
 			configuration=dict()
 			if (args.json != None and os.path.exists(args.json)):
 				config_data   = open(args.json)
@@ -219,6 +146,7 @@ def main():
 			else :
 				print('No reftable supplied')
 				return 
+
 			if (args.filelist != None and os.path.exists(args.filelist)):
 				# if (args.reftable == None):
 				# 	print('Error: no reftable supplied (--reftable)')
@@ -226,6 +154,7 @@ def main():
 
 				files=open(args.filelist).readlines()
 				if (args.is_cufflinks):
+					## run cufflinks command
 					resultfolder='result/'+os.path.basename(args.filelist)+'/cufflinks/'
 					if not os.path.exists(resultfolder):
 						os.makedirs(resultfolder)
@@ -267,7 +196,17 @@ def main():
 								  '--result_folder '+result_folder +' '+
 								  '--gtf_input_file '+gtf_input_file
 								)
-		
+				elif (args.is_appraiser) :
+					resultfolder='result/'+os.path.basename(args.filelist)+'/appraiser/'
+					if not os.path.exists(resultfolder):
+						os.makedirs(resultfolder)
+					for f in files:
+						resultsubfolder=resultfolder+'/'+os.path.basename(f.strip().replace('.bam',''))
+						if not os.path.exists(resultsubfolder):
+							os.makedirs(resultsubfolder)
+						print('./appraiser -mamf '+resultsubfolder+'/sm -l '+resultsubfolder+'/log -qf '+ resultsubfolder +'/qf -b '+f.strip())
+					
+
 	except: 
 		exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
 		print("*** print_exc:")
