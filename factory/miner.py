@@ -165,7 +165,8 @@ def main():
 						print('cufflinks -o '+resultsubfolder+' '+f.strip())
 					
 				elif (args.is_jeweler):
-					resultfolder='result/'+os.path.basename(args.filelist)+'/jeweler/'
+					resultfolder = 'result/'+os.path.basename(args.filelist)+'/jeweler/'
+					appraiser_resultfolder = 'result/'+os.path.basename(args.filelist)+'/appraiser/'
 					if not os.path.exists(resultfolder):
 						os.makedirs(resultfolder)
 					for f in files:
@@ -183,7 +184,12 @@ def main():
 						cuffresultfolder='result/'+os.path.basename(args.filelist)+'/cufflinks/'
 						gtf_input_file=	cuffresultfolder+'/'+os.path.basename(f.strip().replace('.bam',''))+'/transcripts.gtf'
 						if (args.is_jeweler_only):
-							print('./jeweler -i '+result_folder+'/'+alias+'/'+result_file)
+							## multiple alignments maps
+							mamf_command = ""
+							if (os.path.exists(appraiser_resultfolder + alias +"/sm_table")):
+								mamf_command = " -mamf " + appraiser_resultfolder + alias +"/sm_table ";
+
+							print('./jeweler -i '+result_folder+'/'+alias+'/'+result_file + mamf_command)
 						else:
 							print('python3.2 factory/miner.py --single '+
 								  '--maternal_strain_ref_seq '+maternal_strain_ref_seq +' ' +
