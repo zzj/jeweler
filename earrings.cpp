@@ -1,10 +1,9 @@
 #include "earrings.hpp"
 
-
-
-Earrings::Earrings(TranscriptInfo *info){
+Earrings::Earrings(TranscriptInfo *info, SewingMachine *sm){
 
 	this->info = info;
+	this->sm = sm;
 	this->mismatcher = new TranscriptMismatcher();
 	// load maternal and paternal transcripts sequences.
 	load_transcript_data(info);	
@@ -16,7 +15,12 @@ Earrings::Earrings(TranscriptInfo *info){
 	// build graph;
 	build_graph();
 	test_allele_specific_transcript();
+	// have sewingmachine class, output maltiple aligment info
+	if (sm != NULL) {
+		count_multiple_alignments();
+	}
 }
+
 
 
 
@@ -38,6 +42,42 @@ Earrings::~Earrings(){
 		delete noused_reads[i];
 	}
 	delete mismatcher;
+}
+
+
+// this function must be called after the align_reads 
+// otherwise the statistics may be incorrect.
+int Earrings::count_multiple_alignments(){
+	int i;
+	int single_reads;
+	vector<string> single_read_names;
+	vector<string> multiple_read_names;
+
+	for ( i = 0; i < bam_reads.size(); i ++){
+		if ( sm->multiple_alignment_set.find (bam_reads[i]->Name) == 
+			 sm->multiple_alignment_set.end()){
+			single_reads++;
+			single_read_names.push_back( bam_reads[i]->Name );
+		}
+		else {
+			multiple_read_names.push_back( bam_reads[i]->Name );
+		}
+	}
+	FILE *foutput_mamf = fopen(string(info->folder+"/"+info->gene_id+".mamf.meta").c_str(),"w+");
+	fprintf(foutput_mamf, "%d\t%d\n", single_reads, bam_reads.size());
+	fprintf(stdout, "%d\t%d\n", single_reads, bam_reads.size());
+	fclose(foutput_mamf);
+	foutput_mamf=fopen(string(info->folder+"/"+info->gene_id+".mamf.multiple.reads").c_str(),"w+");
+	for (i = 0; i < multiple_read_names.size(); i++){
+		fprintf(foutput_mamf, "%s\n", multiple_read_names[i].c_str());
+	}
+	fclose(foutput_mamf);
+	foutput_mamf=fopen(string(info->folder+"/"+info->gene_id+".mamf.single.reads").c_str(),"w+");
+	for (i = 0; i < single_read_names.size(); i++){
+		fprintf(foutput_mamf, "%s\n", single_read_names[i].c_str());
+	}
+
+	fclose(foutput_mamf);
 }
 
 void Earrings::test_memory_leak(){

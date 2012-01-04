@@ -65,6 +65,28 @@ int SewingMachine::output_alignment_map_core(FILE * file, bool only_mulitple_rea
 	return 0;
 }
 
+int SewingMachine::load_multiple_alignments_set(FILE *file ){
+	char refname[1000], cigar[1000];
+	char read_id[1000];
+	char is_first[100];
+	int pos, distance, size;
+
+	int i;
+	int last;
+	while((last = fscanf(file, "%s%s%d", read_id, is_first, &size)) == 3) {
+
+		// ignored
+		for (i = 0; i < size; i++) {
+			fscanf(file, "%s%d%s%d", refname, &pos, cigar, &distance);
+		}
+		// only record the multiple alignment
+		if (size >= 2){
+			multiple_alignment_set.insert(read_id);
+		}
+	}
+
+}
+
 int SewingMachine::output_alignment_map(FILE * file){
 	return output_alignment_map_core(file, /*only output multiple reads?*/ false);
 }
@@ -112,7 +134,6 @@ int SewingMachine::output_alignment_connection_map_core(FILE * file){
 int SewingMachine::output_alignment_connection_map(FILE * file){
 	build_alignment_connection_map_core();
 	output_alignment_connection_map_core(file);
-
 	return 0;
 }
 

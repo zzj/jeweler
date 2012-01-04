@@ -40,6 +40,7 @@ Appraiser::Appraiser(int argc, char* argv[]){
 		// Multiple Alignment map file
 		if (strcmp(argv[i],"-mamf")==0){ 
 			i++;
+			fprintf(stdout, "here\n");
 			if (i<argc){
 				mam_table_file=file_open((string(argv[i])+"_table").c_str(),"w+");
 				mam_map_file=file_open((string(argv[i])+"_map").c_str(),"w+");
@@ -83,7 +84,6 @@ int Appraiser::run(){
 	
 	mb.initialize(reader);
 	sm.initialize(reader);
-	
 	while (reader.GetNextAlignment(al)){
 		mb.add_alignment(al);
 		sm.add_alignment(al);
@@ -93,7 +93,7 @@ int Appraiser::run(){
 	mb.dump_meta_data(log_file);
 	mb.dump_mapquality_list(quality_file);
 	sm.output_multiple_alignment_map(mam_table_file);
-	sm.output_alignment_connection_map(mam_map_file);
+	//sm.output_alignment_connection_map(mam_map_file);
 	return 0;
 }
 

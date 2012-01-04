@@ -13,6 +13,7 @@
 #include "transcript.hpp"
 #include "transcript_mismatcher.hpp"
 #include "laboratory/cigar_holder.hpp"
+#include "laboratory/sewing_machine.hpp"
 #include "pileup.plot.hpp"
 #include "alignment_glue.hpp"
 using namespace BamTools;
@@ -26,11 +27,12 @@ using namespace std;
 
 class Earrings{
 public :
-	Earrings(TranscriptInfo *);
+	Earrings(TranscriptInfo *, SewingMachine * sm);
 
 	~Earrings();
 	TranscriptInfo * info;
 	TranscriptMismatcher *mismatcher;
+	SewingMachine *sm;
 	vector<Transcript *> maternal_transcripts;
 	vector<Transcript *> paternal_transcripts;
 	vector<BamAlignment *> bam_reads;
@@ -40,6 +42,8 @@ public :
 	
 
 	int num_total_reads;
+	// find the reads that are mulitple aligned to other places
+	int count_multiple_alignments();
 	// create paternal and maternal transcripts databases
 	// annotate SNPs for paternal  and maternal transcripts' sequence
 	int load_transcript_data(TranscriptInfo * ti); // load transcript data 
@@ -64,7 +68,6 @@ public :
 
 	// get compatible reads
 	int get_compatible_reads();
-	
 
 	void test_memory_leak();
 };

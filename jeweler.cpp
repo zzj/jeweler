@@ -7,21 +7,33 @@ using namespace std;
 
 jeweler::jeweler(int argc, char * argv[]){
 	int i;
-	bool has_info=false;
-	log_file=stdout;
-
-	for (i=1; i<argc; i++){
-		if (strcmp(argv[i],"-i")==0){
+	bool has_info = false;
+	sm = NULL;
+	log_file = stdout;
+	mamf_filename = "none";
+	for (i = 1; i < argc; i++){
+		if (strcmp( argv[i], "-h") == 0){
+			fprintf( stdout, "help information for jeweler:\n");
+			fprintf( stdout, "command: jeweler -i infofile [-l logfile] [-mamf multiple_alignment_file] \n");
+			exit(0);
+		}
+		if (strcmp( argv[i], "-i") == 0){
 			i++;
-			if (i<argc){
-				info_filename=argv[i];
-				has_info=true;
+			if (i < argc){
+				info_filename = argv[i];
+				has_info = true;
 			}
 		}
-		if (strcmp(argv[i],"-l")==0){
+		if (strcmp( argv[i], "-mamf") == 0){
 			i++;
-			if (i<argc){
-				log_file=file_open(argv[i],"w+");
+			if (i < argc){
+				mamf_filename = argv[i];
+			}
+		}
+		if (strcmp( argv[i], "-l") == 0){
+			i++;
+			if (i < argc){
+				log_file = file_open(argv[i],"w+");
 			}
 		}
 	}
@@ -51,11 +63,19 @@ int jeweler::load_info_file(){
 		id++;
 	}
 	fprintf(log_file, "Total %d genes are loaded\n",id);
+	fclose(fd);
 	return 0;
 }
 
 
-
+int jeweler::load_mamf_file(){
+	if (mamf_filename != "none") {
+		FILE * fd = fopen(mamf_filename.c_str(), "r");
+		sm =new SewingMachine();
+		sm->load_multiple_alignments_set(fd);
+		fclose(fd);
+	}
+}
 
 int jeweler::run(){
 	int i,j;
@@ -63,9 +83,10 @@ int jeweler::run(){
 	vector<Transcript *> paternal_transcripts, maternal_transcripts;
 
 	load_info_file();
-	for (i=0;i<transcripts_info.size();i++){
-		if (i%10==0) fprintf(log_file,"%d\n",i);
-		Earrings earrings(transcripts_info[i]);
+	load_mamf_file();
+	for (i = 0; i < transcripts_info.size(); i++){
+		if (i%10 == 0) fprintf(log_file,"%d\n",i);
+		Earrings earrings(transcripts_info[i], sm);
 	}
 	return 0;
 }

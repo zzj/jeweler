@@ -1,8 +1,13 @@
+
+#ifndef _SEWING_MACHINE_
+#define _SEWING_MACHINE_
+
 #include <iostream>
 #include <string> 
 #include <api/BamReader.h>
 #include <api/BamWriter.h>
 #include <map>
+#include <set>
 #include <Fasta.h>
 using namespace BamTools;
 using namespace std;
@@ -29,6 +34,8 @@ public:
 	bool operator()(const locator* a, const locator *b);
 };
 
+/* this class is used for generating the mulitple alignment map */
+
 class SewingMachine: public BamInfo{
 private:
 
@@ -41,7 +48,7 @@ public:
 	SewingMachine();
 	SewingMachine(BamReader &reader);
 	int initialize(BamReader &reader);
-	
+	int load_multiple_alignments_set(FILE *);
 	// functions
 	int add_alignment(BamAlignment &al);
 	int output_alignment_map(FILE *);
@@ -51,6 +58,8 @@ public:
 	// storage
 	map<string,locator_pvector> seqs;
 
+	set<string> multiple_alignment_set;
+
 	// statistics 
 	vector<int> num_multiple_reads_per_chr;
 	
@@ -58,3 +67,5 @@ public:
 	map<locator *, locator_pvector, compare_locator> alignment_connection_map;
 	
 };
+
+#endif
