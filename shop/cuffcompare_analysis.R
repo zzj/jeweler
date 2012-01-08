@@ -9,6 +9,8 @@ CuffcomparePlotter <- setRefClass("CuffcomparePlotter",
                                     result.info = "data.frame",
                                     result.file = "character",
                                     result.folder="character",
+                                    joint.plot.result.folder = "character",
+                                    active.transcript.result.folder = "character",
                                     is.from.start = "logical",
                                     cuffcompare.info = "matrix",
                                     jeweler.result.info = "list",
@@ -19,7 +21,9 @@ CuffcomparePlotter <- setRefClass("CuffcomparePlotter",
 CuffcomparePlotter$methods(
 initialize = function( result.file, jeweler.result.file, result.folder)
  {
-   is.from.start <<- T
+
+   print("Initializing CuffcomparePlotter")
+   is.from.start <<- F
 
    result.info.file <- paste(result.file,".initialize.Rdata",sep="")
    if (is.from.start) {
@@ -36,7 +40,8 @@ initialize = function( result.file, jeweler.result.file, result.folder)
    num.samples <<- dim(result.info)[2]-4
    num.transcripts <<- length(gene.list)
    result.folder <<- result.folder
-
+   joint.plot.result.folder <<- paste(result.folder, "/joint_plot/",sep="")
+   active.transcript.result.folder <<- paste(result.folder, "/active/",sep="")
    jeweler.result.list <<-
      c(as.vector(read.table(jeweler.result.file, stringsAsFactors = F))[[1]])
 
@@ -60,6 +65,7 @@ initialize = function( result.file, jeweler.result.file, result.folder)
 )
 CuffcomparePlotter$methods(
 get.cuffcompare.info = function ( ) {
+  print("Get CuffcompareInfo")
   cuffcompare.info.file <- paste(result.file, ".get.cuffcompare.info.Rdata", sep = "")
   if (is.from.start) {
     cuffcompare.info.temp <- matrix(data=NA, nrow=length(gene.list), ncol=num.samples+1,
@@ -96,15 +102,49 @@ get.cuffcompare.info = function ( ) {
 }
 )
 
+CuffcomparePlotter$methods(
+filter.transcript = function() {
+  get.cuffcompare.info()
+  gene.prefix <- list()
+  transcript.prefix <- list()
+  gene.names <- list()
+  for ( i in 2:dim(cuffcompare.info)[1]){
+    print(i)
+    for ( j in 2:dim(cuffcompare.info)[2]) {
+      if ( !is.na(cuffcompare.info[i,j]) ) {
+        transcript.id <- cuffcompare.info[i,j]
+        gene.id <- paste(strsplit(transcript.id,'\\.')[[1]][1:2],collapse='.')
+        data.folder <- jeweler.result.info[[j-1]][gene.id,2]
+        plot.info.file <- paste('../', data.folder, '/',
+                                transcript.id, '.landscape.plot.info',sep="")
+        temp.t <- paste('../', data.folder, '/', transcript.id)
+        temp.g <- paste('../', data.folder, '/', gene.id)
+        if (file.exists(plot.info.file)) {
+          gene.prefix <- c(gene.prefix, temp.g)
+          transcript.prefix <- c(gene.prefix, temp.t)
+          gene.names <- c(gene.names,rownames(cuffcompare.info)[i])
+        }
+      }
+    }
+    if (i %% 1000 == 0) 
+      save(gene.names, gene.prefix,transcript.prefix,
+           file = paste(active.transcript.result.folder,"Active.Rdata",sep=""))
+    
+  }
+  save(gene.names, gene.prefix,transcript.prefix,
+       file = paste(active.transcript.result.folder,"Active.Rdata",sep=""))
+}
+)
 
 CuffcomparePlotter$methods(
 plot = function () {
   get.cuffcompare.info()
-  for ( i in 2:dim(cuffcompare.info)[1]){
+  for ( i in 4702:dim(cuffcompare.info)[1]){
     info <- list()
     meta <- list()
     mismatcher <- list()
     print(i)
+    print(rownames(cuffcompare.info)[i])
     for ( j in 2:dim(cuffcompare.info)[2]) {
       if ( !is.na(cuffcompare.info[i,j]) ) {
         transcript.id <- cuffcompare.info[i,j]
@@ -143,7 +183,8 @@ plot = function () {
     }
     locations <- sort(locations)
     if (is.null(locations)) next
-    pdf(paste(result.folder,"/", rownames(cuffcompare.info)[i],".pdf", sep=""),
+    pdf(paste(joint.plot.result.folder,"/", rownames(cuffcompare.info)[i],".pdf",
+              sep=""),
         height =20)
     par(mfrow=c(4,1))
     for (j in 1:num.samples){
