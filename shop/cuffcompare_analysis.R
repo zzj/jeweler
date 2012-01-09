@@ -117,11 +117,11 @@ filter.transcript = function() {
         data.folder <- jeweler.result.info[[j-1]][gene.id,2]
         plot.info.file <- paste('../', data.folder, '/',
                                 transcript.id, '.landscape.plot.info',sep="")
-        temp.t <- paste('../', data.folder, '/', transcript.id)
-        temp.g <- paste('../', data.folder, '/', gene.id)
+        temp.t <- paste('../', data.folder, '/', transcript.id,sep="")
+        temp.g <- paste('../', data.folder, '/', gene.id,sep="")
         if (file.exists(plot.info.file)) {
           gene.prefix <- c(gene.prefix, temp.g)
-          transcript.prefix <- c(gene.prefix, temp.t)
+          transcript.prefix <- c(transcript.prefix, temp.t)
           gene.names <- c(gene.names,rownames(cuffcompare.info)[i])
         }
       }
