@@ -105,9 +105,16 @@ get.cuffcompare.info = function ( ) {
 CuffcomparePlotter$methods(
 filter.transcript = function() {
   get.cuffcompare.info()
-  gene.prefix <- list()
-  transcript.prefix <- list()
-  gene.names <- list()
+  gene.prefix <- vector()
+  transcript.prefix <- vector()
+  gene.names <- vector()
+  ## stupid R, the performance is bad, need to hand working on it for append function
+  cache.size = 10000
+  temp.t.vector <- vector(mode = 'character', length = cache.size)
+  temp.g.vector <- vector(mode = 'character', length = cache.size)
+  temp.names.vector <- vector(mode = 'character', length = cache.size)
+  idx <- 1
+
   for ( i in 2:dim(cuffcompare.info)[1]){
     print(i)
     for ( j in 2:dim(cuffcompare.info)[2]) {
@@ -119,17 +126,29 @@ filter.transcript = function() {
                                 transcript.id, '.landscape.plot.info',sep="")
         temp.t <- paste('../', data.folder, '/', transcript.id,sep="")
         temp.g <- paste('../', data.folder, '/', gene.id,sep="")
+        temp.names <- rownames(cuffcompare.info)[i]
         if (file.exists(plot.info.file)) {
-          gene.prefix <- c(gene.prefix, temp.g)
-          transcript.prefix <- c(transcript.prefix, temp.t)
-          gene.names <- c(gene.names,rownames(cuffcompare.info)[i])
+          temp.t.vector[idx]=temp.t
+          temp.g.vector[idx]=temp.g
+          temp.names.vector[idx]=temp.names
+          idx <- idx + 1
+          if (idx == cache.size + 1){
+            idx=1
+            gene.prefix <- c(gene.prefix, temp.g.vector)
+            transcript.prefix <- c(transcript.prefix, temp.t.vector)
+            gene.names <- c(gene.names,temp.names.vector)
+          }
         }
       }
     }
     if (i %% 1000 == 0) 
       save(gene.names, gene.prefix,transcript.prefix,
            file = paste(active.transcript.result.folder,"Active.Rdata",sep=""))
-    
+  }
+  if (idx > 1) {
+    gene.prefix <- c(gene.prefix, temp.g.vector[1:(idx-1)])
+    transcript.prefix <- c(transcript.prefix, temp.t.vector[1:(idx-1)])
+    gene.names <- c(gene.names,temp.names.vector[1:(idx-1)])
   }
   save(gene.names, gene.prefix,transcript.prefix,
        file = paste(active.transcript.result.folder,"Active.Rdata",sep=""))
@@ -139,7 +158,7 @@ filter.transcript = function() {
 CuffcomparePlotter$methods(
 plot = function () {
   get.cuffcompare.info()
-  for ( i in 4702:dim(cuffcompare.info)[1]){
+  for ( i in 21100:dim(cuffcompare.info)[1]){
     info <- list()
     meta <- list()
     mismatcher <- list()
