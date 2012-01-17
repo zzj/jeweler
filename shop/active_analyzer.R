@@ -1,7 +1,7 @@
 library('glmnet')
 library('e1071')
 library('class')
-
+library('LiblineaR')
 ActiveAnalyzer <- setRefClass("ActiveAnalyzer",
                               fields = list(
                                 result.folder = "character",
@@ -24,7 +24,7 @@ initialize = function ( result.folder.temp){
                      'num.consistent.mismatches', 'num.ag.mismatches')
 
   selected.features <<-c('length', 'num.exons', 'num.reads',
-                     'multiple.propotion', 'num.mismatches','error.rate',
+                     'multiple.propotion', 'error.rate',
                      'num.consistent.mismatches', 'num.ag.mismatches')
 
   target.name <<- "label"
@@ -146,15 +146,14 @@ analyze = function() {
   x <- as.matrix(data[,selected.features])
   y <- as.numeric(grepl('^Gm[0-9]+\\|',rownames(x))) ##as.vector(data[,target.name])
   rownames(x) <- 1:dim(x)[1]
-  
-  selected <- 1:28000
-
+  selected <- 1:284000
   x[is.na(x)]=0
   y <- y[selected]
   x <- x[selected,]
+  print(paste('base line is', 1-sum(y)/length(y)))
   idx <- 1
   train.results.temp <- list()
-  models <- c('svm','lasso', 'elasticnet', 'ridge', 'knn')
+  models <- c('libsvm') ##,'svm','lasso', 'elasticnet', 'ridge')
   for (model in models) {
     print(paste('working on model', model))
     if (model %in% c('lasso', 'elasticnet', 'ridge') ) {
@@ -171,6 +170,10 @@ analyze = function() {
     }
     else if (model == 'svm') {
       result <- svm(x,as.factor(y),cross=10)
+    }
+    else if (model == 'libsvm'){
+      result <- LiblineaR(scale(x),as.factor(y),cross=10)
+      print(result)
     }
     else if (model == 'knn') {
       result <- knn.cv(x,as.factor(y))
@@ -191,8 +194,8 @@ visualize = function() {
   feature.names <<- c( 'length', 'num.exons', 'num.reads',
                       'multiple.propotion', 'num.mismatches','error.rate',
                      'num.consistent.mismatches', 'num.ag.mismatches')
-  count <- 22000
-  selected <- sample(1:count)[1:1000]
+  count <- 64000
+  selected <- sample(1:count)[1:10000]
   plot.data <- (data[selected,feature.names])
   str(plot.data)
   pdf(paste(result.folder, "pairs.plot.pdf",sep=""), width = 30, height = 30)

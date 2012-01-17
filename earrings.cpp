@@ -410,7 +410,7 @@ int Earrings::align_reads(){
 		fclose(foutput);
 	}
 	fclose(finfo);
-
+	// yes, sometimes, typo just cannot be fixed
 	finfo=fopen(string(info->folder+"/"+info->gene_id+".mismacher").c_str(),"w+");
 	mismatcher->dump(finfo);
 	fclose(finfo);
