@@ -5,85 +5,8 @@ import traceback
 import argparse
 from subprocess import call
 
-import split_gtf_file
-
-def initialize_parser():
-	parser=argparse.ArgumentParser(description=
-								   'The main batch script for RNA-seq analysis.')
-	
-	parser.add_argument('--json',
-						help='legendary json function. Process one json file a time',
-						dest='json')
-
-	parser.add_argument('--filelist',
-						help='A list of bam files, for multipe bamfiles. ',
-						dest='filelist')
-
-	parser.add_argument('--reftable',
-						help='A reference table for reference genomes',
-						dest='reftable')
-
-	parser.add_argument('--result_folder',
-							help='result folder',
-							dest='result_folder')
-
-	parser.add_argument('--alias',
-						help='project alias',
-						dest='alias')
-
-	parser.add_argument('--maternal_strain_ref_seq',
-						help='matran strain fasta file',
-						dest='maternal_strain_ref_seq')
-
-	parser.add_argument('--maternal_strain_id',
-						help='matran strain id',
-						dest='maternal_strain_id')
-
-	parser.add_argument('--paternal_strain_ref_seq',
-						help='matran strain fasta file',
-						dest='paternal_strain_ref_seq')
-
-	parser.add_argument('--paternal_strain_id',
-						help='matran strain id',
-						dest='paternal_strain_id')
-
-	parser.add_argument('--bam_file',
-						help='bam files',
-						dest='bam_file')
-
-	parser.add_argument('--gtf_input_file',
-						help='gtf input file',
-						dest='gtf_input_file')
-
-	parser.add_argument('--result_file',
-						help='result files',
-						dest='result_file');
-
-	parser.add_argument('--single',
-						action='store_true',
-						dest='is_single')
-
-	parser.add_argument('--cuffcompare',
-						help='Run cuffcompare',
-						dest='cuffcompare')
-
-
-	parser.add_argument('--cufflinks',
-						action='store_true',
-						dest='is_cufflinks')
-
-	parser.add_argument('--jeweler',
-						action='store_true',
-						dest='is_jeweler')
-
-	parser.add_argument('--appraiser',
-						action='store_true',
-						dest='is_appraiser')
-
-	parser.add_argument('--jeweler_only',
-						action='store_true',
-						dest='is_jeweler_only')
-	return parser
+from  split_gtf_file import split_gtf_file
+from  miner_parser import initialize_parser
 
 def main():
 	try:
@@ -187,7 +110,7 @@ def main():
 							## multiple alignments maps
 							mamf_command = ""
 							if (os.path.exists(appraiser_resultfolder + alias +"/sm_table")):
-								mamf_command = " -mamf " + appraiser_resultfolder + alias +"/sm_table ";
+								mamf_command = " -mamf " + appraiser_resultfolder + alias +"/sm_table -earrings";
 
 							print('./jeweler -i '+result_folder+'/'+alias+'/'+result_file + mamf_command)
 						else:
