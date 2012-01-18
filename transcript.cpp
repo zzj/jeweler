@@ -24,7 +24,7 @@ int Transcript::get_next_exon(int start_pos, int start_seg = 0, int tolerate = 0
 	return start_seg;
 }
 
-int Transcript::get_overlapped_alignment(BamAlignment *al , int &penalty){
+int Transcript::get_overlapped_alignment(BamAlignment *al , int &penalty, bool is_to_fix){
 
 	penalty = 0;
 
@@ -70,6 +70,15 @@ int Transcript::get_overlapped_alignment(BamAlignment *al , int &penalty){
 			// belong to two different exon region
 			begin_seg = get_next_exon(start_pos);
 			end_seg = get_next_exon(start_pos + op.Length -1);
+			// testing
+			// if ( al->Name == "UNC12-SN629_0154:8:2304:17730:106338#GGCTAC") {
+			// 	fprintf(stdout, "%s\t%s\t%d\t%d\t%d\t%d\t%d\n", al->Name.c_str(),
+			// 			get_cigar_string(*al).c_str(), al->Position + 1,
+			// 			start_pos, begin_seg, end_seg,start_pos + op.Length -1);
+			// 	fprintf(stdout, "%d\t%d\n",exon_start[begin_seg],exon_end[begin_seg]);
+			// 	fprintf(stdout, "%d\t%d\n",exon_start[end_seg],exon_end[end_seg]);
+			// }
+
 			if  (( begin_seg == NOT_FOUND && begin_seg == end_seg)
 				 ||( begin_seg != NOT_FOUND && end_seg != NOT_FOUND &&
 					 begin_seg != end_seg) ) {
@@ -82,7 +91,7 @@ int Transcript::get_overlapped_alignment(BamAlignment *al , int &penalty){
 				new_cigar_data.push_back(CigarOp(Constants::BAM_CIGAR_REFSKIP_CHAR, 
 												 op.Length));
 			}
-			else{ 
+			else { 
 				begin_err = 0; end_err = 0;
 
 				if ( begin_seg == NOT_FOUND && end_seg != NOT_FOUND ){
@@ -149,26 +158,39 @@ int Transcript::get_overlapped_alignment(BamAlignment *al , int &penalty){
 		}
 	}
 	
-	if (penalty > 0) {
-		fprintf(stdout, "Find a read need to be fixed!\n");
-		output_segments();
-		fprintf(stdout,"%s\n",al->QueryBases.c_str());
-		fprintf(stdout,"%d\n",al->Position + 1);
-		fprintf(stdout,"%s\n",get_cigar_string((*al)).c_str());
+
+	if (penalty > 0 && is_to_fix) {
+		// fprintf(stdout, "Find a read need to be fixed!\n");
+		// output_segments();
+		// fprintf(stdout,"%s\n",al->Name.c_str());
+		// fprintf(stdout,"%s\n",al->QueryBases.c_str());
+		// fprintf(stdout,"%d\n",al->Position + 1);
+		// fprintf(stdout,"%s\n",get_cigar_string((*al)).c_str());
 		al->Length = new_length;
 		al->CigarData = new_cigar_data;
 		al->QueryBases = new_querybases;
+
+		if (al->Name == "UNC9-SN296_0254:8:2202:15119:189519#ACAGTG") {
+			fprintf(stdout, "here\n");
+			output_bamalignment(al);
+		}
 		cigar_trim(al);
-		fprintf(stdout,"%s\n",al->QueryBases.c_str());
-		fprintf(stdout,"%d\n",al->Position + 1);
-		fprintf(stdout,"%s\n",get_cigar_string((*al)).c_str());
+		if (al->Name == "UNC9-SN296_0254:8:2202:15119:189519#ACAGTG") {
+			output_bamalignment(al);
+		}
+
+
+		// fprintf(stdout,"%s\n",get_cigar_string((*al)).c_str());
+		// fprintf(stdout,"%s\n",al->QueryBases.c_str());
+		// fprintf(stdout,"%d\n",al->Position + 1);
+
 
 	}
 
 	return true;
 }
 
-bool Transcript::is_compatible(BamAlignment *al ){
+bool Transcript::is_compatible(BamAlignment *al , int tolerate ){
 	// justify whether the sequences contains the BamAlignment
 	// if it contains most of the read, this will adjust the read to
 	// make it completely compatible 
@@ -180,7 +202,7 @@ bool Transcript::is_compatible(BamAlignment *al ){
 	}
 	// Get start segments
 	int start_seg=0;
-	int start_pos=al->Position+1;
+	int start_pos=al->Position + 1;
 
 	int err;
 	if ( (start_seg = get_next_exon (  start_pos, start_seg) ) == NOT_FOUND ){
@@ -349,7 +371,10 @@ int Transcript::match_alleles(BamAlignment *al, int &total_alleles,
 		
 		fprintf(stderr,"%d\t%s\n", transcript_seq.size(), transcript_seq.c_str());
 		fprintf(stderr,"%d\t%s\n", query_seq.size(), query_seq.c_str());
-		fprintf(stderr,"%d\t%s\n", al->Position + 1, get_cigar_string(*al).c_str());
+		fprintf(stderr,"%s\t%d\t%s\n", 
+				al->Name.c_str(), 
+				al->Position + 1, 
+				get_cigar_string(*al).c_str());
 
 		output_segments();
 		

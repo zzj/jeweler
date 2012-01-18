@@ -61,10 +61,10 @@ public:
 	vector<set<BamAlignment *> > allele_reads_per_exon;
 	vector<set<BamAlignment *> > reads_per_exon;
 
-	int get_overlapped_alignment(BamAlignment *, int &penalty);
+	int get_overlapped_alignment(BamAlignment *, int &penalty, bool is_to_fix = false);
 
 	// Check the BamAlignment is compatible with the transcript
-	bool is_compatible(BamAlignment *);
+	bool is_compatible(BamAlignment *, int tolerate = 0);
 
 	// Check whether it is a better alignment comparing with other transcript
 	int match_alleles(BamAlignment *, int &total_alleles,

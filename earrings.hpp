@@ -67,7 +67,7 @@ public :
 	int study_compatible_reads();
 
 	// get compatible reads
-	int get_compatible_reads();
+	int get_compatible_reads(vector<set<BamAlignment*> >& read_lists );
 
 	void test_memory_leak();
 };

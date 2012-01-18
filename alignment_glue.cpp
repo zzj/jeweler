@@ -2,6 +2,7 @@
 
 
 int output_bamalignment(BamAlignment *al){
+	fprintf(stdout,"%s\n",al->Name.c_str());
 	fprintf(stdout,"%s\n",al->QueryBases.c_str());
 	fprintf(stdout,"%d\n",al->Position + 1);
 	fprintf(stdout,"%s\n",get_cigar_string((*al)).c_str());
@@ -23,13 +24,15 @@ int cigar_trim(BamAlignment *al){
 	while ( i != cigar_data.end() ){
 		auto j= i;
 		j++;
-		if (i->Type == Constants::BAM_CIGAR_REFSKIP_CHAR){
-			while( j->Type == Constants::BAM_CIGAR_REFSKIP_CHAR) {
-				i->Length += j->Length;
-				j++;
+		if (j != cigar_data.end() ) {
+			if (i->Type == Constants::BAM_CIGAR_REFSKIP_CHAR){
+				while( j->Type == Constants::BAM_CIGAR_REFSKIP_CHAR) {
+					i->Length += j->Length;
+					j++;
+				}
 			}
 		}
-		if (!(i->Type == Constants::BAM_CIGAR_REFSKIP_CHAR && i+1 != cigar_data.end() ))
+		if ((i->Type != Constants::BAM_CIGAR_REFSKIP_CHAR || j != cigar_data.end() ))
 			new_cigar_data.push_back(*i);
 		i = j;
 	}

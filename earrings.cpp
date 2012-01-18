@@ -76,7 +76,6 @@ int Earrings::count_multiple_alignments(){
 	for (i = 0; i < single_read_names.size(); i++){
 		fprintf(foutput_mamf, "%s\n", single_read_names[i].c_str());
 	}
-
 	fclose(foutput_mamf);
 }
 
@@ -241,38 +240,64 @@ int Earrings::study_compatible_reads(){
 	Transcript::tolerate = 0;
 	for (int t = 0; t < 10; t++){
 		Transcript::tolerate=t;
-		get_compatible_reads();
+		//get_compatible_reads();
 	}
 	return 0;
 }
 
 
-int Earrings::get_compatible_reads() {
+int Earrings::get_compatible_reads(vector<set<BamAlignment *> > &read_lists) {
 	int i,j;
 	int num_unaligned_reads = 0;
 	bool is_compatible=false;
+	bool is_fixed;
+	read_lists.resize(maternal_transcripts.size());
 	compatible_reads.clear();
 	for(i=0;i<bam_reads.size();i++){
+		int min_penalty =  100000;
+		vector<int> penalties;
+		penalties.resize(maternal_transcripts.size(),100000);
 		is_compatible=false;
 		
 		for (j=0;j<maternal_transcripts.size();j++){
-			// the maternal_transcript should be the same with the paternal_transcript
-			if (maternal_transcripts[j]->is_compatible(bam_reads[i])){
-				int penalty;
-				maternal_transcripts[j]->get_overlapped_alignment(bam_reads[i], penalty);
-				compatible_reads.push_back(bam_reads[i]);
+			// the maternal_transcript should be the same with the
+			// paternal_transcript
+
+			if (maternal_transcripts[j]->is_compatible(bam_reads[i], Transcript::tolerate)){
+				maternal_transcripts[j]->get_overlapped_alignment(bam_reads[i], 
+																  penalties[j]);
 				is_compatible=true;
-				break;
+				if (penalties[j] < min_penalty) {
+					min_penalty = penalties[j];
+				}
 			}
 		}
-		
-		if ( !is_compatible){
+		is_fixed=false;
+
+		if ( !is_compatible  || min_penalty > Transcript::tolerate){
 			unaligned_reads.push_back(bam_reads[i]);
 			num_unaligned_reads ++;
 		}
+		else {
+			compatible_reads.push_back(bam_reads[i]);
+			for (j=0;j<maternal_transcripts.size();j++){
+				if (penalties[j] == min_penalty) {
+					if (min_penalty != 0 && !is_fixed){
+
+						maternal_transcripts[j]->get_overlapped_alignment(bam_reads[i], 
+																		  penalties[j],
+																		  true);
+						is_fixed = true;
+						
+					}
+					read_lists[j].insert(bam_reads[i]);
+				}
+			}
+		
+		}
 	}
 	
-	fprintf(stderr, "Tolerate %d\tTotal reads: %d\t Compatible: %d\t unaligned: %d\n",
+	fprintf(stdout, "Tolerate %d\tTotal reads: %d\t Compatible: %d\t unaligned: %d\n",
 			Transcript::tolerate,
 			bam_reads.size(),
 			bam_reads.size()  - num_unaligned_reads,
@@ -292,12 +317,12 @@ int Earrings::align_reads(){
 	vector<int> maternal_alleles;
 
 	vector<BamAlignment *> new_bam_reads;
-
+	vector<set<BamAlignment *> > read_lists;
    
 	AlignmentGlue ag;
-	Transcript::tolerate = 0;
+	Transcript::tolerate = 5;
 
-	get_compatible_reads();
+	get_compatible_reads(read_lists);
 
 	bam_reads=compatible_reads;
 
@@ -310,8 +335,11 @@ int Earrings::align_reads(){
 
 		is_compatible = false;
 		for (j=0;j<maternal_transcripts.size();j++){
+			if (read_lists[j].find(bam_reads[i]) == read_lists[j].end()){
+				continue;
+			}
 			// the maternal_transcript should be the same with the paternal_transcript
-			if (maternal_transcripts[j]->is_compatible(bam_reads[i])){
+			if (maternal_transcripts[j]->is_compatible(bam_reads[i], Transcript::tolerate)){
 				is_compatible = true;
 				vector<int> paternal_mismatches;
 				vector<int> maternal_mismatches;

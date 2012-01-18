@@ -24,6 +24,8 @@ using namespace BamTools;
 
 class jeweler{
 public:
+	
+
 	string info_filename;
 	string mamf_filename;
 	FILE * log_file;
@@ -31,6 +33,13 @@ public:
 
 	SewingMachine *sm;
 	jeweler(int argc, char *argv[]);
+
+	// debug
+	// test case 
+	int test_case;
+
+	bool is_earrings;
+	bool is_bracelet;
 	// function to run the analysis 
 	int run();
 
