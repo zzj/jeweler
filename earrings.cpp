@@ -282,6 +282,7 @@ int Earrings::get_compatible_reads(vector<set<BamAlignment *> > &read_lists) {
 			compatible_reads.push_back(bam_reads[i]);
 			for (j=0;j<maternal_transcripts.size();j++){
 				if (penalties[j] == min_penalty) {
+
 					if (min_penalty != 0 && !is_fixed){
 
 						maternal_transcripts[j]->get_overlapped_alignment(bam_reads[i], 
@@ -289,6 +290,16 @@ int Earrings::get_compatible_reads(vector<set<BamAlignment *> > &read_lists) {
 																		  true);
 						is_fixed = true;
 						
+					}
+					else {
+						maternal_transcripts[j]->get_overlapped_alignment(bam_reads[i], 
+																		  penalties[j],
+																		  false);
+						// oh shit, the two transcripts are have
+						// different ways to make them compatible
+						if (penalties[j] > 0) {
+							continue;
+						}
 					}
 					read_lists[j].insert(bam_reads[i]);
 				}

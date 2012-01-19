@@ -77,7 +77,7 @@ int jeweler::load_info_file(){
 								bam_read_filename);
 		transcripts_info.push_back(ti);
 		id++;
-		fprintf(stdout, "%d\n",id);
+		//fprintf(stdout, "%d\n",id);
 	}
 	fprintf(log_file, "Total %d genes are loaded\n",id);
 	fclose(fd);
@@ -98,8 +98,9 @@ int jeweler::run(){
 	int i,j;
 
 	vector<Transcript *> paternal_transcripts, maternal_transcripts;
+	load_info_file();
 	if (is_earrings) {
-		load_info_file();
+
 		load_mamf_file();
 		if (test_case > 0 ) {
 			Earrings earrings(transcripts_info[test_case], sm);
@@ -110,6 +111,17 @@ int jeweler::run(){
 				Earrings earrings(transcripts_info[i], sm);
 			}
 		}
+	}
+	if (is_bracelet){
+		FILE * output = fopen((info_filename+".bracelet").c_str(), "w+");
+		if (output == NULL){
+			fprintf(stdout, "cannot open file %s\n", (info_filename+".bracelet").c_str());
+			exit(0);
+		}
+		Bracelet bracelet(transcripts_info);
+		bracelet.analyze();
+		bracelet.dump(output);
+		fclose(output);
 	}
 	return 0;
 }

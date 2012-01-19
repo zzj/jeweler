@@ -70,6 +70,7 @@ int Transcript::get_overlapped_alignment(BamAlignment *al , int &penalty, bool i
 			// belong to two different exon region
 			begin_seg = get_next_exon(start_pos);
 			end_seg = get_next_exon(start_pos + op.Length -1);
+
 			// testing
 			// if ( al->Name == "UNC12-SN629_0154:8:2304:17730:106338#GGCTAC") {
 			// 	fprintf(stdout, "%s\t%s\t%d\t%d\t%d\t%d\t%d\n", al->Name.c_str(),
@@ -104,8 +105,10 @@ int Transcript::get_overlapped_alignment(BamAlignment *al , int &penalty, bool i
 					// the end of the read exceeds the exon region
 					end_err =  start_pos + op.Length -1 - exon_end[ begin_seg ];
 				}
-				start_pos += op.Length;
+				start_pos += op.Length  ;
+
 				temp_length = op.Length - begin_err - end_err;
+
 				new_cigar_data.push_back(CigarOp(op.Type, temp_length));
 
 				new_querybases += al->QueryBases.substr(alignment_start + begin_err,
@@ -158,7 +161,6 @@ int Transcript::get_overlapped_alignment(BamAlignment *al , int &penalty, bool i
 		}
 	}
 	
-
 	if (penalty > 0 && is_to_fix) {
 		// fprintf(stdout, "Find a read need to be fixed!\n");
 		// output_segments();
@@ -170,15 +172,7 @@ int Transcript::get_overlapped_alignment(BamAlignment *al , int &penalty, bool i
 		al->CigarData = new_cigar_data;
 		al->QueryBases = new_querybases;
 
-		if (al->Name == "UNC9-SN296_0254:8:2202:15119:189519#ACAGTG") {
-			fprintf(stdout, "here\n");
-			output_bamalignment(al);
-		}
 		cigar_trim(al);
-		if (al->Name == "UNC9-SN296_0254:8:2202:15119:189519#ACAGTG") {
-			output_bamalignment(al);
-		}
-
 
 		// fprintf(stdout,"%s\n",get_cigar_string((*al)).c_str());
 		// fprintf(stdout,"%s\n",al->QueryBases.c_str());

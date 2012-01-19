@@ -14,6 +14,7 @@
 #include "transcript_info.hpp"
 #include "transcript.hpp"
 #include "earrings.hpp"
+#include "bracelet.hpp"
 #include "laboratory/sewing_machine.hpp"
 
 #include <api/BamReader.h>

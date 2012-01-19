@@ -3,6 +3,12 @@
 
 int output_bamalignment(BamAlignment *al){
 	fprintf(stdout,"%s\n",al->Name.c_str());
+	if (al->IsFirstMate()){
+		fprintf(stdout,"first one\n");
+	}
+	else {
+		fprintf(stdout,"second one\n");
+	}
 	fprintf(stdout,"%s\n",al->QueryBases.c_str());
 	fprintf(stdout,"%d\n",al->Position + 1);
 	fprintf(stdout,"%s\n",get_cigar_string((*al)).c_str());
@@ -26,7 +32,9 @@ int cigar_trim(BamAlignment *al){
 		j++;
 		if (j != cigar_data.end() ) {
 			if (i->Type == Constants::BAM_CIGAR_REFSKIP_CHAR){
-				while( j->Type == Constants::BAM_CIGAR_REFSKIP_CHAR) {
+				while( j !=cigar_data.end() &&
+					   j->Type == Constants::BAM_CIGAR_REFSKIP_CHAR 
+					   ) {
 					i->Length += j->Length;
 					j++;
 				}
