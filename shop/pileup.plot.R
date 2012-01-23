@@ -1,4 +1,4 @@
-gene.pileup.plot <- function(data.folder, landscape.file, title.text){
+gene.pileup.plot <- function(data.folder, landscape.file, mismatcher.file, title.text){
 
   plot.info <- read.table(landscape.file,stringsAsFactors=F)
   plot.data <- list()
@@ -9,6 +9,9 @@ gene.pileup.plot <- function(data.folder, landscape.file, title.text){
                                  stringsAsFactors=F,header=T)
     locations <- union(locations,plot.data[[i]]$location)
   }
+
+  mismatcher <- read.table((mismatcher.file),header=T)
+  locations <- union(locations,mismatcher$location)
   locations <- sort(locations)
   tracking.unknown <- matrix(data=0,nrow=length(locations),ncol=num.transcripts)
   tracking.total <- matrix(data=0,nrow=length(locations),ncol=num.transcripts)
@@ -16,6 +19,7 @@ gene.pileup.plot <- function(data.folder, landscape.file, title.text){
   tracking.maternal <- matrix(data=0,nrow=length(locations),ncol=num.transcripts)
   tracking.exon.jump <- as.vector(matrix(data=0,nrow=length(locations),ncol=1))
   tracking.snp <- as.vector(matrix(data=0,nrow=length(locations),ncol=1))
+  tracking.mismatches <- vector(mode='numeric',length=length(locations))
   for (j in 1:num.transcripts){
     index <- which((locations %in% plot.data[[j]]$location))
 
@@ -27,10 +31,13 @@ gene.pileup.plot <- function(data.folder, landscape.file, title.text){
     tracking.snp[index]=tracking.snp[index] + plot.data[[j]]$is_snp
   }
   
+  if (!is.null(mismatcher) && length(index)>10){
+    index <-which (locations %in% mismatcher$location)
+    tracking.mismatches[index] = mismatcher$mismatches
+  }
   par(mfrow=c(num.transcripts,1),mar=c(3,3,3,3))
   ymax=max(tracking.total)
   xrange=1:length(locations)
-
 
   for (j in 1:num.transcripts){
     plot(xrange,tracking.total[,j],col='black',type="n",lwd=3,ylab="num of reads",
@@ -41,6 +48,7 @@ gene.pileup.plot <- function(data.folder, landscape.file, title.text){
     lines(xrange,tracking.unknown[,j],col='gray',type="l",lwd=3)
     lines(xrange,tracking.paternal[,j],col='lightblue',type="l",lwd=3)
     lines(xrange,tracking.maternal[,j],col='pink',type="l",lwd=3)
+    lines(xrange,tracking.mismatches,col='brown',type="h",lwd=3)
     title(title.text)
   }
 
