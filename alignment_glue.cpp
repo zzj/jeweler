@@ -115,7 +115,10 @@ int AlignmentGlue::glue_paired_alignments(BamAlignment *first, BamAlignment *sec
 	int second_start = second->Position + 1;
 	int second_end	 = second_start + second->GetEndPosition();
 	int overlapped	 = second_start - first_end ;
-
+	// DEBUG:
+	// Check weather the first alignment is always before the second
+	// alignment
+	
 	if (overlapped>=0){
 		// Great news! no overlapped region between first and second
 		// reads.
@@ -179,18 +182,19 @@ int AlignmentGlue::glue(vector<BamAlignment *> &in_reads,
 					continue;
 				}
 				else if (alignments.size()==2){
-					
-					if (alignments[0]->IsFirstMate() && alignments[1]->IsSecondMate()) {
-						glue_paired_alignments(alignments[0], alignments[1]);
-						new_reads.push_back(alignments[0]);
-						checklist.insert(alignments[0]);
-
-					}
-					else if (alignments[1]->IsFirstMate() && alignments[0]->IsSecondMate()) {
-						glue_paired_alignments(alignments[1], alignments[0]);
-						new_reads.push_back(alignments[1]);
-						checklist.insert(alignments[1]);
-
+					if ((alignments[1]->IsFirstMate() && alignments[0]->IsSecondMate()) || 
+						(alignments[0]->IsFirstMate() && alignments[1]->IsSecondMate())){
+						if (alignments[0]->Position < alignments[1]->Position) {
+							glue_paired_alignments(alignments[0], alignments[1]);
+							new_reads.push_back(alignments[0]);
+							checklist.insert(alignments[0]);
+							
+						}
+						else if (alignments[1]->Position >= alignments[0]->Position) {
+							glue_paired_alignments(alignments[1], alignments[0]);
+							new_reads.push_back(alignments[1]);
+							checklist.insert(alignments[1]);
+						}
 					}
 					else {
 						//fprintf(stdout, "not properly mapped\n");
