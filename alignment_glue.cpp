@@ -111,9 +111,9 @@ int AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlignm
 	// output_bamalignment(second);
 	int i;
 	int first_start	 = first->Position + 1;
-	int first_end	 = first_start + first->GetEndPosition();
+	int first_end	 = first->GetEndPosition() + 1;
 	int second_start = second->Position + 1;
-	int second_end	 = second_start + second->GetEndPosition();
+	int second_end	 = second->GetEndPosition() + 1;
 	int overlapped	 = second_start - first_end ;
 	// DEBUG:
 	// Check weather the first alignment is always before the second
@@ -145,9 +145,10 @@ int AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlignm
 		first->Length += second->Length - skipped_read_length;
 		first->QueryBases += second->QueryBases.substr(skipped_read_length);
 		first->Qualities +=second->Qualities.substr(skipped_read_length);
+		
 		first->CigarData.insert(first->CigarData.end(), 
 								new_cigar_data.begin(), new_cigar_data.end());
-		
+
 	}
 	else {
 		// Good news, first read overlapp second read
@@ -188,7 +189,6 @@ int AlignmentGlue::glue(vector<JewelerAlignment *> &in_reads,
 							glue_paired_alignments(alignments[0], alignments[1]);
 							new_reads.push_back(alignments[0]);
 							checklist.insert(alignments[0]);
-							
 						}
 						else if (alignments[1]->Position >= alignments[0]->Position) {
 							glue_paired_alignments(alignments[1], alignments[0]);
