@@ -35,10 +35,10 @@ public :
 	SewingMachine *sm;
 	vector<Transcript *> maternal_transcripts;
 	vector<Transcript *> paternal_transcripts;
-	vector<BamAlignment *> bam_reads;
-	vector<BamAlignment *> unaligned_reads;
-	vector<BamAlignment *> noused_reads;
-	vector<BamAlignment *> compatible_reads;
+	vector<JewelerAlignment *> bam_reads;
+	vector<JewelerAlignment *> unaligned_reads;
+	vector<JewelerAlignment *> noused_reads;
+	vector<JewelerAlignment *> compatible_reads;
 	
 
 	int num_total_reads;
@@ -52,7 +52,7 @@ public :
 	int transcript_helper(string read_file,string gtf_file, 
 						  vector<Transcript *> &transcripts);
 
-	// load BamAlignment into bam_reads
+	// load JewelerAlignment into bam_reads
 	int load_read_data(TranscriptInfo *ti);
 	// align reads to maternal or paternal transcripts
 	int align_reads();
@@ -67,7 +67,7 @@ public :
 	int study_compatible_reads();
 
 	// get compatible reads
-	int get_compatible_reads(vector<set<BamAlignment*> >& read_lists );
+	int get_compatible_reads(vector<set<JewelerAlignment*> >& read_lists );
 
 	void test_memory_leak();
 };

@@ -11,7 +11,7 @@ using namespace std;
 
 int main (int argc, char *argv[]){
 	BamReader reader;
-	BamAlignment al;
+	JewelerAlignment al;
 	
 	FastaReference fr;
 	

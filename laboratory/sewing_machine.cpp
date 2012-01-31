@@ -1,7 +1,7 @@
 
 #include "sewing_machine.hpp"
 
-locator::locator(BamAlignment &al){
+locator::locator(JewelerAlignment &al){
 	int i;
 	this->ref_id=al.RefID;
 	this->position=al.Position;
@@ -27,14 +27,14 @@ int SewingMachine::initialize(BamReader &reader){
 	return 0;
 }
 
-string SewingMachine::get_reference_sequence(FastaReference &fr, BamAlignment &al){
+string SewingMachine::get_reference_sequence(FastaReference &fr, JewelerAlignment &al){
 	string ret;
 	// TODO : read from reference genome to get the mismatch position 
 	// or other useful information. 
 	return ret;
 }
 
-int SewingMachine::add_alignment(BamAlignment &al){
+int SewingMachine::add_alignment(JewelerAlignment &al){
 	locator *l =new locator(al);
 	string is_first;
 	if (al.IsFirstMate()){

@@ -4,7 +4,7 @@
 
 PileupPlot::PileupPlot(Transcript * maternal_transcript, 
 					   Transcript * paternal_transcript, 
-					   set<BamAlignment *> & unknown_reads){
+					   set<JewelerAlignment *> & unknown_reads){
 	
 	int i, j;
 
@@ -49,7 +49,7 @@ PileupPlot::PileupPlot(Transcript * maternal_transcript,
 }
 
 int PileupPlot::add_transcript_to_pileup(Transcript * transcript, 
-										  set<BamAlignment *> &reads, 
+										  set<JewelerAlignment *> &reads, 
 										  vector<int> & coverage){
 	for (auto iter = reads.begin();
 		 iter != reads.end();
@@ -60,9 +60,9 @@ int PileupPlot::add_transcript_to_pileup(Transcript * transcript,
 }
 
 
-int PileupPlot::add_coverage(Transcript * transcript,  BamAlignment *al,  vector<int> &coverage){
+int PileupPlot::add_coverage(Transcript * transcript,  JewelerAlignment *al,  vector<int> &coverage){
 	// must perform the compatible test first!
-	// justify whether the sequences contains the BamAlignment
+	// justify whether the sequences contains the JewelerAlignment
 
 	// not sure this is the case,  but the coordinates are messed up
 	// sometimes. TODO: read the samtools's specification,  and make

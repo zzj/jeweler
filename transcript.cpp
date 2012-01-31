@@ -5,12 +5,12 @@ Transcript::Transcript(){
 	is_initialized=false;
 }
 
-int Transcript::insert_reads(BamAlignment *al ){
+int Transcript::insert_reads(JewelerAlignment *al ){
 	reads.insert(al);
 	return 0;
 }
 
-bool Transcript::is_aligned(BamAlignment *al ){
+bool Transcript::is_aligned(JewelerAlignment *al ){
 	return reads.find(al)!=reads.end();
 }
 
@@ -24,7 +24,7 @@ int Transcript::get_next_exon(int start_pos, int start_seg = 0, int tolerate = 0
 	return start_seg;
 }
 
-int Transcript::get_overlapped_alignment(BamAlignment *al , int &penalty, bool is_to_fix){
+int Transcript::get_overlapped_alignment(JewelerAlignment *al , int &penalty, bool is_to_fix){
 
 	penalty = 0;
 
@@ -184,8 +184,8 @@ int Transcript::get_overlapped_alignment(BamAlignment *al , int &penalty, bool i
 	return true;
 }
 
-bool Transcript::is_compatible(BamAlignment *al , int tolerate ){
-	// justify whether the sequences contains the BamAlignment
+bool Transcript::is_compatible(JewelerAlignment *al , int tolerate ){
+	// justify whether the sequences contains the JewelerAlignment
 	// if it contains most of the read, this will adjust the read to
 	// make it completely compatible 
 	// check it out with Transcript::tolerate
@@ -283,9 +283,9 @@ int Transcript::output_segments(){
 }
 
 
-string Transcript::get_query_aligned_seq(BamAlignment * al){
+string Transcript::get_query_aligned_seq(JewelerAlignment * al){
 	// must perform the compatible test first!
-	// justify whether the sequences contains the BamAlignment
+	// justify whether the sequences contains the JewelerAlignment
 
 	// not sure this is the case, but the coordinates are messed up
 	// sometimes. TODO: read the samtools's specification, and make
@@ -343,7 +343,7 @@ string Transcript::get_query_aligned_seq(BamAlignment * al){
 	
 }
 
-int Transcript::match_alleles(BamAlignment *al, int &total_alleles, 
+int Transcript::match_alleles(JewelerAlignment *al, int &total_alleles, 
 							  vector<int> &transcript_aligned_locations,
 							  vector<int> &matched_alleles, 
 							  vector<int> &mismatches,
@@ -439,7 +439,7 @@ int Transcript::get_transcript_exon(int genome_location){
 	return NOT_FOUND;
 }
 
-int Transcript::register_allele_read(BamAlignment *al){
+int Transcript::register_allele_read(JewelerAlignment *al){
 	int total_alleles;
 	vector<int> matched_alleles;
 	vector<int> locations;
@@ -465,7 +465,7 @@ int Transcript::register_allele_read(BamAlignment *al){
 	return 0;
 }
 
-int Transcript::register_read(BamAlignment *al){
+int Transcript::register_read(JewelerAlignment *al){
 
 	vector<int> matched_exons;
 	int i;
@@ -479,7 +479,7 @@ int Transcript::register_read(BamAlignment *al){
 }
 
 
-int get_seq_info(Transcript * ti, BamAlignment *al,
+int get_seq_info(Transcript * ti, JewelerAlignment *al,
 				 int genome_start, int alignment_start, int length, 
 				 string &ret){
 	int transcript_start=ti->get_transcript_location(genome_start);
@@ -491,7 +491,7 @@ int get_seq_info(Transcript * ti, BamAlignment *al,
 	ret+=ti->seq.substr(transcript_start,length);
 	return 0;
 }
-int get_location_info(Transcript * ti, BamAlignment *al,
+int get_location_info(Transcript * ti, JewelerAlignment *al,
 					  int genome_start, int alignment_start, int length, 
 					  vector<int>  &ret){
 	int transcript_start = ti->get_transcript_location(genome_start);
@@ -507,7 +507,7 @@ int get_location_info(Transcript * ti, BamAlignment *al,
 	return 0;
 }
 
-int get_exon_info(Transcript * ti,  BamAlignment * al, 
+int get_exon_info(Transcript * ti,  JewelerAlignment * al, 
 				  int genome_start, int alignment_start, int length, 
 				  vector<int> &ret){
 
@@ -522,7 +522,7 @@ int get_exon_info(Transcript * ti,  BamAlignment * al,
 	return 0;
 }
 
-int insert_mismatch_info(Transcript *ti,  BamAlignment * al, 
+int insert_mismatch_info(Transcript *ti,  JewelerAlignment * al, 
 						 int genome_start, int alignment_start, int length, 
 						 vector<int> &mismatches){
 	int i;

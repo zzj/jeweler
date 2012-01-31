@@ -6,12 +6,12 @@ ExonNode::ExonNode(int start, int end, int origin){
 	this->origin=origin;
 }
 
-int ExonNode::insert_reads( set<BamAlignment *> & reads){
+int ExonNode::insert_reads( set<JewelerAlignment *> & reads){
 	this->reads.insert(reads.begin(),reads.end());
 }
 
 
-int ExonNode::insert_allele_reads( set<BamAlignment *> & reads){
+int ExonNode::insert_allele_reads( set<JewelerAlignment *> & reads){
 	this->allele_reads.insert(reads.begin(),reads.end());
 }
 

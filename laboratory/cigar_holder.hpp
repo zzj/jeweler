@@ -7,5 +7,5 @@
 using namespace BamTools;
 using namespace std;
 
-int output_cigar_data(FILE * output_file, BamAlignment &al);
-string get_cigar_string(BamAlignment &al);
+int output_cigar_data(FILE * output_file, JewelerAlignment &al);
+string get_cigar_string(JewelerAlignment &al);

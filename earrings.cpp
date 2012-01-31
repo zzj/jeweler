@@ -99,12 +99,12 @@ int Earrings::load_read_data(TranscriptInfo *info){
 		exit(0);
 	}
 	
-	BamAlignment *al=new BamAlignment();
+	JewelerAlignment *al=new JewelerAlignment();
 
 	while(reader.GetNextAlignment(*al)){
 		num_total_reads ++;
 		bam_reads.push_back(al);
-		al=new BamAlignment();
+		al=new JewelerAlignment();
 	}
 	delete al; // delete the last unused one
 	
@@ -243,7 +243,7 @@ int Earrings::study_compatible_reads(){
 }
 
 
-int Earrings::get_compatible_reads(vector<set<BamAlignment *> > &read_lists) {
+int Earrings::get_compatible_reads(vector<set<JewelerAlignment *> > &read_lists) {
 	int i,j;
 	int num_unaligned_reads = 0;
 	bool is_compatible=false;
@@ -319,13 +319,13 @@ int Earrings::align_reads(){
 	int num_paternal_alleles;
 	int total_alleles;
 	bool is_compatible=false;	
-	set<BamAlignment *> cleared;
-	vector<set<BamAlignment *> >noninfo;
+	set<JewelerAlignment *> cleared;
+	vector<set<JewelerAlignment *> >noninfo;
 	vector<int> paternal_alleles;
 	vector<int> maternal_alleles;
 
-	vector<BamAlignment *> new_bam_reads;
-	vector<set<BamAlignment *> > read_lists;
+	vector<JewelerAlignment *> new_bam_reads;
+	vector<set<JewelerAlignment *> > read_lists;
    
 	AlignmentGlue ag;
 	Transcript::tolerate = 5;

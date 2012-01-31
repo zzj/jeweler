@@ -21,7 +21,7 @@ int Metabam::initialize(BamReader &reader){
 	num_alignment_per_reference.resize(this->references.size(),0);
 }
 
-int Metabam::add_alignment(BamAlignment &al){
+int Metabam::add_alignment(JewelerAlignment &al){
 	total_num_alignments++;
 	num_alignment_per_reference[al.RefID]++;
 	mapquality_list.push_back(al.MapQuality);

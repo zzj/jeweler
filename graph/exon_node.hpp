@@ -8,6 +8,8 @@
 #include <Fasta.h>
 #include <set> 
 #include "../constants.hpp"
+#include "../common.hpp"
+
 using namespace BamTools;
 using namespace std;
 
@@ -32,25 +34,25 @@ public :
 	// only valid when origin != NO_INFO
 
 	ExonNode * paried_exon;
-	set<BamAlignment *> reads;
-	set<BamAlignment *> allele_reads;
+	set<JewelerAlignment *> reads;
+	set<JewelerAlignment *> allele_reads;
 
 	vector<ExonNode *> in_nodes;
 	set<ExonNode *> in_nodes_checklist;
 	vector<int> in_edge_weight;
-	vector<set<BamAlignment *> > in_edge_reads;
+	vector<set<JewelerAlignment *> > in_edge_reads;
 	
 	vector<ExonNode *> out_nodes;
 	set<ExonNode *> out_nodes_checklist;
 	vector<int> out_edge_weight;
-	vector<set<BamAlignment *> > out_edge_reads;
+	vector<set<JewelerAlignment *> > out_edge_reads;
 
 	ExonNode(int start, int end, int origin);
 	string detach();
 	bool is_mirrored(ExonNode *a);
 	bool is_equal(ExonNode *a);
-	int insert_reads(set<BamAlignment *> &al);
-	int insert_allele_reads(set<BamAlignment *> &al);
+	int insert_reads(set<JewelerAlignment *> &al);
+	int insert_allele_reads(set<JewelerAlignment *> &al);
 };
 
 

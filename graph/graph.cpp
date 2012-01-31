@@ -20,8 +20,8 @@ ExonNode * Graph::find_exon_node(int start, int end, int origin){
 }
 
 ExonNode * Graph::add_exon_node(int start, int end, int origin, 
-								set<BamAlignment *> &reads,
-								set< BamAlignment *> &allele_reads){
+								set<JewelerAlignment *> &reads,
+								set< JewelerAlignment *> &allele_reads){
 	ExonNode * ret;
 	if ((ret=find_exon_node(start, end, origin))==GRAPH_EXON_NOT_FOUND){
 		ret=new ExonNode(start, end, origin);
@@ -54,7 +54,7 @@ int Graph::add_edge(ExonNode * first, ExonNode *second, int num_reads){
 }
 
 
-int Graph::add_edge(ExonNode * first, ExonNode *second, vector<BamAlignment *> reads){
+int Graph::add_edge(ExonNode * first, ExonNode *second, vector<JewelerAlignment *> reads){
 	if (first->origin==EXON_NO_INFO || second->origin==EXON_NO_INFO ||
 		(first->origin==second->origin)
 		){

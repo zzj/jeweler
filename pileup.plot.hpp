@@ -29,15 +29,15 @@ public:
 
 	PileupPlot(Transcript * maternal, 
 				  Transcript * paternal, 
-				  set<BamAlignment* > &unknown);
+				  set<JewelerAlignment* > &unknown);
 	
 	int add_transcript_to_pileup(Transcript *,
-									set<BamAlignment *> &reads,
+									set<JewelerAlignment *> &reads,
 									vector<int> & coverage);
 								
 	int generate_pileup_plot(FILE * info, FILE * output);
 
-	int add_coverage(Transcript * transcript, BamAlignment *, vector<int>& coverage);
+	int add_coverage(Transcript * transcript, JewelerAlignment *, vector<int>& coverage);
 };
 
 

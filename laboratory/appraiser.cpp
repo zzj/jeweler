@@ -71,7 +71,7 @@ Appraiser::Appraiser(int argc, char* argv[]){
 int Appraiser::run(){
 	
 	BamReader reader;
-	BamAlignment al;
+	JewelerAlignment al;
 	Metabam mb;
 	SewingMachine sm;
 	int i=0;

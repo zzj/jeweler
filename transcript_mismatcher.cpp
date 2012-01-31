@@ -40,7 +40,7 @@ int TranscriptMismatcher::add_transcript(Transcript *t, int origin){
 	return 0;
 }
 
-int TranscriptMismatcher::add_mismatches(Transcript *transcript, BamAlignment *al, 
+int TranscriptMismatcher::add_mismatches(Transcript *transcript, JewelerAlignment *al, 
 										 vector<int> &locations,
 										 vector<int> &mismatch_locations,
 										 vector<int> &read_locations,

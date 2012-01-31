@@ -55,19 +55,19 @@ public:
 	
 	// contains informative reads (with reference alleles)
 	// and non informative reads (without reference alleles)
-	set<BamAlignment *> reads;
-	set<BamAlignment *> allele_reads;
+	set<JewelerAlignment *> reads;
+	set<JewelerAlignment *> allele_reads;
 
-	vector<set<BamAlignment *> > allele_reads_per_exon;
-	vector<set<BamAlignment *> > reads_per_exon;
+	vector<set<JewelerAlignment *> > allele_reads_per_exon;
+	vector<set<JewelerAlignment *> > reads_per_exon;
 
-	int get_overlapped_alignment(BamAlignment *, int &penalty, bool is_to_fix = false);
+	int get_overlapped_alignment(JewelerAlignment *, int &penalty, bool is_to_fix = false);
 
-	// Check the BamAlignment is compatible with the transcript
-	bool is_compatible(BamAlignment *, int tolerate = 0);
+	// Check the JewelerAlignment is compatible with the transcript
+	bool is_compatible(JewelerAlignment *, int tolerate = 0);
 
 	// Check whether it is a better alignment comparing with other transcript
-	int match_alleles(BamAlignment *, int &total_alleles,
+	int match_alleles(JewelerAlignment *, int &total_alleles,
 					  vector<int> &transcript_aligned_locations,
 					  vector<int> &alleles, 
 					  vector<int> &mismatches,
@@ -75,10 +75,10 @@ public:
 					  vector<char> &mismachars);
 	
 	// insert the Alignment to the aligned_reads
-	int insert_reads(BamAlignment *);
+	int insert_reads(JewelerAlignment *);
 	
-	// check whether the BamAlignment exists in the aligned_reads
-	bool is_aligned(BamAlignment *);
+	// check whether the JewelerAlignment exists in the aligned_reads
+	bool is_aligned(JewelerAlignment *);
 
 	// check whether transcripts are the same sequence on the genome
 	// or not
@@ -87,11 +87,11 @@ public:
 
 	// get aligned sequences from the transcript.
 	template<typename T, typename get_info>
-	T get_transcript_aligned_info(BamAlignment *, get_info gi);
+	T get_transcript_aligned_info(JewelerAlignment *, get_info gi);
 
 
 	// get aligned sequences from the query.
-	string get_query_aligned_seq(BamAlignment *);
+	string get_query_aligned_seq(JewelerAlignment *);
 
     // get transcript locations for a given genome postion
     int get_transcript_location(int genome_location);
@@ -112,10 +112,10 @@ public:
 	bool is_allele(int transcript_location);
 	
 	// register reads
-	int register_read(BamAlignment *);	
+	int register_read(JewelerAlignment *);	
 	
 	// register informative reads by exon
-	int register_allele_read(BamAlignment *);
+	int register_allele_read(JewelerAlignment *);
 
     int output_segments();
 
@@ -133,26 +133,26 @@ public:
 };
 
 
-int get_seq_info(Transcript *, BamAlignment * al, 
+int get_seq_info(Transcript *, JewelerAlignment * al, 
 				 int genome_start, int alignment_start, int length, 
 				 string &ret);
 
-int get_location_info(Transcript *, BamAlignment * al, 
+int get_location_info(Transcript *, JewelerAlignment * al, 
 					  int genome_start, int alignment_start, int length, 
 					  vector<int>  &ret);
 
-int get_exon_info(Transcript *,  BamAlignment * al, 
+int get_exon_info(Transcript *,  JewelerAlignment * al, 
 				  int genome_start, int alignment_start, int length, 
 				  vector<int>& exons);
 
-int insert_mismatch_info(Transcript *,  BamAlignment * al, 
+int insert_mismatch_info(Transcript *,  JewelerAlignment * al, 
 						 int start, int length, vector<int> &mismatches);
 
 
 template<typename T, typename get_info> 
-T Transcript::get_transcript_aligned_info(BamAlignment * al, get_info gi){
+T Transcript::get_transcript_aligned_info(JewelerAlignment * al, get_info gi){
 	// must perform the compatible test first!
-	// justify whether the sequences contains the BamAlignment
+	// justify whether the sequences contains the JewelerAlignment
 
 	// not sure this is the case, but the coordinates are messed up
 	// sometimes. TODO: read the samtools's specification, and make

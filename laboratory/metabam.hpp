@@ -15,7 +15,7 @@ public:
 	int initialize(BamReader &reader);
 
 	// functions
-	int add_alignment(BamAlignment &al);
+	int add_alignment(JewelerAlignment &al);
 	int dump_meta_data(FILE * log_file,bool is_readable=true);
 	int dump_mapquality_list(FILE *output_file);
 	// statistics 

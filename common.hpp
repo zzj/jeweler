@@ -13,7 +13,7 @@
 #include <string> 
 #include <api/BamReader.h>
 #include <api/BamWriter.h>
-#include <api/BamAlignment.h>
+#include "jeweler_alignment.hpp"
 
 
 #define MAXLINE 10000

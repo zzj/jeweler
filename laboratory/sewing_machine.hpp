@@ -23,7 +23,7 @@ public:
 	int edit_distance;
 	bool is_first_pair;
 	string cigar_string;
-	locator(BamAlignment &al);
+	locator(JewelerAlignment &al);
 };
 
 typedef vector<locator *> locator_pvector;
@@ -50,11 +50,11 @@ public:
 	int initialize(BamReader &reader);
 	int load_multiple_alignments_set(FILE *);
 	// functions
-	int add_alignment(BamAlignment &al);
+	int add_alignment(JewelerAlignment &al);
 	int output_alignment_map(FILE *);
 	int output_multiple_alignment_map(FILE *);
 	int output_alignment_connection_map(FILE *);
-	string get_reference_sequence(FastaReference &fr, BamAlignment &al);
+	string get_reference_sequence(FastaReference &fr, JewelerAlignment &al);
 	// storage
 	map<string,locator_pvector> seqs;
 

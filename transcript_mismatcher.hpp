@@ -13,7 +13,7 @@ public:
 	
 	int add_transcript(Transcript *, int origin);
 	
-	int add_mismatches(Transcript *transcript, BamAlignment *al, 
+	int add_mismatches(Transcript *transcript, JewelerAlignment *al, 
 					   vector<int> &locations,
 					   vector<int> &transcript_locations,
 					   vector<int> &read_locations,
@@ -28,10 +28,10 @@ public:
 	
 	vector<int> mismatches; // number of non informative mismatches
 							// per base 
-	set<BamAlignment *> reads;
+	set<JewelerAlignment *> reads;
 	vector<int> coverage;
 	// the list of mismatching reads per base pair
-	vector<set<BamAlignment *> > mismatched_reads;
+	vector<set<JewelerAlignment *> > mismatched_reads;
 	// the list of mismatching positions 
 	vector<vector<int > > read_mismatch_locations;
 

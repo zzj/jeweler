@@ -1,7 +1,7 @@
 #include "alignment_glue.hpp"
 
 
-int output_bamalignment(BamAlignment *al){
+int output_bamalignment(JewelerAlignment *al){
 	fprintf(stdout,"%s\n",al->Name.c_str());
 	if (al->IsFirstMate()){
 		fprintf(stdout,"first one\n");
@@ -15,7 +15,7 @@ int output_bamalignment(BamAlignment *al){
 	return 0;
 }
 
-int cigar_trim(BamAlignment *al){
+int cigar_trim(JewelerAlignment *al){
 	
 	vector<CigarOp>& cigar_data = al->CigarData;
 	vector<CigarOp> new_cigar_data;
@@ -48,7 +48,7 @@ int cigar_trim(BamAlignment *al){
 	return 0;
 }
 
-int AlignmentGlue::get_skipped_region(BamAlignment *al, int skipped_alignment_length, 
+int AlignmentGlue::get_skipped_region(JewelerAlignment *al, int skipped_alignment_length, 
 									  vector<CigarOp> &cigar_data, int &skipped_length){
 
 	vector<CigarOp>::const_iterator cigar_iter = al->CigarData.begin();
@@ -105,7 +105,7 @@ int AlignmentGlue::get_skipped_region(BamAlignment *al, int skipped_alignment_le
 }
 
 
-int AlignmentGlue::glue_paired_alignments(BamAlignment *first, BamAlignment *second){
+int AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlignment *second){
 	// DEBUG:
 	// output_bamalignment(first);
 	// output_bamalignment(second);
@@ -160,11 +160,11 @@ int AlignmentGlue::glue_paired_alignments(BamAlignment *first, BamAlignment *sec
 	// output_bamalignment(first);
 }
 
-int AlignmentGlue::glue(vector<BamAlignment *> &in_reads, 
-						vector<BamAlignment *> &new_reads,
-						vector<BamAlignment *> &noused_reads){
+int AlignmentGlue::glue(vector<JewelerAlignment *> &in_reads, 
+						vector<JewelerAlignment *> &new_reads,
+						vector<JewelerAlignment *> &noused_reads){
 	int i;
-	set<BamAlignment *> checklist;
+	set<JewelerAlignment *> checklist;
 	
 	name2reads.clear();
 	
@@ -175,7 +175,7 @@ int AlignmentGlue::glue(vector<BamAlignment *> &in_reads,
 	for ( i = 0; i < in_reads.size(); i++) {
 		if ( in_reads[i]->IsFirstMate() ) {
 			if ( name2reads.find(in_reads[i]->Name) != name2reads.end()) {
-				vector<BamAlignment *> alignments = name2reads[in_reads[i]->Name];
+				vector<JewelerAlignment *> alignments = name2reads[in_reads[i]->Name];
 				if ( alignments.size() == 1 ) {
 					// TODO:
 					// not paired, but still counted as a valid alignment.

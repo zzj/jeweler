@@ -16,20 +16,20 @@ using namespace std;
 
 class AlignmentGlue{
 public:
-	map<int, vector<BamAlignment *> > refid2reads;
-	map<string, vector<BamAlignment *> > name2reads;
-	int glue_paired_alignments(BamAlignment *first, BamAlignment *second);
-	int glue_cigar_data(BamAlignment *first, BamAlignment *second, int overlapped);	
-	int get_skipped_region(BamAlignment *al, int overlapped, 
+	map<int, vector<JewelerAlignment *> > refid2reads;
+	map<string, vector<JewelerAlignment *> > name2reads;
+	int glue_paired_alignments(JewelerAlignment *first, JewelerAlignment *second);
+	int glue_cigar_data(JewelerAlignment *first, JewelerAlignment *second, int overlapped);	
+	int get_skipped_region(JewelerAlignment *al, int overlapped, 
 						   vector<CigarOp> &cigar_data, int &skipped_length);
 	
 
-	int glue(vector<BamAlignment *> &in_reads, 
-			 vector<BamAlignment *> &new_reads,
-			 vector<BamAlignment *> &noused);
+	int glue(vector<JewelerAlignment *> &in_reads, 
+			 vector<JewelerAlignment *> &new_reads,
+			 vector<JewelerAlignment *> &noused);
 };
 
-int output_bamalignment(BamAlignment *al);
+int output_bamalignment(JewelerAlignment *al);
 
-int cigar_trim(BamAlignment *al);
+int cigar_trim(JewelerAlignment *al);
 #endif // _ALIGNMENT_GLUE_HPP_
