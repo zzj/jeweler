@@ -110,9 +110,9 @@ def main():
 							## multiple alignments maps
 							mamf_command = ""
 							if (os.path.exists(appraiser_resultfolder + alias +"/sm_table")):
-								mamf_command = " -mamf " + appraiser_resultfolder + alias +"/sm_table -earrings";
+								mamf_command = " -mamf " + appraiser_resultfolder + alias +"/sm_table";
 
-							print('./jeweler -i '+result_folder+'/'+alias+'/'+result_file + mamf_command)
+							print('./jeweler -i '+result_folder+'/'+alias+'/'+result_file + mamf_command + " -earrings")
 						else:
 							print('python3.2 factory/miner.py --single '+
 								  '--maternal_strain_ref_seq '+maternal_strain_ref_seq +' ' +

@@ -16,20 +16,24 @@ public:
 	int add_mismatches(Transcript *transcript, BamAlignment *al, 
 					   vector<int> &locations,
 					   vector<int> &transcript_locations,
+					   vector<int> &read_locations,
 					   vector<char> & mismatchars);
 
 	int dump(FILE *);
+	int write(FILE *);
 	
 	map<int, int> genome_pos2idx;
 	map<int, char> genome_pos2paternal;
 	map<int, char> genome_pos2maternal;
 	
 	vector<int> mismatches; // number of non informative mismatches
-							// per base
+							// per base 
 	set<BamAlignment *> reads;
 	vector<int> coverage;
 	// the list of mismatching reads per base pair
 	vector<set<BamAlignment *> > mismatched_reads;
+	// the list of mismatching positions 
+	vector<vector<int > > read_mismatch_locations;
 
 	// number of non informative mismatches equaling to A per base
 	vector<int> A_mismatches; 
@@ -43,5 +47,7 @@ public:
 	vector<int> N_mismatches; 
 	
 };
+
+
 
 #endif

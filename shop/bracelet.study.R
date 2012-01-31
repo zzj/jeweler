@@ -20,7 +20,7 @@ gene.pileup.plot(paste('../result/merged_list/jeweler//HF_0128_M_merged/',b,'/',
                  paste('../result/merged_list/jeweler/HF_0128_M_merged/',b,'/',b,'.mismacher',sep=""),
                  b)
 dev.off()
-
+j
 a='CUFF.2414'
 b='CUFF.24085'
 a='CUFF.1091'

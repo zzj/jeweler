@@ -71,6 +71,7 @@ public:
 					  vector<int> &transcript_aligned_locations,
 					  vector<int> &alleles, 
 					  vector<int> &mismatches,
+					  vector<int> &read_mismatch_locations,
 					  vector<char> &mismachars);
 	
 	// insert the Alignment to the aligned_reads

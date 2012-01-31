@@ -4,7 +4,6 @@ TranscriptMismatcher::TranscriptMismatcher(){
 	
 }
 
-
 int TranscriptMismatcher::initialize(){
 	size_t size = genome_pos2idx.size();
 	int idx=0;
@@ -14,9 +13,10 @@ int TranscriptMismatcher::initialize(){
 		i->second=idx;
 		idx++;
 	}
-	coverage.resize(size,0);
+	coverage.resize( size, 0);
 	mismatches.resize( size, 0);
 	mismatched_reads.resize(size);
+	read_mismatch_locations.resize(size);
 	A_mismatches.resize( size, 0);
 	C_mismatches.resize( size, 0);
 	G_mismatches.resize( size, 0);
@@ -43,6 +43,7 @@ int TranscriptMismatcher::add_transcript(Transcript *t, int origin){
 int TranscriptMismatcher::add_mismatches(Transcript *transcript, BamAlignment *al, 
 										 vector<int> &locations,
 										 vector<int> &mismatch_locations,
+										 vector<int> &read_locations,
 										 vector<char> & mismatchars){
 	if (reads.find(al) == reads.end()){
 		for (int i = 0; i < locations.size(); i++){
@@ -57,8 +58,8 @@ int TranscriptMismatcher::add_mismatches(Transcript *transcript, BamAlignment *a
 			// have inserted before
 			continue;
 		}
-		mismatched_reads[idx].insert(al);
-
+		mismatched_reads[ idx ].insert( al );
+		read_mismatch_locations[ idx ].push_back( read_locations[ i ] );
 		char mismatchar = mismatchars[i];
 		mismatches[idx]++;
 
@@ -85,7 +86,6 @@ int TranscriptMismatcher::add_mismatches(Transcript *transcript, BamAlignment *a
 	return 0;
 }
 
-
 int TranscriptMismatcher::dump(FILE *file){
 	int i;
 	fprintf(file,"location\tcoverage\tmismatches\tA\tT\tC\tG\tN\tMaternal\tPaternal\n");
@@ -102,3 +102,24 @@ int TranscriptMismatcher::dump(FILE *file){
 	}
 	return 0;
 }
+
+int TranscriptMismatcher::write(FILE *file){
+	int i,k;
+	auto j=genome_pos2idx.begin();
+	auto m=genome_pos2maternal.begin();
+	auto p=genome_pos2paternal.begin();
+	for (i = 0 ; i < mismatches.size() ; i++){
+		fprintf(file,"%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%c\t%c",
+				j->first, coverage[i], mismatches[i],
+				A_mismatches[i],T_mismatches[i], C_mismatches[i], G_mismatches[i],
+				N_mismatches[i],
+				m->second, p->second);
+		for ( k = 0; k < read_mismatch_locations[i].size(); k ++){
+			fprintf(file,"\t%d", read_mismatch_locations[i][k]);
+		}
+		fprintf(file,"\n");
+		j++; m++; p++;
+	}
+	return 0;
+}
+

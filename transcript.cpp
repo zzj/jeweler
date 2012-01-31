@@ -347,6 +347,7 @@ int Transcript::match_alleles(BamAlignment *al, int &total_alleles,
 							  vector<int> &transcript_aligned_locations,
 							  vector<int> &matched_alleles, 
 							  vector<int> &mismatches,
+							  vector<int> & read_mismatch_locations,
 							  vector<char> & mismatchars){
 	int i;
 	string transcript_seq = get_transcript_aligned_info<string>(al, get_seq_info);
@@ -391,6 +392,7 @@ int Transcript::match_alleles(BamAlignment *al, int &total_alleles,
 		if (transcript_seq[i] != query_seq[i]){
 			mismatches.push_back(transcript_aligned_locations[i]);
 			mismatchars.push_back(query_seq[i]);
+			read_mismatch_locations.push_back(i);
 		}
 	}
 	if (total_alleles>0 && matched_alleles.size()==0){
@@ -442,11 +444,13 @@ int Transcript::register_allele_read(BamAlignment *al){
 	vector<int> matched_alleles;
 	vector<int> locations;
 	vector<int> mismatches;
+	vector<int> read_mismatches;
 	vector<int> matched_exons;
 	vector<char> mismatchars;
 	int num_matched_alleles;
 	int i;
-	match_alleles(al,total_alleles,locations, matched_alleles,mismatches,mismatchars);
+	match_alleles(al,total_alleles,locations, matched_alleles,
+				  mismatches,read_mismatches,mismatchars);
 	num_matched_alleles=matched_alleles.size();
 	if (num_matched_alleles>0){
 		allele_reads.insert(al);

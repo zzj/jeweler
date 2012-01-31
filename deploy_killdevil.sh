@@ -8,7 +8,7 @@ ln -s /lustre/scr/z/z/zzj/jeweler/data data
 
 
 scp -r zzj@csbio-desktop107.cs.unc.edu:/home/zzj/Research/rna_seq/jeweler/data/index/* data/index
-scp -r zzj@csbio-storage001.cs.unc.edu:/recovery/lost+found/\\\#233046017/cegs_rnaseq_merged/ data
+scp -r zzj@csbio-storage001.cs.unc.edu:/csbiodataxw/RNAseq-nobackup4/zzj/jeweler/data/ data
 ##scp -r zzj@csbio-desktop107.cs.unc.edu:/csbiodataxu/RNAseq-nobackup3/cegs_rnaseq_merged  data
 scp -r zzj@csbio-desktop107.cs.unc.edu:/csbiodataxu/RNAseq-nobackup3/cegs_rnaseq_inbreds  data
 scp -r zzj@csbio-desktop107.cs.unc.edu:/home/zzj/Research/rna_seq/data/ensembl/* data/database/

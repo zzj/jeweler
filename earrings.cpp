@@ -98,6 +98,7 @@ int Earrings::load_read_data(TranscriptInfo *info){
 		fprintf(stderr,"Cannot open bam file!\n");
 		exit(0);
 	}
+	
 	BamAlignment *al=new BamAlignment();
 
 	while(reader.GetNextAlignment(*al)){
@@ -161,8 +162,6 @@ int Earrings::load_transcript_data(TranscriptInfo * info){
 		p->reads_per_exon.resize(p->exon_start.size());
 		m->reads_per_exon.resize(p->exon_start.size());
 
-
-
 		for (j=0;j<m->snp_pos.size();j++){
 			// find the exon
 			int exon_id=-1;
@@ -177,7 +176,6 @@ int Earrings::load_transcript_data(TranscriptInfo * info){
 				p->allele_exon[j]=exon_id;
 				m->num_alleles_per_exon[exon_id]++;
 				p->num_alleles_per_exon[exon_id]++;
-
 			}
 			else {
 				fprintf(stdout,"error\n");
@@ -188,7 +186,6 @@ int Earrings::load_transcript_data(TranscriptInfo * info){
 		// mismatcher initialization
 		mismatcher->add_transcript(p, TRANSCRIPT_PATERNAL);
 		mismatcher->add_transcript(m, TRANSCRIPT_MATERNAL);
-
 	}
 	mismatcher->initialize();
 	return 0;
@@ -354,6 +351,8 @@ int Earrings::align_reads(){
 				is_compatible = true;
 				vector<int> paternal_mismatches;
 				vector<int> maternal_mismatches;
+				vector<int> paternal_read_locations;
+				vector<int> maternal_read_locations;
 				vector<char> paternal_mismatchars;
 				vector<char> maternal_mismatchars;
 				vector<int> maternal_locations;
@@ -367,6 +366,7 @@ int Earrings::align_reads(){
 													   maternal_locations,
 													   maternal_alleles,
 													   maternal_mismatches,
+													   maternal_read_locations,
 													   maternal_mismatchars);
 
 				paternal_transcripts[j]->match_alleles(bam_reads[i],
@@ -374,6 +374,7 @@ int Earrings::align_reads(){
 													   paternal_locations,
 													   paternal_alleles,
 													   paternal_mismatches,
+													   paternal_read_locations,
 													   paternal_mismatchars);
 		
 				//fprintf(stdout,"%d\n",total_alleles);
@@ -386,6 +387,7 @@ int Earrings::align_reads(){
 												   bam_reads[i],
 												   maternal_locations,
 												   maternal_mismatches, 
+												   maternal_read_locations,
 												   maternal_mismatchars);
 					}
 					else {
@@ -396,6 +398,7 @@ int Earrings::align_reads(){
 													   bam_reads[i],
 													   maternal_locations,
 													   maternal_mismatches,
+													   maternal_read_locations,
 													   maternal_mismatchars);
 						}
 						else{
@@ -404,6 +407,7 @@ int Earrings::align_reads(){
 													   bam_reads[i],
 													   paternal_locations,
 													   paternal_mismatches,
+													   paternal_read_locations,
 													   paternal_mismatchars);
 					
 						}
@@ -414,6 +418,7 @@ int Earrings::align_reads(){
 											   bam_reads[i],
 											   maternal_locations,
 											   maternal_mismatches,
+											   maternal_read_locations,
 											   maternal_mismatchars
 											   );
 					noninfo[j].insert(bam_reads[i]);
@@ -449,9 +454,11 @@ int Earrings::align_reads(){
 		fclose(foutput);
 	}
 	fclose(finfo);
-	// yes, sometimes, typo just cannot be fixed
-	finfo=fopen(string(info->folder+"/"+info->gene_id+".mismacher").c_str(),"w+");
+	finfo=fopen(string(info->folder+"/"+info->gene_id+".mismatcher").c_str(),"w+");
 	mismatcher->dump(finfo);
+	fclose(finfo);
+	finfo=fopen(string(info->folder+"/"+info->gene_id+".mismatcher.extra").c_str(),"w+");
+	mismatcher->write(finfo);
 	fclose(finfo);
 	//fprintf(stdout,"Unaligned\tUncleared\tCleared\tNoninfo\tTotal\n");
 	//fprintf(stdout,"%d\t%d\t%d\t%d\t%d\n",unaligned.size(),
