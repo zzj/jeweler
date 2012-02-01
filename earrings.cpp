@@ -328,14 +328,15 @@ int Earrings::align_reads(){
 	vector<set<JewelerAlignment *> > read_lists;
    
 	AlignmentGlue ag;
-	Transcript::tolerate = 5;
+	Transcript::tolerate = 0;
+
+	ag.glue(bam_reads, new_bam_reads, noused_reads);
+	bam_reads=new_bam_reads;
 
 	get_compatible_reads(read_lists);
 
 	bam_reads=compatible_reads;
 
-	ag.glue(bam_reads, new_bam_reads, noused_reads);
-	bam_reads=new_bam_reads;
 
 	int num_compatible_reads = 0;
 	noninfo.resize(maternal_transcripts.size());	
@@ -351,8 +352,8 @@ int Earrings::align_reads(){
 				is_compatible = true;
 				vector<int> paternal_mismatches;
 				vector<int> maternal_mismatches;
-				vector<int> paternal_read_locations;
-				vector<int> maternal_read_locations;
+				vector<char> paternal_read_qualities;
+				vector<char> maternal_read_qualities;
 				vector<char> paternal_mismatchars;
 				vector<char> maternal_mismatchars;
 				vector<int> maternal_locations;
@@ -366,7 +367,7 @@ int Earrings::align_reads(){
 													   maternal_locations,
 													   maternal_alleles,
 													   maternal_mismatches,
-													   maternal_read_locations,
+													   maternal_read_qualities,
 													   maternal_mismatchars);
 
 				paternal_transcripts[j]->match_alleles(bam_reads[i],
@@ -374,7 +375,7 @@ int Earrings::align_reads(){
 													   paternal_locations,
 													   paternal_alleles,
 													   paternal_mismatches,
-													   paternal_read_locations,
+													   paternal_read_qualities,
 													   paternal_mismatchars);
 		
 				//fprintf(stdout,"%d\n",total_alleles);
@@ -387,7 +388,7 @@ int Earrings::align_reads(){
 												   bam_reads[i],
 												   maternal_locations,
 												   maternal_mismatches, 
-												   maternal_read_locations,
+												   maternal_read_qualities,
 												   maternal_mismatchars);
 					}
 					else {
@@ -398,7 +399,7 @@ int Earrings::align_reads(){
 													   bam_reads[i],
 													   maternal_locations,
 													   maternal_mismatches,
-													   maternal_read_locations,
+													   maternal_read_qualities,
 													   maternal_mismatchars);
 						}
 						else{
@@ -407,7 +408,7 @@ int Earrings::align_reads(){
 													   bam_reads[i],
 													   paternal_locations,
 													   paternal_mismatches,
-													   paternal_read_locations,
+													   paternal_read_qualities,
 													   paternal_mismatchars);
 					
 						}
@@ -418,7 +419,7 @@ int Earrings::align_reads(){
 											   bam_reads[i],
 											   maternal_locations,
 											   maternal_mismatches,
-											   maternal_read_locations,
+											   maternal_read_qualities,
 											   maternal_mismatchars
 											   );
 					noninfo[j].insert(bam_reads[i]);
@@ -432,7 +433,11 @@ int Earrings::align_reads(){
 		else {
 			
 			fprintf(stderr, "WARNING: Find an incompatible read.\n");
-			paternal_transcripts[0]->output_segments();
+			for (int k = 0; k < paternal_transcripts.size(); k ++){
+				paternal_transcripts[k]->output_segments();
+				paternal_transcripts[k]->is_compatible(bam_reads[i], Transcript::tolerate, 
+												   /*debug output*/true);
+			}
 			output_bamalignment(bam_reads[i]);
 		}
 	}

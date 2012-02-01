@@ -64,14 +64,14 @@ public:
 	int get_overlapped_alignment(JewelerAlignment *, int &penalty, bool is_to_fix = false);
 
 	// Check the JewelerAlignment is compatible with the transcript
-	bool is_compatible(JewelerAlignment *, int tolerate = 0);
+	bool is_compatible(JewelerAlignment *, int tolerate = 0, bool debug = false);
 
 	// Check whether it is a better alignment comparing with other transcript
 	int match_alleles(JewelerAlignment *, int &total_alleles,
 					  vector<int> &transcript_aligned_locations,
 					  vector<int> &alleles, 
 					  vector<int> &mismatches,
-					  vector<int> &read_mismatch_locations,
+					  vector<char> &read_mismatch_qualities,
 					  vector<char> &mismachars);
 	
 	// insert the Alignment to the aligned_reads
@@ -202,6 +202,8 @@ T Transcript::get_transcript_aligned_info(JewelerAlignment * al, get_info gi){
 			// invalid CIGAR op-code
 		default:
 			const string message = string("invalid CIGAR operation type: ") + op.Type;
+			fprintf(stdout, "%s\n", message.c_str());
+			exit(0);
 			return T();
 		}
 	}

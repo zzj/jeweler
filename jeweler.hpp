@@ -15,10 +15,12 @@
 #include "transcript.hpp"
 #include "earrings.hpp"
 #include "bracelet.hpp"
+#include "transcript_mismatcher.hpp"
 #include "laboratory/sewing_machine.hpp"
-
+#include "jeweler_alignment.hpp"
 #include <api/BamReader.h>
 #include <api/BamWriter.h>
+
 #include <Fasta.h>
 
 using namespace BamTools;
@@ -41,6 +43,7 @@ public:
 
 	bool is_earrings;
 	bool is_bracelet;
+	bool is_mismatch_analyzer;
 	// function to run the analysis 
 	int run();
 

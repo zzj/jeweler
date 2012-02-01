@@ -144,15 +144,13 @@ int Transcript::get_overlapped_alignment(JewelerAlignment *al , int &penalty, bo
 		case (Constants::BAM_CIGAR_REFSKIP_CHAR) :
 		case (Constants::BAM_CIGAR_DEL_CHAR) :
 		case (Constants::BAM_CIGAR_PAD_CHAR) :
-			// no 'J', because all reads should be call this function
-			// first to make them only have the region covered by the transcripts
-			// case ('J') :
+		case ('J'):
 			start_pos += op.Length;
 			new_cigar_data.push_back(op);
 			break;
 			// invalid CIGAR op-code
-		case ('J'):
-			fprintf(stderr, "Should call Transcript::get_overlapped_alignment first before AlignmentGlue class\n");
+
+			
 		default:
 			const string message = string("invalid CIGAR operation type: ") + op.Type;
 			fprintf(stderr, "%s\n", message.c_str());
@@ -184,7 +182,7 @@ int Transcript::get_overlapped_alignment(JewelerAlignment *al , int &penalty, bo
 	return true;
 }
 
-bool Transcript::is_compatible(JewelerAlignment *al , int tolerate ){
+bool Transcript::is_compatible(JewelerAlignment *al , int tolerate , bool debug){
 	// justify whether the sequences contains the JewelerAlignment
 	// if it contains most of the read, this will adjust the read to
 	// make it completely compatible 
@@ -226,8 +224,14 @@ bool Transcript::is_compatible(JewelerAlignment *al , int tolerate ){
 			start_pos += op.Length;
 			if ( !( exon_start[start_seg] - tolerate <= start_pos &&
 					exon_end[start_seg] + tolerate >= start_pos -1 )
-				 ) // the end of last alignment 
+				 ) {// the end of last alignment 
+				if (debug){
+					fprintf(stdout, "not at the same exon for matching region, current position = %d\n",
+							start_pos);
+				}
+
 			    return false;
+			}
 			break;
 			
 		case (Constants::BAM_CIGAR_INS_CHAR)      :			
@@ -247,20 +251,35 @@ bool Transcript::is_compatible(JewelerAlignment *al , int tolerate ){
 				err = start_pos - exon_start[ start_seg ];
 				if ( abs(err) > tolerate) {
 					// not at the beginning of the exon
+				if (debug){
+					fprintf(stdout, "not at start of next exon, current position = %d\n",
+							start_pos);
+				}
+
 					return false;
 				}
 			}
 			else {
 				// not at the end of exon
+				if (debug){
+					fprintf(stdout, "not at end of current exon, current position = %d\n",
+							start_pos);
+				}
 				return false;
 			}
 			break;
 			
 		case (Constants::BAM_CIGAR_DEL_CHAR) :
+			start_pos += op.Length;
+			break;
 		case (Constants::BAM_CIGAR_PAD_CHAR) :
 		case ('J') :
 			start_pos += op.Length;
 			if ( (start_seg = get_next_exon (  start_pos, start_seg) ) == NOT_FOUND ){
+				if (debug){
+					fprintf(stdout, "did not find next exon, current position = %d\n",
+							start_pos);
+				}
 				return false;
 			}
 			break;
@@ -271,7 +290,9 @@ bool Transcript::is_compatible(JewelerAlignment *al , int tolerate ){
 		}
 	}
 	
-
+	if (debug){
+		fprintf(stdout, "everything is fine\n");
+	}
 	return true;
 }
 
@@ -347,14 +368,14 @@ int Transcript::match_alleles(JewelerAlignment *al, int &total_alleles,
 							  vector<int> &transcript_aligned_locations,
 							  vector<int> &matched_alleles, 
 							  vector<int> &mismatches,
-							  vector<int> & read_mismatch_locations,
+							  vector<char> & read_mismatch_qualities,
 							  vector<char> & mismatchars){
 	int i;
 	string transcript_seq = get_transcript_aligned_info<string>(al, get_seq_info);
 	transcript_aligned_locations =
 		get_transcript_aligned_info<vector<int> >(al, get_location_info);
 	string query_seq=get_query_aligned_seq(al);
-	
+
 	alleles.clear();
 
 	matched_alleles.clear();
@@ -364,8 +385,8 @@ int Transcript::match_alleles(JewelerAlignment *al, int &total_alleles,
 
 	if (transcript_seq.size()!=query_seq.size()){
 		
-		fprintf(stderr,"%d\t%s\n", transcript_seq.size(), transcript_seq.c_str());
-		fprintf(stderr,"%d\t%s\n", query_seq.size(), query_seq.c_str());
+		fprintf(stderr,"Transcript: %d\t%s\n", transcript_seq.size(), transcript_seq.c_str());
+		fprintf(stderr,"Read:     : %d\t%s\n", query_seq.size(), query_seq.c_str());
 		fprintf(stderr,"%s\t%d\t%s\n", 
 				al->Name.c_str(), 
 				al->Position + 1, 
@@ -377,7 +398,7 @@ int Transcript::match_alleles(JewelerAlignment *al, int &total_alleles,
 
 		exit(0);
 	}
-	
+
 	// TODO: increase the performance
 	for (i=0;i<transcript_seq.size();i++){
 		// is it a SNP?
@@ -392,7 +413,7 @@ int Transcript::match_alleles(JewelerAlignment *al, int &total_alleles,
 		if (transcript_seq[i] != query_seq[i]){
 			mismatches.push_back(transcript_aligned_locations[i]);
 			mismatchars.push_back(query_seq[i]);
-			read_mismatch_locations.push_back(i);
+			read_mismatch_qualities.push_back(al->Qualities[i]);
 		}
 	}
 	if (total_alleles>0 && matched_alleles.size()==0){
@@ -444,7 +465,7 @@ int Transcript::register_allele_read(JewelerAlignment *al){
 	vector<int> matched_alleles;
 	vector<int> locations;
 	vector<int> mismatches;
-	vector<int> read_mismatches;
+	vector<char> read_mismatches;
 	vector<int> matched_exons;
 	vector<char> mismatchars;
 	int num_matched_alleles;

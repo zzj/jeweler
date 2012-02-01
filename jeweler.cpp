@@ -11,6 +11,7 @@ jeweler::jeweler(int argc, char * argv[]){
 	bool has_info = false;
 	is_earrings = false;
 	is_bracelet = false;
+	is_mismatch_analyzer = false;
 	test_case = -1;
 	sm = NULL;
 	log_file = stdout;
@@ -18,7 +19,7 @@ jeweler::jeweler(int argc, char * argv[]){
 	for (i = 1; i < argc; i++){
 		if (strcmp( argv[i], "-h") == 0){
 			fprintf( stdout, "help information for jeweler:\n");
-			fprintf( stdout, "command: jeweler -i infofile [-l logfile] [-mamf multiple_alignment_file] \n");
+			fprintf( stdout, "command: jeweler -i infofile [-l logfile] [-mamf multiple_alignment_file] -earrnings -bracelet -mismatch_analyzer\n");
 			exit(0);
 		}
 		if (strcmp( argv[i], "-i") == 0){
@@ -45,6 +46,9 @@ jeweler::jeweler(int argc, char * argv[]){
 		}
 		if (strcmp( argv[i], "-earrings") == 0){
 			is_earrings = true;
+		}
+		if (strcmp( argv[i], "-mismatch_analyzer") == 0){
+			is_mismatch_analyzer = true;
 		}
 		if (strcmp( argv[i], "-testcase") == 0){
 			i++;
@@ -122,6 +126,10 @@ int jeweler::run(){
 		bracelet.analyze();
 		bracelet.dump(output);
 		fclose(output);
+	}
+	if (is_mismatch_analyzer){
+		TranscriptMismatcherAnalyzer tma(transcripts_info);
+		tma.analyze();
 	}
 	return 0;
 }

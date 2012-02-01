@@ -109,7 +109,7 @@ int AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlignm
 	// DEBUG:
 	// output_bamalignment(first);
 	// output_bamalignment(second);
-	int i;
+	int i, j;
 	int first_start	 = first->Position + 1;
 	int first_end	 = first->GetEndPosition() + 1;
 	int second_start = second->Position + 1;
@@ -118,7 +118,10 @@ int AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlignm
 	// DEBUG:
 	// Check weather the first alignment is always before the second
 	// alignment
-	
+
+	for (i = 0; i < first->QueryBases.size(); i ++){
+		first->read_position.push_back(i);
+	}
 	if (overlapped>=0){
 		// Great news! no overlapped region between first and second
 		// reads.
@@ -129,6 +132,9 @@ int AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlignm
 			pad += 'N';
 		}
 		first->QueryBases += second->QueryBases;
+		for (j = 0 ; j < second->QueryBases.size(); j ++){
+			first->read_position.push_back(second->QueryBases.size() - 1 - j);
+		}
 		if (overlapped > 0){
 			first->CigarData.push_back(CigarOp('J',overlapped));
 		}
@@ -145,9 +151,29 @@ int AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlignm
 		first->Length += second->Length - skipped_read_length;
 		first->QueryBases += second->QueryBases.substr(skipped_read_length);
 		first->Qualities +=second->Qualities.substr(skipped_read_length);
-		
+		for (j = skipped_read_length; j < second->QueryBases.size(); j ++){
+			first->read_position.push_back(second->QueryBases.size() - 1 - j);
+		}
+
 		first->CigarData.insert(first->CigarData.end(), 
 								new_cigar_data.begin(), new_cigar_data.end());
+		// merge consective ops
+		for (i = 0, j = 0; j< first->CigarData.size(); ){
+			j ++; 
+			while(j != first->CigarData.size()){
+				if (first->CigarData[i].Type == first->CigarData[j].Type){
+					first->CigarData[i].Length += first->CigarData[j].Length;
+					j++;
+				}
+				else {
+					first -> CigarData[i+1] = first->CigarData[j ];
+					break;
+				}
+			}
+			i ++;
+
+		}
+		first->CigarData.resize(i);
 
 	}
 	else {
