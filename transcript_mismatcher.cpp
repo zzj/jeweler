@@ -17,6 +17,7 @@ int TranscriptMismatcher::initialize(){
 	mismatches.resize( size, 0);
 	mismatched_reads.resize(size);
 	read_mismatch_qualities.resize(size);
+	read_qualities.resize(size);
 	A_mismatches.resize( size, 0);
 	C_mismatches.resize( size, 0);
 	G_mismatches.resize( size, 0);
@@ -41,9 +42,10 @@ int TranscriptMismatcher::add_transcript(Transcript *t, int origin){
 }
 
 int TranscriptMismatcher::add_mismatches(Transcript *transcript, JewelerAlignment *al, 
-										 vector<int> &locations,
+										 vector<int> &transcript_locations,
+										 vector<int> &read_locations,
 										 vector<int> &mismatch_locations,
-										 vector<char> &read_qualities,
+										 vector<char> &read_mismatch_qualities_in,
 										 vector<char> & mismatchars){
 	if (mismatchars.size()> 4) {
 		// TODO study why there are so many mismatches for the
@@ -52,8 +54,10 @@ int TranscriptMismatcher::add_mismatches(Transcript *transcript, JewelerAlignmen
 	}
 
 	if (reads.find(al) == reads.end()){
-		for (int i = 0; i < locations.size(); i++){
-			coverage[genome_pos2idx[transcript->genome_pos[locations[i]]]]++;
+		for (int i = 0; i < transcript_locations.size(); i++){
+			int idx = genome_pos2idx[transcript->genome_pos[transcript_locations[i]]];
+			coverage[ idx ]++;
+			read_qualities[ idx ].push_back( al->Qualities[ read_locations[i] ] );
 		}
 		reads.insert(al);
 	}
@@ -67,7 +71,7 @@ int TranscriptMismatcher::add_mismatches(Transcript *transcript, JewelerAlignmen
 			continue;
 		}
 		mismatched_reads[ idx ].insert( al );
-		read_mismatch_qualities[ idx ].push_back( read_qualities[ i ] );
+		read_mismatch_qualities[ idx ].push_back( read_mismatch_qualities_in[ i ] );
 		char mismatchar = mismatchars[i];
 		mismatches[idx]++;
 
@@ -125,6 +129,9 @@ int TranscriptMismatcher::write(FILE *file){
 		for ( k = 0; k < read_mismatch_qualities[i].size(); k ++){
 			fprintf(file,"\t%c", read_mismatch_qualities[i][k]);
 		}
+		for ( k = 0; k < read_qualities[i].size(); k ++){
+			fprintf(file,"\t%c", read_qualities[i][k]);
+		}
 		fprintf(file,"\n");
 		j++; m++; p++;
 	}
@@ -161,10 +168,16 @@ int TranscriptMismatcherAnalyzer::append(FILE * file){
 		paternal_seq.push_back( paternal_char );
 		
 		for (int i = 0; i < miss; i ++ ){
-			fscanf(file, "%c", &temp);
+			fscanf(file, "\t%c", &temp);
 			tempv.push_back(temp);
 		}
 		read_mismatch_qualities.push_back(tempv);
+		tempv.clear();
+		for (int i = 0; i < coverage; i ++ ){
+			fscanf(file, "\t%c", &temp);
+			tempv.push_back(temp);
+		}
+		read_qualities.push_back(tempv);
 	}
 
 }
@@ -208,7 +221,8 @@ int TranscriptMismatcherAnalyzer::end_loading(){
 int TranscriptMismatcherAnalyzer::calculate_error(){
 	int i, j;
 	// num of mismatches by location in read
-	vector<int> num_mismatches(error_rate.size(), 0);
+	map<char, int> num_mismatches;
+	map<char, int> num_qualities;
 	for ( i = 0; i < num_locations; i ++){
 		if ( is_consistent_mismatches.test( i ) ){
 			continue;
@@ -217,15 +231,34 @@ int TranscriptMismatcherAnalyzer::calculate_error(){
 		// TODO: remove the whole transcript if it contains consistent
 		// mismatches
 		for (j = 0 ; j < read_mismatch_qualities[i].size(); j ++){
-			num_mismatches[ read_mismatch_qualities[ i ][ j ] ] ++;
+			if (num_mismatches.find(read_mismatch_qualities[ i ][ j ]) == 
+				num_mismatches.end()){
+				num_mismatches[ read_mismatch_qualities[ i ][ j ] ] = 1;
+			}
+			else {
+				num_mismatches[ read_mismatch_qualities[ i ][ j ] ] ++;
+			}
+		}
+		for (j = 0 ; j < read_qualities[i].size(); j ++){
+			if (num_qualities.find(read_qualities[ i ][ j ]) == 
+				num_qualities.end()){
+				num_qualities[ read_qualities[ i ][ j ] ] = 1;
+			}
+			else {
+				num_qualities[ read_qualities[ i ][ j ] ] ++;
+			}
 		}
 	}
-	fprintf(stdout, "%d\n",error_rate.size());
-	for ( i = 0; i < error_rate.size(); i ++){
-		error_rate[ i ] = (double) num_mismatches[ i ] / num_reads;
-		fprintf(stdout, "%lf\n", error_rate[i]);
+	error_rate.clear();
+	for ( auto i = num_qualities.begin(); 
+		  i !=  num_qualities.end(); 
+		  i ++){
+		if (num_mismatches.find(i->first) == num_mismatches.end()) {
+			num_mismatches[ i->first ] = 0;
+		}
+		error_rate[ i->first ] = (double)  num_mismatches[i->first] / i->second ;
+		fprintf(stdout, "%c\t%lf\n", i->first, error_rate[i->first]);
 	}
-	
 	return 0;
 }
 
@@ -236,18 +269,40 @@ int TranscriptMismatcherAnalyzer::calculate_p_value(){
 	int j;
 
 	for ( i = 0; i < num_locations; i ++) {
+
 		if ( is_consistent_mismatches.test( i ) ){
 			continue;
 		}
 		le_cam_upper_bound = 0;
 		mean = 0;
-		for (j = 0 ; j < read_mismatch_qualities[i].size(); j ++){
-			le_cam_upper_bound = pow(error_rate[ read_mismatch_qualities[ i ][ j ] ],2);
-			mean += error_rate[ read_mismatch_qualities[ i ][ j ] ];
+		for (j = 0 ; j < read_qualities[i].size(); j ++){
+			le_cam_upper_bound = pow(error_rate[ read_qualities[ i ][ j ] ],2);
+			mean += error_rate[ read_qualities[ i ][ j ] ];
 		}
+		p_values[i] = 0;
+		if (mean == 0) continue;
+		boost::math::poisson_distribution<double> pd = boost::math::poisson_distribution<double> (mean);
 
 		if (mismatches[i] == 0){
 			p_values[i] = 0;
+		}
+		else if (mismatches[i] == coverages[i]){
+			for (j = 0 ; j < read_qualities[i].size(); j ++){
+				p_values[i] += -log(error_rate[ read_qualities[ i ][ j ] ]);
+			}
+			fprintf(stdout, "a%d\t %lf vs %lf \n", coverages[i], -log(cdf(complement(pd, coverages[i]-1))), p_values[i]);
+		}
+
+		else if (mismatches[i] == 1){
+			double temp = 0;
+			for (j = 0 ; j < read_qualities[i].size(); j ++){
+				temp += log(1-error_rate[ read_qualities[ i ][ j ] ]);
+
+			}
+			p_values[i] = -log(1-exp(temp));
+		}
+		else {
+			
 		}
 		//if (le_cam_upper_bound > 0) fprintf(stdout, "%lf\n", le_cam_upper_bound);
 	}

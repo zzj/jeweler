@@ -358,6 +358,8 @@ int Earrings::align_reads(){
 				vector<char> maternal_mismatchars;
 				vector<int> maternal_locations;
 				vector<int> paternal_locations;
+				vector<int> maternal_read_locations;
+				vector<int> paternal_read_locations;
 		
 				maternal_transcripts[j]->register_read(bam_reads[i]);
 				paternal_transcripts[j]->register_read(bam_reads[i]);
@@ -365,6 +367,7 @@ int Earrings::align_reads(){
 				maternal_transcripts[j]->match_alleles(bam_reads[i],
 													   total_alleles,
 													   maternal_locations,
+													   maternal_read_locations,
 													   maternal_alleles,
 													   maternal_mismatches,
 													   maternal_read_qualities,
@@ -373,6 +376,7 @@ int Earrings::align_reads(){
 				paternal_transcripts[j]->match_alleles(bam_reads[i],
 													   total_alleles,
 													   paternal_locations,
+													   paternal_read_locations,
 													   paternal_alleles,
 													   paternal_mismatches,
 													   paternal_read_qualities,
@@ -387,6 +391,7 @@ int Earrings::align_reads(){
 						mismatcher->add_mismatches(maternal_transcripts[j],
 												   bam_reads[i],
 												   maternal_locations,
+												   maternal_read_locations,
 												   maternal_mismatches, 
 												   maternal_read_qualities,
 												   maternal_mismatchars);
@@ -398,6 +403,7 @@ int Earrings::align_reads(){
 							mismatcher->add_mismatches(maternal_transcripts[j],
 													   bam_reads[i],
 													   maternal_locations,
+													   maternal_read_locations,
 													   maternal_mismatches,
 													   maternal_read_qualities,
 													   maternal_mismatchars);
@@ -407,6 +413,7 @@ int Earrings::align_reads(){
 							mismatcher->add_mismatches(paternal_transcripts[j],
 													   bam_reads[i],
 													   paternal_locations,
+													   paternal_read_locations,
 													   paternal_mismatches,
 													   paternal_read_qualities,
 													   paternal_mismatchars);
@@ -418,6 +425,7 @@ int Earrings::align_reads(){
 					mismatcher->add_mismatches(maternal_transcripts[j],
 											   bam_reads[i],
 											   maternal_locations,
+											   maternal_read_locations,
 											   maternal_mismatches,
 											   maternal_read_qualities,
 											   maternal_mismatchars

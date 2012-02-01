@@ -24,9 +24,10 @@ public:
 	int add_transcript(Transcript *, int origin);
 	
 	int add_mismatches(Transcript *transcript, JewelerAlignment *al, 
-					   vector<int> &locations,
 					   vector<int> &transcript_locations,
-					   vector<char> &read_qualities,
+					   vector<int> &read_locations,
+					   vector<int> &transcript_mismatch_locations,
+					   vector<char> &read_mismatch_qualities,
 					   vector<char> & mismatchars);
 
 	int dump(FILE *);
@@ -44,6 +45,7 @@ public:
 	vector<set<JewelerAlignment *> > mismatched_reads;
 	// the list of mismatching positions 
 	vector<vector<char > > read_mismatch_qualities;
+	vector<vector<char > > read_qualities;
 
 	// number of non informative mismatches equaling to A per base
 	vector<int> A_mismatches; 
@@ -65,6 +67,7 @@ public:
 	vector<int> mismatches;
 	vector<char> maternal_seq, paternal_seq;
 	vector<vector<char> > read_mismatch_qualities;
+	vector<vector<char> > read_qualities;
 	
 	// number of non informative mismatches equaling to A per base
 	vector<int> A_mismatches; 
@@ -79,7 +82,7 @@ public:
 	int num_reads;
 	int num_locations;
 	boost::dynamic_bitset<> is_consistent_mismatches;
-	vector<double> error_rate;
+	map<char, double> error_rate;
 	vector<double> p_values;
 
 	bool is_initialized;

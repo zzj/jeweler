@@ -366,6 +366,7 @@ string Transcript::get_query_aligned_seq(JewelerAlignment * al){
 
 int Transcript::match_alleles(JewelerAlignment *al, int &total_alleles, 
 							  vector<int> &transcript_aligned_locations,
+							  vector<int> &read_aligned_locations,
 							  vector<int> &matched_alleles, 
 							  vector<int> &mismatches,
 							  vector<char> & read_mismatch_qualities,
@@ -373,7 +374,9 @@ int Transcript::match_alleles(JewelerAlignment *al, int &total_alleles,
 	int i;
 	string transcript_seq = get_transcript_aligned_info<string>(al, get_seq_info);
 	transcript_aligned_locations =
-		get_transcript_aligned_info<vector<int> >(al, get_location_info);
+		get_transcript_aligned_info<vector<int> >(al, get_transcript_location_info);
+	read_aligned_locations =
+		get_transcript_aligned_info<vector<int> >(al, get_read_location_info);
 	string query_seq=get_query_aligned_seq(al);
 
 	alleles.clear();
@@ -464,13 +467,14 @@ int Transcript::register_allele_read(JewelerAlignment *al){
 	int total_alleles;
 	vector<int> matched_alleles;
 	vector<int> locations;
+	vector<int> read_locations;
 	vector<int> mismatches;
 	vector<char> read_mismatches;
 	vector<int> matched_exons;
 	vector<char> mismatchars;
 	int num_matched_alleles;
 	int i;
-	match_alleles(al,total_alleles,locations, matched_alleles,
+	match_alleles(al,total_alleles,locations, read_locations, matched_alleles,
 				  mismatches,read_mismatches,mismatchars);
 	num_matched_alleles=matched_alleles.size();
 	if (num_matched_alleles>0){
@@ -512,9 +516,9 @@ int get_seq_info(Transcript * ti, JewelerAlignment *al,
 	ret+=ti->seq.substr(transcript_start,length);
 	return 0;
 }
-int get_location_info(Transcript * ti, JewelerAlignment *al,
-					  int genome_start, int alignment_start, int length, 
-					  vector<int>  &ret){
+int get_transcript_location_info(Transcript * ti, JewelerAlignment *al,
+								 int genome_start, int alignment_start, int length, 
+								 vector<int>  &ret){
 	int transcript_start = ti->get_transcript_location(genome_start);
 	int i;
 	if (transcript_start == NOT_FOUND){
@@ -524,6 +528,21 @@ int get_location_info(Transcript * ti, JewelerAlignment *al,
 	}
 	for (i = 0 ; i < length ; i++){
 		ret.push_back(transcript_start+i);
+	}
+	return 0;
+}
+int get_read_location_info(Transcript * ti, JewelerAlignment *al,
+								 int genome_start, int alignment_start, int length, 
+								 vector<int>  &ret){
+	int transcript_start = ti->get_transcript_location(genome_start);
+	int i;
+	if (transcript_start == NOT_FOUND){
+		fprintf(stderr,"cannot find transcript postition, did you run Transcript::is_compatible ?\n %d\n%d\n", genome_start,ti->genome_pos.size());
+		ti->output_segments();
+		exit(0);
+	}
+	for (i = 0 ; i < length ; i++){
+		ret.push_back(alignment_start+i);
 	}
 	return 0;
 }

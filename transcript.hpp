@@ -69,6 +69,7 @@ public:
 	// Check whether it is a better alignment comparing with other transcript
 	int match_alleles(JewelerAlignment *, int &total_alleles,
 					  vector<int> &transcript_aligned_locations,
+					  vector<int> &read_aligned_locations,
 					  vector<int> &alleles, 
 					  vector<int> &mismatches,
 					  vector<char> &read_mismatch_qualities,
@@ -137,7 +138,10 @@ int get_seq_info(Transcript *, JewelerAlignment * al,
 				 int genome_start, int alignment_start, int length, 
 				 string &ret);
 
-int get_location_info(Transcript *, JewelerAlignment * al, 
+int get_transcript_location_info(Transcript *, JewelerAlignment * al, 
+					  int genome_start, int alignment_start, int length, 
+					  vector<int>  &ret);
+int get_read_location_info(Transcript *, JewelerAlignment * al, 
 					  int genome_start, int alignment_start, int length, 
 					  vector<int>  &ret);
 
