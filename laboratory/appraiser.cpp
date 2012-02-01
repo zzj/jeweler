@@ -90,6 +90,13 @@ int Appraiser::run(){
 		i++;
 		if (test_num>0 && i>test_num) break;
 	}
+	i = 0;
+	reader.Rewind();
+	while (reader.GetNextAlignment(al)){
+		sm.add_alignment(al, false);
+		i++;
+		if (test_num>0 && i>test_num) break;
+	}
 	mb.dump_meta_data(log_file);
 	mb.dump_mapquality_list(quality_file);
 	sm.output_multiple_alignment_map(mam_table_file);

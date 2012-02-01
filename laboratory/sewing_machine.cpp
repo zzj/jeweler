@@ -34,7 +34,7 @@ string SewingMachine::get_reference_sequence(FastaReference &fr, JewelerAlignmen
 	return ret;
 }
 
-int SewingMachine::add_alignment(JewelerAlignment &al){
+int SewingMachine::add_alignment(JewelerAlignment &al, bool count_only){
 	locator *l =new locator(al);
 	string is_first;
 	if (al.IsFirstMate()){
@@ -43,7 +43,19 @@ int SewingMachine::add_alignment(JewelerAlignment &al){
 	else {
 		is_first="\tF";
 	}
-	seqs[al.Name+is_first].push_back(l);
+	if (count_only) {
+		if ( multiple_alignment_map.find(al.Name+is_first) == 
+			 multiple_alignment_map.end()){
+			multiple_alignment_map[al.Name+is_first] = 1;
+		}
+		else {
+		multiple_alignment_map[al.Name+is_first] ++;
+		}
+	}
+	else {
+		if (multiple_alignment_map[al.Name + is_first] > 1) 
+			seqs[al.Name+is_first].push_back(l);
+	}
 	return 0;
 }
 
@@ -79,10 +91,12 @@ int SewingMachine::load_multiple_alignments_set(FILE *file ){
 		for (i = 0; i < size; i++) {
 			fscanf(file, "%s%d%s%d", refname, &pos, cigar, &distance);
 		}
+
 		// only record the multiple alignment
 		if (size >= 2){
 			multiple_alignment_set.insert(read_id);
 		}
+
 	}
 
 }

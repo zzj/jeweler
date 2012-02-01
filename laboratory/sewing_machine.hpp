@@ -50,7 +50,9 @@ public:
 	int initialize(BamReader &reader);
 	int load_multiple_alignments_set(FILE *);
 	// functions
-	int add_alignment(JewelerAlignment &al);
+	// first time count_only = true
+	// second time count_only = false
+	int add_alignment(JewelerAlignment &al, bool count_only = true);
 	int output_alignment_map(FILE *);
 	int output_multiple_alignment_map(FILE *);
 	int output_alignment_connection_map(FILE *);
@@ -58,6 +60,7 @@ public:
 	// storage
 	map<string,locator_pvector> seqs;
 
+	map<string, int> multiple_alignment_map;
 	set<string> multiple_alignment_set;
 
 	// statistics 
