@@ -113,6 +113,14 @@ def main():
 								mamf_command = " -mamf " + appraiser_resultfolder + alias +"/sm_table";
 
 							print('./jeweler -i '+result_folder+'/'+alias+'/'+result_file + mamf_command + " -earrings")
+						elif (args.is_mismatch_analyzer):
+							ma_resultfolder = 'result/'+os.path.basename(args.filelist)+'/mismatch_analyzer/'
+							if not os.path.exists(ma_resultfolder):
+								os.makedirs(ma_resultfolder)
+							ma_resultfolder = 'result/'+os.path.basename(args.filelist)+'/mismatch_analyzer/' + alias + '/'
+							if not os.path.exists(ma_resultfolder):
+								os.makedirs(ma_resultfolder)
+							print('./jeweler -i '+result_folder+'/'+alias+'/'+result_file +  " -mismatch_analyzer " + ma_resultfolder+ "result")
 						else:
 							print('python3.2 factory/miner.py --single '+
 								  '--maternal_strain_ref_seq '+maternal_strain_ref_seq +' ' +

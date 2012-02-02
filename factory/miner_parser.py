@@ -82,4 +82,8 @@ def initialize_parser():
 	parser.add_argument('--jeweler_only',
 						action='store_true',
 						dest='is_jeweler_only')
+
+	parser.add_argument('--mismatch_analyzer',
+						action='store_true',
+						dest='is_mismatch_analyzer')
 	return parser
