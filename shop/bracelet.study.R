@@ -1,43 +1,37 @@
 source('pileup.plot.R')
 
-a='CUFF.2721'
-b='CUFF.19465'
-a='CUFF.2477'
-b='CUFF.17814'
+plot.bracet.figure <- function(filename, name, resultfolder){
+  dir.create(resultfolder)
+  fd <- file (filename, "r")
+  data = readLines(fd, n = -1)
+  n <- length(data)
 
-pdf('result.plot.pdf')
-a='CUFF.9'
-b='CUFF.20306'
-a='CUFF.484'
-b='CUFF.9622'
+  for (i in 1:n){
+    line <- unlist(strsplit(data[i], "\t"))
+    if (as.numeric(line[2]) > 0 ) {
+      newresultfolder <- paste(resultfolder, line[1], "/", sep ="")
+      dir.create(newresultfolder)
+      k <- as.numeric(line[2])
+      bracelet.easyplot(name, newresultfolder, line[1], line[1])
+      for ( j in 1:k){
+        t <- j * 2 + 1
+        title = paste(line[t], line[t+1])
+        bracelet.easyplot(name, newresultfolder, line[t], title)
+      }
+    }
+  }
+}
 
-gene.pileup.plot(paste('../result/merged_list/jeweler//HF_0128_M_merged/',a,'/',sep=""),
-                 paste('../result/merged_list/jeweler/HF_0128_M_merged/',a,'/',a,'.landscape.plot.meta',sep=""),
-                 paste('../result/merged_list/jeweler/HF_0128_M_merged/',a,'/',a,'.mismacher',sep=""),
-                 a)
-gene.pileup.plot(paste('../result/merged_list/jeweler//HF_0128_M_merged/',b,'/',sep=""),
-                 paste('../result/merged_list/jeweler/HF_0128_M_merged/',b,'/',b,'.landscape.plot.meta',sep=""),
-                 paste('../result/merged_list/jeweler/HF_0128_M_merged/',b,'/',b,'.mismacher',sep=""),
-                 b)
-dev.off()
-j
-a='CUFF.2414'
-b='CUFF.24085'
-a='CUFF.1091'
-b='CUFF.24090'
 
-a='CUFF.1091'
-postscript(paste(a,'.eps',sep=""))
-gene.pileup.plot(paste('../result/merged_list/jeweler//HF_0128_M_merged/',a,'/',sep=""),
-                 paste('../result/merged_list/jeweler/HF_0128_M_merged/',a,'/',a,'.landscape.plot.meta',sep=""),
-                 paste('../result/merged_list/jeweler/HF_0128_M_merged/',a,'/',a,'.mismacher',sep=""),
-                 a)
-dev.off()
-b='CUFF.24090'
-postscript(paste(b,'.eps',sep=""))
-gene.pileup.plot(paste('../result/merged_list/jeweler//HF_0128_M_merged/',b,'/',sep=""),
-                 paste('../result/merged_list/jeweler/HF_0128_M_merged/',b,'/',b,'.landscape.plot.meta',sep=""),
-                 paste('../result/merged_list/jeweler/HF_0128_M_merged/',b,'/',b,'.mismacher',sep=""),
-                 b)
+bracelet.easyplot <- function(name, resultfolder, id, title){
+  output <- paste(resultfolder, id, ".pdf", sep = "")
+  pdf(output, width = 14);
+  gene.pileup.plot(paste('../result/merged_list/jeweler/',name,'/',id,'/',sep=""),
+                   paste('../result/merged_list/jeweler/',name,'/',id,'/',id, '.landscape.plot.meta',sep=""),
+                   paste('../result/merged_list/jeweler/',name,'/',id,'/',id, '.mismacher',sep=""),
+                   title)
+  dev.off()
+}
+plot.bracet.figure('../result/merged_list/bracelet/FG_0120_M_merged/result.bracelet', 'FG_0120_M_merged',
+                   '../result/merged_list/bracelet/FG_0120_M_merged/figures/')
 
-dev.off()

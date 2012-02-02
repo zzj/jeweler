@@ -86,4 +86,8 @@ def initialize_parser():
 	parser.add_argument('--mismatch_analyzer',
 						action='store_true',
 						dest='is_mismatch_analyzer')
+	
+	parser.add_argument('--bracelet',
+						action='store_true',
+						dest='is_bracelet')
 	return parser

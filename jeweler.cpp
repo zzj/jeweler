@@ -43,6 +43,10 @@ jeweler::jeweler(int argc, char * argv[]){
 		}
 		if (strcmp( argv[i], "-bracelet") == 0){
 			is_bracelet = true;
+			i ++;
+			if (i < argc) {
+				bracelet_filename = argv[i];
+			}
 		}
 		if (strcmp( argv[i], "-earrings") == 0){
 			is_earrings = true;
@@ -121,13 +125,13 @@ int jeweler::run(){
 		}
 	}
 	if (is_bracelet){
-		FILE * output = fopen((info_filename+".bracelet").c_str(), "w+");
-		if (output == NULL){
-			fprintf(stdout, "cannot open file %s\n", (info_filename+".bracelet").c_str());
-			exit(0);
-		}
 		Bracelet bracelet(transcripts_info);
 		bracelet.analyze();
+		FILE * output = fopen((bracelet_filename+".bracelet").c_str(), "w+");
+		if (output == NULL){
+			fprintf(stdout, "cannot open file %s\n", (bracelet_filename+".bracelet").c_str());
+			exit(0);
+		}
 		bracelet.dump(output);
 		fclose(output);
 	}
