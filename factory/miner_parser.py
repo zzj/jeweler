@@ -63,9 +63,8 @@ def initialize_parser():
 						dest='is_single')
 
 	parser.add_argument('--cuffcompare',
-						help='Run cuffcompare',
-						dest='cuffcompare')
-
+						action='store_true',
+						dest='is_cuffcompare')
 
 	parser.add_argument('--cufflinks',
 						action='store_true',

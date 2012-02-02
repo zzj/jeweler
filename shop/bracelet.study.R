@@ -32,6 +32,6 @@ bracelet.easyplot <- function(name, resultfolder, id, title){
                    title)
   dev.off()
 }
-plot.bracet.figure('../result/merged_list/bracelet/FG_0120_M_merged/result.bracelet', 'FG_0120_M_merged',
-                   '../result/merged_list/bracelet/FG_0120_M_merged/figures/')
+plot.bracet.figure('../result/merged_list/bracelet/FG_0159_M_merged/result.bracelet', 'FG_0159_M_merged',
+                   '../result/merged_list/bracelet/FG_0159_M_merged/figures/')
 

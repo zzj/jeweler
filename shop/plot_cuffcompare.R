@@ -11,6 +11,3 @@ plotter <- CuffcomparePlotterClass$new(result.file = result.file,
 
 ##plotter$filter.transcript()
 plotter$plot()
-
-
-

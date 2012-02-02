@@ -29,7 +29,6 @@ initialize = function ( result.folder.temp){
 
   target.name <<- "label"
 
-
 }
 )
 

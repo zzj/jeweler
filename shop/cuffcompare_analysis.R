@@ -26,7 +26,7 @@ initialize = function( result.file, jeweler.result.file, result.folder)
    is.from.start <<- F
 
    result.info.file <- paste(result.file,".initialize.Rdata",sep="")
-   if (is.from.start) {
+   if (is.from.start || !file.exists(result.info.file)) {
      result.info <<- read.table(result.file, stringsAsFactors = F)
      result.info.temp <- result.info
      save(result.info.temp, file= result.info.file)
@@ -67,7 +67,7 @@ CuffcomparePlotter$methods(
 get.cuffcompare.info = function ( ) {
   print("Get CuffcompareInfo")
   cuffcompare.info.file <- paste(result.file, ".get.cuffcompare.info.Rdata", sep = "")
-  if (is.from.start) {
+  if (is.from.start || file.exists(result.info.file)) {
     cuffcompare.info.temp <- matrix(data=NA, nrow=length(gene.list), ncol=num.samples+1,
                                dimnames=list(
                                  gene.list,
