@@ -49,6 +49,10 @@ jeweler::jeweler(int argc, char * argv[]){
 		}
 		if (strcmp( argv[i], "-mismatch_analyzer") == 0){
 			is_mismatch_analyzer = true;
+			i ++;
+			if (i < argc){
+				mismatch_filename = argv[i];
+			}
 		}
 		if (strcmp( argv[i], "-testcase") == 0){
 			i++;
@@ -128,7 +132,7 @@ int jeweler::run(){
 		fclose(output);
 	}
 	if (is_mismatch_analyzer){
-		TranscriptMismatcherAnalyzer tma(transcripts_info);
+		TranscriptMismatcherAnalyzer tma(mismatch_filename, transcripts_info);
 		tma.analyze();
 	}
 	return 0;

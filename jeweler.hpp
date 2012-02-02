@@ -31,6 +31,7 @@ public:
 
 	string info_filename;
 	string mamf_filename;
+	string mismatch_filename;
 	FILE * log_file;
 	vector<TranscriptInfo *> transcripts_info;
 

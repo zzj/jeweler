@@ -1,5 +1,5 @@
 <?php
-
+sleep(3600);
 $f=file("command_list");
 mkdir ('temp');
 $id=1;

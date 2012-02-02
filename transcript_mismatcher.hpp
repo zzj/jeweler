@@ -6,6 +6,7 @@
 #include <boost/dynamic_bitset.hpp>
 #include <boost/math/distributions/poisson.hpp>
 #include "transcript_info.hpp"
+#include "math/probability.hpp"
 #include <algorithm> 
 #include <functional>
 #include <numeric>
@@ -79,16 +80,23 @@ public:
 	vector<int> T_mismatches; 
 	// number of non informative mismatches equaling to N per base
 	vector<int> N_mismatches; 
+	
+
+	// prefix of output files
+	string filename;
 	int num_reads;
 	int num_locations;
 	boost::dynamic_bitset<> is_consistent_mismatches;
 	map<char, double> error_rate;
+	map<char, int> num_mismatches;
+	map<char, int> num_qualities;
+	map<int, int> num_mismatches_histogram;
 	vector<double> p_values;
 
 	bool is_initialized;
 	
-	TranscriptMismatcherAnalyzer();
-	TranscriptMismatcherAnalyzer(vector<TranscriptInfo *> &ti);
+	TranscriptMismatcherAnalyzer(string filename);
+	TranscriptMismatcherAnalyzer(string filename, vector<TranscriptInfo *> &ti);
 
 	int append(FILE *);
 	
@@ -99,6 +107,10 @@ public:
 	int calculate_p_value();
 
 	int mark_consistent_mismatch();
+
+	int dump_error_rate(FILE *);
+
+	int dump_location_results(FILE *);
 
 	int analyze();
 };
