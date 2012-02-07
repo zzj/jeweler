@@ -6,6 +6,6 @@ result.folder <- "../result/merged_list/active/"
 ActiveAnalyzerClass <- getRefClass("ActiveAnalyzer")
 aa <- ActiveAnalyzerClass$new(result.folder)
 
-##aa$feature.extraction()
+#aa$feature.extraction()
 aa$analyze()
 aa$visualize()

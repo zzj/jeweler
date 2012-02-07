@@ -19,11 +19,11 @@ CuffcomparePlotter <- setRefClass("CuffcomparePlotter",
                                   )
 
 CuffcomparePlotter$methods(
-initialize = function( result.file, jeweler.result.file, result.folder)
+initialize = function( result.file, jeweler.result.input, is.jeweler.result.file, result.folder)
  {
 
    print("Initializing CuffcomparePlotter")
-   is.from.start <<- F
+   is.from.start <<- T
 
    result.info.file <- paste(result.file,".initialize.Rdata",sep="")
    if (is.from.start || !file.exists(result.info.file)) {
@@ -42,13 +42,19 @@ initialize = function( result.file, jeweler.result.file, result.folder)
    result.folder <<- result.folder
    joint.plot.result.folder <<- paste(result.folder, "/joint_plot/",sep="")
    active.transcript.result.folder <<- paste(result.folder, "/active/",sep="")
-   jeweler.result.list <<-
-     c(as.vector(read.table(jeweler.result.file, stringsAsFactors = F))[[1]])
-
-   stopifnot(num.samples != length(jeweler.result.file))
+   
+   if (is.jeweler.result.file) {
+     jeweler.result.list <<-
+       c(as.vector(read.table(jeweler.result.input, stringsAsFactors = F))[[1]])
+   }
+   else {
+     jeweler.result.list <<-jeweler.result.input
+   }
+   stopifnot(num.samples == length(jeweler.result.list))
    jeweler.result.info.file <- paste(result.file,".initialize.jeweler.Rdata",sep="")
    if (is.from.start) {
      for ( i in 1:num.samples){
+
        a <- read.table(file=paste("../",jeweler.result.list[[i]],sep=""),
                        stringsAsFactors=F)
        rownames(a)=a[,1]

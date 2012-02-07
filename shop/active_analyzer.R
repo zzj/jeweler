@@ -23,9 +23,9 @@ initialize = function ( result.folder.temp){
                      'multiple.propotion', 'num.mismatches','error.rate',
                      'num.consistent.mismatches', 'num.ag.mismatches')
 
-  selected.features <<-c('length', 'num.exons', 'num.reads',
+  selected.features <<-c( 'num.exons', 'num.reads',
                      'multiple.propotion', 'error.rate',
-                     'num.consistent.mismatches', 'num.ag.mismatches')
+                     'num.consistent.mismatches')
 
   target.name <<- "label"
 
@@ -145,7 +145,7 @@ analyze = function() {
   x <- as.matrix(data[,selected.features])
   y <- as.numeric(grepl('^Gm[0-9]+\\|',rownames(x))) ##as.vector(data[,target.name])
   rownames(x) <- 1:dim(x)[1]
-  selected <- 1:284000
+  selected <- 1:18000
   x[is.na(x)]=0
   y <- y[selected]
   x <- x[selected,]
@@ -190,14 +190,14 @@ ActiveAnalyzer$methods(
 visualize = function() {
   load(paste( result.folder, 'ActiveAnalyzer.data.Rdata', sep = ""))
   data <<- data.temp
-  feature.names <<- c( 'length', 'num.exons', 'num.reads',
-                      'multiple.propotion', 'num.mismatches','error.rate',
-                     'num.consistent.mismatches', 'num.ag.mismatches')
-  count <- 64000
-  selected <- sample(1:count)[1:10000]
+  feature.names <<- c(  'num.exons',
+                      'multiple.propotion',
+                     'num.consistent.mismatches')
+  count <- 18000
+  selected <- sample(1:count)[1:2000]
   plot.data <- (data[selected,feature.names])
   str(plot.data)
-  pdf(paste(result.folder, "pairs.plot.pdf",sep=""), width = 30, height = 30)
+  pdf(paste(result.folder, "pairs.plot.pdf",sep=""), width = 7, height = 7)
   pairs(plot.data, pch = 23, bg = c('red', 'blue')[data[selected,'label']+1])
   dev.off()
 }
