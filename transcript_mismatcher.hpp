@@ -110,7 +110,7 @@ public:
 
 	int dump_error_rate(FILE *);
 
-	int dump_location_results(FILE *);
+	int dump_location_results(FILE *, bool only_yes = false);
 
 	int analyze();
 };

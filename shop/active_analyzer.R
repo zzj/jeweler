@@ -1,3 +1,4 @@
+library('MASS')
 library('glmnet')
 library('e1071')
 library('class')
@@ -35,6 +36,11 @@ initialize = function ( result.folder.temp){
 ActiveAnalyzer$methods(
 feature.extraction = function() {
   load(paste(result.folder,"/Active.Rdata",sep=""))
+  locations.folder <- sub('individual_study','mismatch_analyzer', result.folder)
+  print(locations.folder)
+  locations.folder <- sub('active','', locations.folder)
+  locations <- read.table(paste(locations.folder,'result.consistent.locations',sep=""),stringsAsFactors=F,skip=1)
+  locations <- locations[locations[,2]<0.000000000001,]
   gene.prefix <<- gene.prefix
   transcript.prefix <<- transcript.prefix
   gene.names <<- gene.names
@@ -49,6 +55,7 @@ feature.extraction = function() {
   er.vector = vector(mode = 'numeric', length = l)
   ncm.vector = vector(mode = 'numeric', length = l)
   nag.vector = vector(mode = 'numeric', length = l)
+  is.valid = vector(mode = 'numeric', length = l)
   
   for ( i in 1:length(gene.prefix) ) {
     if (i %% 1000 == 0) {
@@ -62,9 +69,10 @@ feature.extraction = function() {
     mamf.meta.file = paste(gene.prefix[[i]], '.mamf.meta', sep = "")
     if ( ! (file.exists(plot.info.file) && file.exists(mismatcher.file) &&
             file.exists(meta.file) && file.exists(mamf.meta.file) ) ){
+      is.valid[i]=0;
       next
     }
-        
+    is.valid[i]=1;
     plot.info <- read.table(plot.info.file, header = T , stringsAsFactors = F)
     mismatcher <- read.table(mismatcher.file, header =T , stringsAsFactors = F)
     meta <- read.table(meta.file, stringsAsFactors = F)
@@ -80,9 +88,9 @@ feature.extraction = function() {
     nm.vector[i] <- sum(mismatcher$mismatches)
     er.vector[i] <- sum(mismatcher$mismatches)/sum(mismatcher$coverage)
     ## select position where read coverage > 8
-    idx <- which(mismatcher$coverage > 8)
+    idx <- which(mismatcher$location %in% locations[,1])
     ## at least larger than 0.6 to avoid missing SNPs
-    selected <- which((mismatcher$mismatches[idx] / mismatcher$coverage[idx]) > 0.6)
+    selected <- idx
     ncm.vector[i] <- sum(length(selected))
     if (length(selected) > 0){
       selected <- idx[selected]
@@ -96,10 +104,10 @@ feature.extraction = function() {
     }
     if (i %% 1000 == 0 ){
       print('saving current result')
-      data <<- matrix(data=NA, nrow = length(gene.names), ncol = length(feature.names),
+      data <<- matrix(data=NA, nrow = length(gene.names), ncol = length(feature.names)+1,
                       dimnames = list(
                         gene.names,
-                        feature.names
+                        c(feature.names,'is.valid')
                         )
                       )
       
@@ -112,15 +120,17 @@ feature.extraction = function() {
       data[,'error.rate'] <<- er.vector
       data[,'num.consistent.mismatches'] <<- ncm.vector
       data[,'num.ag.mismatches'] <<- nag.vector
+      data[,'is.valid'] <<- is.valid
       data.temp = data
       save(data.temp, file = paste(result.folder, 'ActiveAnalyzer.data.Rdata', sep = ""))
+      write.matrix(data.temp, file= paste(result.folder, 'ActiveAnalyzer.data.txt', sep = ""))
     }
   }
 
-  data <<- matrix(data=NA, nrow = length(gene.names), ncol = length(feature.names),
+  data <<- matrix(data=NA, nrow = length(gene.names), ncol = length(feature.names)+1,
                       dimnames = list(
                         gene.names,
-                        feature.names
+                        c(feature.names,'is.valid')
                         )
                       )
 
@@ -133,8 +143,11 @@ feature.extraction = function() {
   data[,'error.rate'] <<- er.vector
   data[,'num.consistent.mismatches'] <<- ncm.vector
   data[,'num.ag.mismatches'] <<- nag.vector
+  data[,'is.valid'] <<- is.valid
   data.temp <- data
+  
   save(data.temp, file = paste(result.folder, 'ActiveAnalyzer.data.Rdata',sep = ""))
+  write.matrix(data.temp, file= paste(result.folder, 'ActiveAnalyzer.data.txt', sep = ""))
 }
 )
 
@@ -142,6 +155,7 @@ ActiveAnalyzer$methods(
 analyze = function() {
   load(paste( result.folder, 'ActiveAnalyzer.data.Rdata', sep = ""))
   data <<- data.temp
+  selected <- which(data[,'is.valid']==1)
   x <- as.matrix(data[,selected.features])
   y <- as.numeric(grepl('^Gm[0-9]+\\|',rownames(x))) ##as.vector(data[,target.name])
   rownames(x) <- 1:dim(x)[1]

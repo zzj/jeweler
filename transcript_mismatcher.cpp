@@ -206,7 +206,8 @@ TranscriptMismatcherAnalyzer::TranscriptMismatcherAnalyzer(string filename,
 
 		if (finfo == NULL){
 			fprintf (stdout, "cannot open file name %s\n", filename.c_str());
-			exit(0);
+			fclose(finfo);
+			continue;
 		}
 		append(finfo);
 		fclose(finfo);
@@ -377,6 +378,9 @@ int TranscriptMismatcherAnalyzer::analyze(){
 	fd = fopen((filename+".locations").c_str(), "w+");
 	dump_location_results (fd);
 	fclose(fd);
+	fd = fopen((filename+".consistent.locations").c_str(), "w+");
+	dump_location_results (fd, true);
+	fclose(fd);
 	fd = fopen((filename+".log").c_str(), "w+");
 	fprintf(fd, "%d\t%d\n", total, num_locations);
 	fclose(fd);
@@ -395,11 +399,13 @@ int TranscriptMismatcherAnalyzer::dump_error_rate(FILE * fd){
 	return 0;
 }
 
-int TranscriptMismatcherAnalyzer::dump_location_results(FILE *fd){
+int TranscriptMismatcherAnalyzer::dump_location_results(FILE *fd, bool only_yes){
 	int i;
 	fprintf(fd, "location\tpvalue\tconsistent\n");
 	for ( i = 0; i < num_locations; i ++){
+		if (only_yes && !is_consistent_mismatches.test(i)) continue;
 		fprintf(fd, "%d\t%e\t%s\t%d\t%d\n", genome_locations[i], p_values[i], 
 				is_consistent_mismatches.test(i) ? "Yes": "No", coverages[i], mismatches[i]);
+
 	}
 }

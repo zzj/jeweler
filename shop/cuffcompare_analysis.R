@@ -42,7 +42,8 @@ initialize = function( result.file, jeweler.result.input, is.jeweler.result.file
    result.folder <<- result.folder
    joint.plot.result.folder <<- paste(result.folder, "/joint_plot/",sep="")
    active.transcript.result.folder <<- paste(result.folder, "/active/",sep="")
-   
+   dir.create(active.transcript.result.folder,recursive=T)
+   dir.create(joint.plot.result.folder,recursive=T)
    if (is.jeweler.result.file) {
      jeweler.result.list <<-
        c(as.vector(read.table(jeweler.result.input, stringsAsFactors = F))[[1]])
