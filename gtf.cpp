@@ -55,7 +55,8 @@ int load_gtf_file(string gtf_filename, vector<Transcript *> &transcripts){
 		}
 		sscanf(strs[8].c_str(),"gene_id \"%[^\"]\"; transcript_id \"%[^\"]\";",gene_id,transcript_id);
 
-		t->name=transcript_id;
+		t->transcript_id=transcript_id;
+		t->gene_id=gene_id;
 		t->chr = chr;
 
 	}
@@ -63,7 +64,7 @@ int load_gtf_file(string gtf_filename, vector<Transcript *> &transcripts){
 	// check error
 	if (t->exon_start[0] != t_start)
 	{
-		fprintf(stderr, "%s:%d:%d\n",t->name.c_str(), t->exon_start[0],t_start);
+		fprintf(stderr, "%s:%d:%d\n",t->transcript_id.c_str(), t->exon_start[0],t_start);
 		fprintf(stderr, "The start position of the first exon does not equal to the start position of the transcript \n");
 		exit(0);
 	}

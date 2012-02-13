@@ -109,7 +109,6 @@ int jeweler::load_mamf_file(){
 int jeweler::run(){
 	int i,j;
 
-	vector<Transcript *> paternal_transcripts, maternal_transcripts;
 	load_info_file();
 	if (is_earrings) {
 

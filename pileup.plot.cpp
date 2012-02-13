@@ -12,7 +12,7 @@ PileupPlot::PileupPlot(Transcript * maternal_transcript,
 		fprintf(stderr,  "Maternal and paternal transcripts must be the same one");
 		exit(0);
 	}
-	transcript_name = maternal_transcript->name;
+	transcript_id = maternal_transcript->transcript_id;
 	int size = maternal_transcript->seq.size();
 	
 	unknown.resize(size, 0);
@@ -128,7 +128,7 @@ int PileupPlot::add_coverage(Transcript * transcript,  JewelerAlignment *al,  ve
 
 int PileupPlot::generate_pileup_plot(FILE * info,  FILE * output){
 	int i;
-	fprintf(info, "%s\t%d\t%d\t%d\n", transcript_name.c_str(), num_unknown, num_maternal, num_paternal);
+	fprintf(info, "%s\t%d\t%d\t%d\n", transcript_id.c_str(), num_unknown, num_maternal, num_paternal);
 	fprintf(output, "location\tunknown\tmaternal\tpaternal\tis_snp\texon_jump\t\n");
 	for (i=0;i<unknown.size();i++){
 		fprintf(output, "%d\t%d\t%d\t%d\t%d\t%d\n",  genome_pos[i], unknown[i],  maternal[i],  paternal[i],  is_snp[i],  exon_jump[i]);

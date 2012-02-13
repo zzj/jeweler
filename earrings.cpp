@@ -132,7 +132,7 @@ int Earrings::load_transcript_data(TranscriptInfo * info){
 		if (p->seq.size()!=m->seq.size()){
 			fprintf(stderr, 
 					"ERROR: transcript sequence size does not match at gene %s  at %s:%d\n",
-					p->name.c_str(),__FILE__, __LINE__);
+					p->transcript_id.c_str(),__FILE__, __LINE__);
 			exit(0);
 		}
 		int num=0;
@@ -208,7 +208,7 @@ int Earrings::transcript_helper(string seq_filename,string gtf_file,
 	// All transcript class operations should be done in transcripts. 
 	for (i=0;i<sr.size();i++){
 		for (j=0;j<transcripts.size();j++){
-			if (transcripts[j]->name != sr[i]->name){
+			if (transcripts[j]->transcript_id != sr[i]->name){
 				continue;
 			}
 			transcripts[j]->seq=sr[i]->seq;
@@ -460,8 +460,8 @@ int Earrings::align_reads(){
 
 	for (i=0;i<maternal_transcripts.size();i++){
 		FILE *foutput;
-		foutput=fopen(string(info->folder+"/"+maternal_transcripts[i]->name+".landscape.plot.info").c_str(),"w+");
-		string name=maternal_transcripts[i]->name;
+		foutput=fopen(string(info->folder+"/"+maternal_transcripts[i]->transcript_id+".landscape.plot.info").c_str(),"w+");
+		string name=maternal_transcripts[i]->transcript_id;
 		PileupPlot lp(maternal_transcripts[i],paternal_transcripts[i],noninfo[i]);
 		lp.generate_pileup_plot(finfo, foutput);
 		fclose(foutput);

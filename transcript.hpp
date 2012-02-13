@@ -31,7 +31,8 @@ public:
 	static int tolerate ;
 	bool is_initialized;
 	int origin;
-	string name;
+	string gene_id;
+	string transcript_id;
 	string seq;
 	string chr;  // storing chromosome name
 

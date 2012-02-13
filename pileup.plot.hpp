@@ -25,7 +25,7 @@ public:
 	vector<int> exon_jump;
 	vector<int> genome_pos;
 	int num_maternal, num_paternal, num_unknown;
-	string transcript_name;
+	string transcript_id;
 
 	PileupPlot(Transcript * maternal, 
 				  Transcript * paternal, 
