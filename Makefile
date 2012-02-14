@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-g -std=gnu++0x
+CFLAGS=-O3 -std=gnu++0x
 INC=-Ilib/bamtools/include/ -Ilib/fastahack/ -I$(HOME)/bin/include
 LIB=-Llib/bamtools/lib/ -L$(HOME)/bin/lib
 LDFLAGS= -lz lib/bamtools/lib/libbamtools.a -lboost_filesystem
