@@ -35,9 +35,11 @@ public:
 	string transcript_id;
 	string seq;
 	string chr;  // storing chromosome name
+	int start, end;
 
 	// exon info
 	// TODO: exon class
+	
 	vector<int> exon_start;
 	vector<int> exon_end; //end is inclusive 
 	vector<int> num_alleles_per_exon; 
@@ -61,6 +63,8 @@ public:
 
 	vector<set<JewelerAlignment *> > allele_reads_per_exon;
 	vector<set<JewelerAlignment *> > reads_per_exon;
+
+	int load_seq(FastaReference *fr);
 
 	int get_overlapped_alignment(JewelerAlignment *, int &penalty, bool is_to_fix = false);
 

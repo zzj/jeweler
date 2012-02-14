@@ -195,13 +195,12 @@ TranscriptMismatcherAnalyzer::TranscriptMismatcherAnalyzer(string filename){
 	is_initialized = false;
 }
 TranscriptMismatcherAnalyzer::TranscriptMismatcherAnalyzer(string filename, 
-														   vector<TranscriptInfo *> &ti){
+														   JewelerInfo *jeweler_info){
 	
 	is_initialized = false;
 	this -> filename = filename;
-	for ( int i=0; i < ti.size(); i++){
-		TranscriptInfo * info = ti[ i ];
-		string filename = string(info->folder+"/"+info->gene_id+".mismatcher.extra");
+	for ( int i=0; i < jeweler_info->gene_id.size(); i++){
+		string filename = string(jeweler_info->result_folder+"/"+jeweler_info->gene_id[i]+".mismatcher.extra");
 		FILE * finfo=fopen(filename.c_str(),"r+");
 
 		if (finfo == NULL){
@@ -212,7 +211,7 @@ TranscriptMismatcherAnalyzer::TranscriptMismatcherAnalyzer(string filename,
 		append(finfo);
 		fclose(finfo);
 		if ( i % 100 == 0) {
-			fprintf(stdout, "%d/%d\n", i, ti.size());
+			fprintf(stdout, "%d/%d\n", i, jeweler_info->gene_id.size());
 		}
 	}
 	end_loading();

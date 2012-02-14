@@ -14,8 +14,8 @@ int load_gtf_file(string gtf_filename, vector<Transcript *> &transcripts){
 	Transcript* t=new Transcript();
 	int num=-1;
 
-	int t_start = 0;
-	int t_end = 0;
+	t->start = 0;
+	t->end = 0;
 
 	transcripts.clear();
 	while(fgets(temp, MAXLINE, fd)!=NULL){
@@ -31,15 +31,15 @@ int load_gtf_file(string gtf_filename, vector<Transcript *> &transcripts){
 			transcripts.push_back(t);
 			t=new Transcript();
 			// added by Weibo
-			t_start = atoi(strs[3].c_str());
-			t_end = atoi(strs[4].c_str());
+			t->start = atoi(strs[3].c_str());
+			t->end = atoi(strs[4].c_str());
 			chr = strs[0];
 			num++;
 		}
 		else if (strs[2]=="transcript"){
 			num++;
-			t_start = atoi(strs[3].c_str());
-			t_end = atoi(strs[4].c_str());
+			t->start = atoi(strs[3].c_str());
+			t->end = atoi(strs[4].c_str());
 			chr = strs[0];
 		}
 		else if (strs[2]=="exon"){
@@ -62,9 +62,9 @@ int load_gtf_file(string gtf_filename, vector<Transcript *> &transcripts){
 	}
 
 	// check error
-	if (t->exon_start[0] != t_start)
+	if (t->exon_start[0] != t->start)
 	{
-		fprintf(stderr, "%s:%d:%d\n",t->transcript_id.c_str(), t->exon_start[0],t_start);
+		fprintf(stderr, "%s:%d:%d\n",t->transcript_id.c_str(), t->exon_start[0],t->start);
 		fprintf(stderr, "The start position of the first exon does not equal to the start position of the transcript \n");
 		exit(0);
 	}

@@ -5,7 +5,88 @@
 
 using namespace std;
 
-jeweler::jeweler(int argc, char * argv[]){
+int JewelerInfo::check_args(int &i, char *argv[], const char * name, string &a){
+	if (strcmp(argv[i], name) == 0){
+		i++;
+		a = argv[i];
+	}
+	return 0;
+}
+
+
+int JewelerInfo::build_gene_id2transcripts(){
+	fprintf(stdout, "Bulding gene_id to transcripts index ...\n");
+	int i;
+	gene_id2transcripts.clear();
+	for ( i = 0; i < transcripts.size(); i++){
+		gene_id2transcripts[transcripts[i]->gene_id].push_back(transcripts[i]);
+	}
+	gene_id.clear();
+	for ( auto j = gene_id2transcripts.begin();
+		  j != gene_id2transcripts.end();
+		  j ++){
+		gene_id.push_back(j->first);
+	}
+	return 0;
+}
+
+int JewelerInfo::get_refID(string chr){
+	for ( int i = 0; i < references.size(); i++){
+		if (references[i].RefName == chr){
+			return i;
+		}
+	}
+	return NOT_FOUND;
+}
+
+JewelerInfo::JewelerInfo(int argc, char *argv []){
+	int i;
+	for ( i = 1; i < argc; i ++){
+		check_args(i, argv, "-maternal_strain_ref_file", maternal_strain_ref_file);
+		check_args(i, argv, "-paternal_strain_ref_file", paternal_strain_ref_file);
+		check_args(i, argv, "-maternal_strain_id", maternal_strain_id);
+		check_args(i, argv, "-paternal_strain_id", paternal_strain_id);
+		check_args(i, argv, "-bam_file", bam_file);
+		check_args(i, argv, "-alias", alias);
+		check_args(i, argv, "-result_file", result_file);
+		check_args(i, argv, "-result_folder", result_folder);
+		check_args(i, argv, "-gtf_input_file", gtf_input_file);
+	}
+	result_folder += string("/") + alias + "/";
+	create_directory(path(result_folder));
+	load_gtf_file(gtf_input_file, transcripts);
+	build_gene_id2transcripts();
+	
+	fprintf(stdout, "There are totally %d transcripts loaded from %s\n", 
+			transcripts.size(), gtf_input_file.c_str());
+	maternal_fasta = new FastaReference();
+	paternal_fasta = new FastaReference();
+	maternal_fasta->open(maternal_strain_ref_file);
+	paternal_fasta->open(paternal_strain_ref_file);
+
+	if (!bam_reader.Open(bam_file)){
+		fprintf(stderr,"Cannot open bam file %s!\n", bam_file.c_str());
+		exit(0);
+	}
+
+	if (bam_reader.LocateIndex(BamTools::BamIndex::IndexType::STANDARD) ) {
+		fprintf(stdout, "Loaded index for bamfiles ...\n");
+	}
+	else {
+		fprintf(stdout, "Build index for bamfiles ...\n");
+		if (!bam_reader.CreateIndex(BamTools::BamIndex::IndexType::STANDARD)){
+			fprintf(stderr,"%s!\n", bam_reader.GetErrorString().c_str());
+			exit(0);
+		}
+	}
+	references = bam_reader.GetReferenceData();
+}
+
+JewelerInfo::~JewelerInfo(){
+
+}
+
+jeweler::jeweler(int argc, char * argv[]) {
 	
 	int i;
 	bool has_info = false;
@@ -16,6 +97,7 @@ jeweler::jeweler(int argc, char * argv[]){
 	sm = NULL;
 	log_file = stdout;
 	mamf_filename = "none";
+	jeweler_info = new JewelerInfo(argc, argv);
 	for (i = 1; i < argc; i++){
 		if (strcmp( argv[i], "-h") == 0){
 			fprintf( stdout, "help information for jeweler:\n");
@@ -73,28 +155,6 @@ jeweler::jeweler(int argc, char * argv[]){
 	
 }
 
-int jeweler::load_info_file(){
-	fprintf(log_file,"Now loading info file ...\n");
-	FILE *fd=file_open(info_filename.c_str(),"r");
-	char gene_id[300],folder[300],gtf_filename[300],
-		paternal_seq_filename[300],maternal_seq_filename[300],
-		bam_read_filename[300];
-	int id=0;
-	while(fscanf(fd,"%s%s%s%s%s%s",
-				 gene_id, folder, gtf_filename,
-				 maternal_seq_filename, paternal_seq_filename, bam_read_filename)==6){
-		TranscriptInfo * ti= 
-			new TranscriptInfo(gene_id,folder,gtf_filename,
-								maternal_seq_filename,paternal_seq_filename,
-								bam_read_filename);
-		transcripts_info.push_back(ti);
-		id++;
-		//fprintf(stdout, "%d\n",id);
-	}
-	fprintf(log_file, "Total %d genes are loaded\n",id);
-	fclose(fd);
-	return 0;
-}
 
 
 int jeweler::load_mamf_file(){
@@ -106,25 +166,31 @@ int jeweler::load_mamf_file(){
 	}
 }
 
+
+
+
 int jeweler::run(){
 	int i,j;
 
-	load_info_file();
 	if (is_earrings) {
 
 		load_mamf_file();
-		if (test_case > 0 ) {
-			Earrings earrings(transcripts_info[test_case], sm);
-		}
-		else {
-			for (i = 0; i < transcripts_info.size(); i++){
-				if (i%10 == 0) fprintf(log_file,"%d\n",i);
-				Earrings earrings(transcripts_info[i], sm);
-			}
+		int id = 0;
+		for (auto i = jeweler_info->gene_id2transcripts.begin();
+			 i != jeweler_info->gene_id2transcripts.end();
+			 i++){
+			create_directory(path(jeweler_info->result_folder + "/" + i->first));
+			if (test_case > 0  && id != test_case)  continue;
+			if (id%10 == 0) fprintf(log_file,"%d\n",id);
+			id ++;
+			Earrings earrings(jeweler_info, 
+							  i->first,
+							  sm);
 		}
 	}
+	
 	if (is_bracelet){
-		Bracelet bracelet(transcripts_info);
+		Bracelet bracelet(jeweler_info);
 		bracelet.analyze();
 		FILE * output = fopen((bracelet_filename+".bracelet").c_str(), "w+");
 		if (output == NULL){
@@ -134,8 +200,9 @@ int jeweler::run(){
 		bracelet.dump(output);
 		fclose(output);
 	}
+	
 	if (is_mismatch_analyzer){
-		TranscriptMismatcherAnalyzer tma(mismatch_filename, transcripts_info);
+		TranscriptMismatcherAnalyzer tma(mismatch_filename, jeweler_info);
 		tma.analyze();
 	}
 	return 0;
@@ -148,3 +215,4 @@ int main(int argc, char * argv[]){
 	j.run();
 	return 0;
 }
+

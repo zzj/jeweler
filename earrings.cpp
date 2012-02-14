@@ -1,14 +1,40 @@
 #include "earrings.hpp"
 
-Earrings::Earrings(TranscriptInfo *info, SewingMachine *sm){
+Earrings::Earrings(JewelerInfo *jeweler_info, 
+				   string gene_id,
+				   SewingMachine *sm){
+	int i;
 
-	this->info = info;
 	this->sm = sm;
 	this->mismatcher = new TranscriptMismatcher();
+	this->jeweler_info = jeweler_info;
+	this->gene_id = gene_id;
+	this->result_folder = jeweler_info->result_folder + "/" + gene_id;
+	
 	// load maternal and paternal transcripts sequences.
-	load_transcript_data(info);	
+	load_transcript_data();	
+
+	this->chr = paternal_transcripts[0]->chr;
+	this->ref_id = jeweler_info->get_refID(chr);
+	if (ref_id == NOT_FOUND) {
+		fprintf(stdout, "Cannot find reference id for %s\n", this->chr.c_str());
+	}
+
+	for (i=0;i<paternal_transcripts.size();i++){
+		Transcript *p=paternal_transcripts[i];
+		
+		if ( i == 0 ){
+			left_pos = p->start;
+			right_pos = p->end;
+		}
+		else {
+			left_pos = min(left_pos, p->start);
+			right_pos = max(right_pos, p->end);
+		}
+	}
+	
 	// load bamalignment by bamtools.
-	load_read_data(info);
+	load_read_data();
 	// align reads back to the transcripts
 	align_reads();
 
@@ -63,16 +89,16 @@ int Earrings::count_multiple_alignments(){
 			multiple_read_names.push_back( bam_reads[i]->Name );
 		}
 	}
-	FILE *foutput_mamf = fopen(string(info->folder+"/"+info->gene_id+".mamf.meta").c_str(),"w+");
+	FILE *foutput_mamf = fopen(string(result_folder+"/"+gene_id+".mamf.meta").c_str(),"w+");
 	fprintf(foutput_mamf, "%d\t%d\n", single_reads, bam_reads.size());
 	fprintf(stdout, "%d\t%d\n", single_reads, bam_reads.size());
 	fclose(foutput_mamf);
-	foutput_mamf=fopen(string(info->folder+"/"+info->gene_id+".mamf.multiple.reads").c_str(),"w+");
+	foutput_mamf=fopen(string(result_folder+"/"+gene_id+".mamf.multiple.reads").c_str(),"w+");
 	for (i = 0; i < multiple_read_names.size(); i++){
 		fprintf(foutput_mamf, "%s\n", multiple_read_names[i].c_str());
 	}
 	fclose(foutput_mamf);
-	foutput_mamf=fopen(string(info->folder+"/"+info->gene_id+".mamf.single.reads").c_str(),"w+");
+	foutput_mamf=fopen(string(result_folder+"/"+gene_id+".mamf.single.reads").c_str(),"w+");
 	for (i = 0; i < single_read_names.size(); i++){
 		fprintf(foutput_mamf, "%s\n", single_read_names[i].c_str());
 	}
@@ -86,49 +112,51 @@ void Earrings::test_memory_leak(){
 
 }
 
-int Earrings::load_read_data(TranscriptInfo *info){
+int Earrings::load_read_data(){
 	
+	
+
 	num_total_reads = 0;
 
-	string bam_filename=info->read_seq_filename;
-
-	BamReader reader;
-
-	if (!reader.Open(bam_filename)){
-		fprintf(stderr,"Cannot open bam file!\n");
-		exit(0);
+	if (! jeweler_info->bam_reader.SetRegion(ref_id, left_pos, ref_id, right_pos)){
+		fprintf(stdout, "%s\n", jeweler_info->bam_reader.GetErrorString().c_str());
 	}
 	
 	JewelerAlignment *al=new JewelerAlignment();
 
-	while(reader.GetNextAlignment(*al)){
+	while(jeweler_info->bam_reader.GetNextAlignment(*al)){
 		num_total_reads ++;
 		bam_reads.push_back(al);
 		al=new JewelerAlignment();
 	}
 	delete al; // delete the last unused one
+	fprintf(stdout, "totally %d bamalignments are loaded\n", num_total_reads);
 	
 	return 0;
 }
 
-int Earrings::load_transcript_data(TranscriptInfo * info){
+int Earrings::load_transcript_data(){
 	int i,j,k;
 
-	transcript_helper(info->maternal_seq_filename,info->gtf_filename, 
-					  maternal_transcripts );
-	transcript_helper(info->paternal_seq_filename,info->gtf_filename, 
-					  paternal_transcripts );
+	transcript_helper( maternal_transcripts ,
+					  jeweler_info->maternal_fasta);
+
+	transcript_helper(paternal_transcripts ,
+					  jeweler_info->paternal_fasta);
 	if (paternal_transcripts.size()!=maternal_transcripts.size() 
 		|| paternal_transcripts.size()==0){
 		fprintf(stderr, 
 				"ERROR: number of transcripts does not match or no reads at all for gene %s  at %s:%d\n",
-				info->gene_id.c_str(),__FILE__, __LINE__);
+				gene_id.c_str(),__FILE__, __LINE__);
 		exit(0);
 	}
+
+
 
 	for (i=0;i<paternal_transcripts.size();i++){
 		Transcript *p=paternal_transcripts[i];
 		Transcript *m=maternal_transcripts[i];
+		
 		if (p->seq.size()!=m->seq.size()){
 			fprintf(stderr, 
 					"ERROR: transcript sequence size does not match at gene %s  at %s:%d\n",
@@ -190,43 +218,39 @@ int Earrings::load_transcript_data(TranscriptInfo * info){
 	mismatcher->initialize();
 	return 0;
 }
+template<class T> 
+vector<T *> duplicate_vector(vector<T *> in){
+	vector<T *> ret(in.size());
+	int i;
+	for ( i = 0; i < in.size(); i ++){
+		ret[i] = new T(*in[i]);
+	}
+	return ret;
+}
 
-int Earrings::transcript_helper(string seq_filename,string gtf_file, 
-							   vector<Transcript *> &transcripts){
+int Earrings::transcript_helper(vector<Transcript *> &transcripts, 
+								FastaReference *fasta_ref){
 	//assuming gtf file has the same order of transcripts with the seq files
 	int i,j;
-	vector<seq_read*> sr;
-	load_fasta_file(seq_filename,sr);
-	load_gtf_file(gtf_file,transcripts);
-	if (transcripts.size()!=sr.size()){
-		fprintf(stderr, "ERROR: sequence file (%d sequences) does not match gtf file (%d transcripts) at %s:%d\n",
-				(int)sr.size(),(int)transcripts.size(),__FILE__, __LINE__);
-		exit(0);
-	}
+
+	transcripts = duplicate_vector(jeweler_info->gene_id2transcripts[gene_id]);
+
 
 	// TODO: put these code into gtf.cpp files.
 	// All transcript class operations should be done in transcripts. 
-	for (i=0;i<sr.size();i++){
-		for (j=0;j<transcripts.size();j++){
-			if (transcripts[j]->transcript_id != sr[i]->name){
-				continue;
-			}
-			transcripts[j]->seq=sr[i]->seq;
 
-			//check whether seq and genome_pos are the same length or
-			//not, this is the earliest point to do such check. 
-		   
-			if (transcripts[j]->seq.size() != transcripts[j]->genome_pos.size())
+	for (j=0;j<transcripts.size();j++){
+		transcripts[j]->load_seq(fasta_ref);
+		
+		//check whether seq and genome_pos are the same length or
+		//not, this is the earliest point to do such check. 
+		
+		if (transcripts[j]->seq.size() != transcripts[j]->genome_pos.size())
 			{
 				fprintf(stderr, "something wrong in inferring the genome position");
 				exit(0);
 			}
-
-		}
-	}
-	// delete fasta sequence file
-	for (int i=0; i<sr.size(); i++){
-		delete sr[i];
+		
 	}
 	
 	return 0;
@@ -456,21 +480,25 @@ int Earrings::align_reads(){
 			);
 
 
-	FILE *finfo=fopen(string(info->folder+"/"+info->gene_id+".landscape.plot.meta").c_str(),"w+");
+	FILE *finfo=fopen(string(result_folder+"/"+gene_id+".landscape.plot.meta").c_str(),"w+");
 
 	for (i=0;i<maternal_transcripts.size();i++){
 		FILE *foutput;
-		foutput=fopen(string(info->folder+"/"+maternal_transcripts[i]->transcript_id+".landscape.plot.info").c_str(),"w+");
+		foutput=fopen(string(result_folder+"/"+maternal_transcripts[i]->transcript_id+".landscape.plot.info").c_str(),"w+");
+		if (foutput == NULL){
+			fprintf(stderr, "cannot open file at %s\n", 
+					string(result_folder+"/"+maternal_transcripts[i]->transcript_id+".landscape.plot.info").c_str());
+		}
 		string name=maternal_transcripts[i]->transcript_id;
 		PileupPlot lp(maternal_transcripts[i],paternal_transcripts[i],noninfo[i]);
 		lp.generate_pileup_plot(finfo, foutput);
 		fclose(foutput);
 	}
 	fclose(finfo);
-	finfo=fopen(string(info->folder+"/"+info->gene_id+".mismatcher").c_str(),"w+");
+	finfo=fopen(string(result_folder+"/"+gene_id+".mismatcher").c_str(),"w+");
 	mismatcher->dump(finfo);
 	fclose(finfo);
-	finfo=fopen(string(info->folder+"/"+info->gene_id+".mismatcher.extra").c_str(),"w+");
+	finfo=fopen(string(result_folder+"/"+gene_id+".mismatcher.extra").c_str(),"w+");
 	mismatcher->write(finfo);
 	fclose(finfo);
 	//fprintf(stdout,"Unaligned\tUncleared\tCleared\tNoninfo\tTotal\n");
@@ -507,8 +535,8 @@ int Earrings::test_allele_specific_transcript(){
 int Earrings::build_graph(){
 	int i,j;
 	Graph graph;
-	fprintf(stdout,"%s\n",info->gene_id.c_str());
-	FILE *foutput=fopen(string(info->folder+"/"+info->gene_id+".allele.specific.graph").c_str(),"w+");
+	fprintf(stdout,"%s\n",gene_id.c_str());
+	FILE *foutput=fopen(string(result_folder+"/"+gene_id+".allele.specific.graph").c_str(),"w+");
 	vector<Path> cufflink_records;
 	for (i=0;i<maternal_transcripts.size();i++){
 		maternal_transcripts[i]->add_transcript_to_graph(&graph,cufflink_records);
@@ -539,7 +567,7 @@ int Earrings::build_graph(){
 	}
 	//get allele specific isoforms that is not from cufflinks
 
-	FILE *foutput_path=fopen(string(info->folder+"/"+info->gene_id+".allele.specific.path").c_str(),"w+");
+	FILE *foutput_path=fopen(string(result_folder+"/"+gene_id+".allele.specific.path").c_str(),"w+");
 	for ( j=0;j<records.size();j++){
 		bool is_new=true;
 		for ( i=0;i<cufflink_records.size();i++){
@@ -554,7 +582,7 @@ int Earrings::build_graph(){
 		}
 	}
 	fclose(foutput_path);
-	FILE *foutput_info=fopen(string(info->folder+"/"+info->gene_id+".allele.specific.info").c_str(),"w+");
+	FILE *foutput_info=fopen(string(result_folder+"/"+gene_id+".allele.specific.info").c_str(),"w+");
 	if (test_allele_specific_transcript()){
 		fprintf(foutput_info,"%s","Yes");
 	}

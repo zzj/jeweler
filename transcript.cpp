@@ -5,6 +5,14 @@ Transcript::Transcript(){
 	is_initialized=false;
 }
 
+int Transcript::load_seq(FastaReference * fr){
+	seq = "";
+	for ( int i=0; i < exon_start.size(); i++){
+		seq+=fr->getSubSequence(chr, exon_start[i] - 1, exon_end[i]-exon_start[i]+1);
+	}
+	return 0;
+}
+
 int Transcript::insert_reads(JewelerAlignment *al ){
 	reads.insert(al);
 	return 0;
@@ -617,6 +625,8 @@ int Transcript::add_transcript_to_graph(Graph *graph, vector<Path> &records){
 	records.push_back(Path(exon_chain));
 	return 0;
 }
+
+
 
 bool Transcript::is_equal(Transcript *t){
 	if (t->exon_start.size()!=this->exon_start.size()){

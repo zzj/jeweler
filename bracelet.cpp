@@ -1,29 +1,33 @@
 #include "bracelet.hpp"
 
-Bracelet::Bracelet(vector<TranscriptInfo *> infos){
+Bracelet::Bracelet(JewelerInfo * jeweler_info){
+	int id = 0;
+	this -> jeweler_info = jeweler_info;
 	fprintf(stdout, "bracelet initializing ...\n");
-	this->info = infos;
 
-	reads.resize(infos.size() );
-	results.resize(infos.size() );
-	related_transcripts.resize(infos.size() );
-	for (int i=0; i< infos.size() ; i++){
-		TranscriptInfo * info = infos[i];
+	reads.resize(jeweler_info->gene_id2transcripts.size() );
+	results.resize(jeweler_info->gene_id2transcripts.size() );
+	related_transcripts.resize(jeweler_info->gene_id2transcripts.size() );
+	for (auto i = jeweler_info->gene_id2transcripts.begin();
+		 i != jeweler_info->gene_id2transcripts.end();
+		 i++){
+		string gene_id = i->first;
+		this->result_folder = jeweler_info->result_folder + "/" +gene_id;
 		FILE *foutput_mamf=
-			fopen(string(info->folder+"/"+info->gene_id+".mamf.multiple.reads").c_str(),"r");
+			fopen(string(this->result_folder+"/"+gene_id+".mamf.multiple.reads").c_str(),"r");
 		if (foutput_mamf == NULL){
-			fprintf(stdout,"WARNING: %d\t is not processed by jeweler\n%s\n", i,
-					string(info->folder+"/"+info->gene_id+".mamf.multiple.reads").c_str());
+			fprintf(stdout,"WARNING: %d\t is not processed by jeweler\n%s\n", id,
+					string(this->result_folder+"/"+gene_id+".mamf.multiple.reads").c_str());
 			continue;
 		}
-		if (i % 1000 == 0) fprintf(stdout, "%d\n", i);
-
+		if (id % 1000 == 0) fprintf(stdout, "%d\n", id);
+		id ++;
 		char temp[100];
 		while(fscanf(foutput_mamf,"%s", temp)==1){
-			reads[i].push_back(temp);
+			reads[id].push_back(temp);
 		}
 		fclose(foutput_mamf);
-		sort(reads[i].begin(),reads[i].end());
+		sort(reads[id].begin(),reads[id].end());
 	}
 }
 
@@ -59,11 +63,11 @@ int Bracelet::analyze(){
 int Bracelet::dump(FILE * file){
 	fprintf(stdout, "bracelet dumping ...\n");
 	for ( int i=0; i< reads.size() ;i ++){
-		fprintf(file, "%s\t", info[i]->gene_id.c_str());
+		fprintf(file, "%s\t", jeweler_info->gene_id[i].c_str());
 		fprintf(file, "%d\t", results[i].size());
 		for (int j = 0; j < results[i].size(); j ++){
 			fprintf(file, "%s\t%d\t",
-					info[related_transcripts[i][j]]->gene_id.c_str(),
+					jeweler_info->gene_id[related_transcripts[i][j]].c_str(),
 					results[i][j]);
 		}
 		fprintf(file, "\n");

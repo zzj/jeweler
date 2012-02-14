@@ -3,9 +3,10 @@
 
 #include "transcript.hpp"
 #include "constants.hpp"
+#include "jeweler.hpp"
 #include <boost/dynamic_bitset.hpp>
 #include <boost/math/distributions/poisson.hpp>
-#include "transcript_info.hpp"
+
 #include "math/probability.hpp"
 #include <algorithm> 
 #include <functional>
@@ -13,7 +14,7 @@
 #include <cmath>
 
 using namespace std;
-
+class JewelerInfo;
 class TranscriptMismatcher{
 	
 public:
@@ -96,7 +97,7 @@ public:
 	bool is_initialized;
 	
 	TranscriptMismatcherAnalyzer(string filename);
-	TranscriptMismatcherAnalyzer(string filename, vector<TranscriptInfo *> &ti);
+	TranscriptMismatcherAnalyzer(string filename, JewelerInfo *jeweler_info);
 
 	int append(FILE *);
 	

@@ -9,7 +9,7 @@
 #include <api/BamWriter.h>
 #include <Fasta.h>
 #include "jeweler.hpp"
-#include "transcript_info.hpp"
+
 #include "transcript.hpp"
 #include "transcript_mismatcher.hpp"
 #include "laboratory/cigar_holder.hpp"
@@ -23,14 +23,16 @@ using namespace std;
 // only find one. 
 
 // This class will investigate the possible allele specific pile up graph.
-
+class JewelerInfo;
+class TranscriptMismatcher;
 
 class Earrings{
 public :
-	Earrings(TranscriptInfo *, SewingMachine * sm);
+	Earrings(JewelerInfo *, string gene_id,
+			 SewingMachine * sm);
 
 	~Earrings();
-	TranscriptInfo * info;
+
 	TranscriptMismatcher *mismatcher;
 	SewingMachine *sm;
 	vector<Transcript *> maternal_transcripts;
@@ -40,20 +42,25 @@ public :
 	vector<JewelerAlignment *> noused_reads;
 	vector<JewelerAlignment *> compatible_reads;
 	
-
+	JewelerInfo *jeweler_info;
+	string result_folder;
+	string gene_id;
+	string chr;
+	int ref_id;
+	int left_pos, right_pos;
 	int num_total_reads;
 	// find the reads that are mulitple aligned to other places
 	int count_multiple_alignments();
 	// create paternal and maternal transcripts databases
 	// annotate SNPs for paternal  and maternal transcripts' sequence
-	int load_transcript_data(TranscriptInfo * ti); // load transcript data 
+	int load_transcript_data(); // load transcript data 
 
 	// load cufflinks' gtf file 
-	int transcript_helper(string read_file,string gtf_file, 
-						  vector<Transcript *> &transcripts);
+	int transcript_helper(vector<Transcript *> &new_transcripts,
+						  FastaReference *f);
 
 	// load JewelerAlignment into bam_reads
-	int load_read_data(TranscriptInfo *ti);
+	int load_read_data();
 	// align reads to maternal or paternal transcripts
 	int align_reads();
 
