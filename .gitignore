@@ -6,3 +6,8 @@ jeweler
 result
 test.info
 \#*
+pipeline/log*
+pipeline/temp
+*.Rdata
+command_list
+temp
