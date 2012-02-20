@@ -4,3 +4,6 @@
 [submodule "lib/fastahack"]
 	path = lib/fastahack
 	url = https://github.com/ekg/fastahack.git
+[submodule "lib/bwa"]
+	path = lib/bwa
+	url = https://github.com/lh3/bwa.git
