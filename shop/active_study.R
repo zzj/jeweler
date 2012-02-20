@@ -17,6 +17,6 @@ result.folder <- paste("../result/merged_list/individual_study/",sample,"/active
 ActiveAnalyzerClass <- getRefClass("ActiveAnalyzer")
 aa <- ActiveAnalyzerClass$new(result.folder)
 
-aa$feature.extraction()
+##aa$feature.extraction()
 aa$analyze()
 aa$visualize()
