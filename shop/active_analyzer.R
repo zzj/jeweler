@@ -24,14 +24,16 @@ initialize = function ( result.folder.temp){
                      'multiple.propotion', 'num.mismatches','error.rate',
                      'num.consistent.mismatches', 'num.ag.mismatches')
 
-  selected.features <<-c( 'num.exons', 'num.reads',
-                     'multiple.propotion', 'error.rate',
-                     'num.consistent.mismatches')
+  selected.features <<-c('num.consistent.mismatches','num.exons')
 
   target.name <<- "label"
 
 }
 )
+filter.snp = function(location) {
+  a <- binom.test(as.numeric(location[5]),as.numeric(location[4]),0.98,alternative="less")
+  return (a$p.value>0.05)
+}
 
 ActiveAnalyzer$methods(
 feature.extraction = function() {
@@ -40,7 +42,10 @@ feature.extraction = function() {
   print(locations.folder)
   locations.folder <- sub('active','', locations.folder)
   locations <- read.table(paste(locations.folder,'result.consistent.locations',sep=""),stringsAsFactors=F,skip=1)
-  locations <- locations[locations[,2]<0.000000000001,]
+  is.not.snp <- apply(locations, 1, filter.snp)
+  print(length(which((locations[,2]<0.000000000001) & is.not.snp)))
+  locations <- locations[((locations[,2]<0.000000000001) & is.not.snp),]
+
   gene.prefix <<- gene.prefix
   transcript.prefix <<- transcript.prefix
   gene.names <<- gene.names
@@ -58,6 +63,7 @@ feature.extraction = function() {
   is.valid = vector(mode = 'numeric', length = l)
   
   for ( i in 1:length(gene.prefix) ) {
+
     if (i %% 1000 == 0) {
       print(i)
       print(length(gene.prefix))
@@ -76,7 +82,6 @@ feature.extraction = function() {
     plot.info <- read.table(plot.info.file, header = T , stringsAsFactors = F)
     mismatcher <- read.table(mismatcher.file, header =T , stringsAsFactors = F)
     meta <- read.table(meta.file, stringsAsFactors = F)
-
     mamf.meta <- read.table(mamf.meta.file, stringsAsFactors = F)
     length.vector[i] <- length(plot.info$exon_jump)
     ne.vector[i] <- sum(plot.info$exon_jump != 0)
@@ -92,16 +97,6 @@ feature.extraction = function() {
     ## at least larger than 0.6 to avoid missing SNPs
     selected <- idx
     ncm.vector[i] <- sum(length(selected))
-    if (length(selected) > 0){
-      selected <- idx[selected]
-      nag.vector[i] <- sum(mismatcher$Maternal[selected] == 'A' &&
-                           mismatcher$Paternal[selected] == 'A' &&
-                           (mismatcher$G[selected]/mismatcher$coverage[selected]>0.6)
-                           )
-    }
-    else {
-      nag.vector[i] <- 0
-    }
     if (i %% 1000 == 0 ){
       print('saving current result')
       data <<- matrix(data=NA, nrow = length(gene.names), ncol = length(feature.names)+1,
@@ -155,12 +150,12 @@ ActiveAnalyzer$methods(
 analyze = function() {
   load(paste( result.folder, 'ActiveAnalyzer.data.Rdata', sep = ""))
   data <<- data.temp
-  selected <- which(data[,'is.valid']==1)
+  selected <- which(data[,'is.valid']==1 & data[,'num.reads']>5)
   x <- as.matrix(data[,selected.features])
-  y <- as.numeric(grepl('^Gm[0-9]+\\|',rownames(x))) ##as.vector(data[,target.name])
+  y <- as.vector(data[,target.name])
   rownames(x) <- 1:dim(x)[1]
-  selected <- 1:18000
   x[is.na(x)]=0
+  x[is.infinite(x)]=0
   y <- y[selected]
   x <- x[selected,]
   print(paste('base line is', 1-sum(y)/length(y)))
