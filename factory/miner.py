@@ -5,7 +5,7 @@ import traceback
 import argparse
 from subprocess import call
 
-
+from shared_graph_worker import shared_graph_worker
 from  miner_parser import initialize_parser
 from cufflinks_worker import cufflinks_worker
 from cuffcompare_worker import cuffcompare_worker
@@ -39,13 +39,15 @@ def main():
 
             if (args.is_cufflinks):
                 cufflinks_worker(args)
-            if (args.is_cuffcompare):
+            elif (args.is_cuffcompare):
                 cuffcompare_worker(args)
             elif (args.is_jeweler):
                 jeweler_worker(args, refidtable, reffiletable)
             elif (args.is_appraiser) :
                 appraiser_worker(args)
-                
+            elif (args.plot_shared_graph):
+                shared_graph_worker(args)
+
     except: 
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         print("*** print_exc:")

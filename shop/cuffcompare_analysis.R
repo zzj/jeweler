@@ -95,6 +95,7 @@ get.cuffcompare.info = function ( ) {
             cuffcompare.info.temp[transcript.name,id] <- 
               strsplit((result.info[i,start.column+j]),'\\|')[[1]][2]
           }
+ 
           id <- id+1
         }
       }
@@ -165,7 +166,7 @@ filter.transcript = function() {
 CuffcomparePlotter$methods(
 plot = function () {
   get.cuffcompare.info()
-  for ( i in 29370:dim(cuffcompare.info)[1]){
+  for ( i in 1:dim(cuffcompare.info)[1]){
     info <- list()
     meta <- list()
     mismatcher <- list()

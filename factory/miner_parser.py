@@ -86,4 +86,9 @@ def initialize_parser():
         parser.add_argument('--bracelet',
                             action='store_true',
                             dest='is_bracelet')
+
+        parser.add_argument('--shared_graph',
+                            action='store_true',
+                            dest='plot_shared_graph')
+                            
         return parser

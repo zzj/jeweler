@@ -27,5 +27,5 @@ plotter <- CuffcomparePlotterClass$new(result.file = result.file,
                                        result.folder = result.folder)
 
 plotter$filter.transcript()
-##plotter$plot()
+plotter$plot()
 
