@@ -58,7 +58,7 @@ def load_bracelat_data(bracelet_file, cuffcompare):
                 if (data[i*2+2] not in cuffcompare):
                     cuffcompare[data[i*2+2]] = data[i*2+2]
                 graph.add_edge(cuffcompare[data[0]],
-                               cuffcompare[data[i*2+2]],weight = int(data[i*2+3]))
+                               cuffcompare[data[i*2+2]],label = int(data[i*2+3]))
                 add_node_color(graph, cuffcompare[data[0]])
                 add_node_color(graph, cuffcompare[data[i*2+2]])
                 
@@ -89,11 +89,11 @@ def main():
         if (len(graph.nodes())>0):
             folder =  result_folder + "/graph." +str(k)
             dotfile = folder + "/graph.dot"
-            psfile = folder + "/graph.ps"
+            psfile = folder + "/graph.png"
             if (not os.path.exists(folder)):
                 os.system("mkdir "+ folder)
             nx.write_dot(graph, dotfile)
-            os.system("dot -Tps " + dotfile  + " -o " + psfile)
+            os.system("dot -Tpng " + dotfile  + " -o " + psfile)
             fd.write(folder+ "\t")
             for node in graph.nodes():
                 fd.write(node+"\t")

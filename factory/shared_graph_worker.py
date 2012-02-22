@@ -36,5 +36,5 @@ def shared_graph_worker(args):
         sample_id =  os.path.basename(f.strip().replace('.bam',''))
 
         ##stupid python evoke a R program that cannot read a file
-        ##print('python3.2 shop/shared_graph.py '+cuffcompare_folder + "/ " +jeweler_folder + "/ "+bracelet_folder + "/ " + shared_graph_folder + "/ " +sample_id + )
-        print ("~/bin/bin/R CMD BATCH --no-save --no-restore '--args name=\""+sample_id+"\"' shop/shared_graph.R temp/"+sample_id)
+        print('python3.2 shop/shared_graph.py '+cuffcompare_folder + "/ " +jeweler_folder + "/ "+bracelet_folder + "/ " + shared_graph_folder + "/ " +sample_id  )
+        ##print ("~/bin/bin/R CMD BATCH --no-save --no-restore '--args name=\""+sample_id+"\"' shop/shared_graph.R temp/"+sample_id)
