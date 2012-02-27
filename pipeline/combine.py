@@ -18,7 +18,8 @@ for infile in glob.glob(os.path.join(bamfolder + "*lane*")):
 
         table[key].append(infile+'/accepted_hits.bam')
 
-
-
 for key, value in table.items():
+        
         print('samtools merge ' + output_folder + '/'+key+'.bam ' + ' '.join(value) + " -f")
+        if (len(value) != 4):
+                print("Error:" + str(len(value)) + ' \nError: '.join(value), file = sys.stderr)

@@ -1,4 +1,4 @@
-for i in {1..200} 
+for i in {1..384} 
 do 
-echo  python3 cegs_jobs.py $i
+python3 cegs_jobs.py $i
 done

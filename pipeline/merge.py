@@ -20,3 +20,9 @@ for infile in glob.glob(os.path.join(bamfolder + "*.bam")):
 for key, value in table.items():
         if (len(value)==2):
                 print('~/bin/bin/python2.7 mergeBam.py ' + ' '.join(value) + ' '+output_folder + '/'+key+'_merged.bam ')
+        else:
+                bn = os.path.basename(value[0])
+                if (bn[0] == bn[1]):
+                        print('cp ' + value[0] + ' ' + output_folder +'/')
+                else :
+                        print('Error ' + value[0] )
