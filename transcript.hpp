@@ -14,6 +14,7 @@
 #include "graph/graph.hpp"
 #include "laboratory/cigar_holder.hpp"
 #include "alignment_glue.hpp"
+#include "read_matcher.hpp"
 using namespace BamTools;
 
 
@@ -73,12 +74,7 @@ public:
 
 	// Check whether it is a better alignment comparing with other transcript
 	int match_alleles(JewelerAlignment *, int &total_alleles,
-					  vector<int> &transcript_aligned_locations,
-					  vector<int> &read_aligned_locations,
-					  vector<int> &alleles, 
-					  vector<int> &mismatches,
-					  vector<char> &read_mismatch_qualities,
-					  vector<char> &mismachars);
+					  ReadMatcher *rm);
 	
 	// insert the Alignment to the aligned_reads
 	int insert_reads(JewelerAlignment *);

@@ -373,25 +373,16 @@ string Transcript::get_query_aligned_seq(JewelerAlignment * al){
 }
 
 int Transcript::match_alleles(JewelerAlignment *al, int &total_alleles, 
-							  vector<int> &transcript_aligned_locations,
-							  vector<int> &read_aligned_locations,
-							  vector<int> &matched_alleles, 
-							  vector<int> &mismatches,
-							  vector<char> & read_mismatch_qualities,
-							  vector<char> & mismatchars){
+							  ReadMatcher * rm
+							  ){
 	int i;
 	string transcript_seq = get_transcript_aligned_info<string>(al, get_seq_info);
-	transcript_aligned_locations =
+	rm->transcript_aligned_locations =
 		get_transcript_aligned_info<vector<int> >(al, get_transcript_location_info);
-	read_aligned_locations =
+	rm->read_aligned_locations =
 		get_transcript_aligned_info<vector<int> >(al, get_read_location_info);
 	string query_seq=get_query_aligned_seq(al);
 
-	alleles.clear();
-
-	matched_alleles.clear();
-	mismatches.clear();
-	mismatchars.clear();
 	total_alleles=0;
 
 	if (transcript_seq.size()!=query_seq.size()){
@@ -413,25 +404,23 @@ int Transcript::match_alleles(JewelerAlignment *al, int &total_alleles,
 	// TODO: increase the performance
 	for (i=0;i<transcript_seq.size();i++){
 		// is it a SNP?
-		if (is_allele(transcript_aligned_locations[i])){
+		if (is_allele(rm->transcript_aligned_locations[i])){
 			total_alleles++;
 			if (transcript_seq[i]==query_seq[i]){
-				matched_alleles.push_back(transcript_aligned_locations[i]);
+				rm->allele_transcript_locations.push_back(rm->transcript_aligned_locations[i]);
+				rm->allele_read_locations.push_back(rm->read_aligned_locations[i]);
 				continue;
 			}
 		}
 		// is a mismatch			
 		if (transcript_seq[i] != query_seq[i]){
-			mismatches.push_back(transcript_aligned_locations[i]);
-			mismatchars.push_back(query_seq[i]);
-			read_mismatch_qualities.push_back(al->Qualities[i]);
+			rm->mismatch_transcript_locations.push_back(rm->transcript_aligned_locations[i]);
+			rm->mismatch_read_locations.push_back(rm->read_aligned_locations[i]);
+			rm->mismatchars.push_back(query_seq[i]);
+			rm->mismatch_qualities.push_back(al->Qualities[rm->read_aligned_locations[i]]);
 		}
 	}
-	if (total_alleles>0 && matched_alleles.size()==0){
-		//fprintf(stdout, "%d\t%d\n", total_alleles, num_matched_alleles);
-		//fprintf(stdout, "transcript_seq: %s\n", transcript_seq.c_str());
-		//fprintf(stdout, "query_seq:      %s\n", query_seq.c_str());
-	}
+
 	return 0;
 }
 
@@ -473,22 +462,16 @@ int Transcript::get_transcript_exon(int genome_location){
 
 int Transcript::register_allele_read(JewelerAlignment *al){
 	int total_alleles;
-	vector<int> matched_alleles;
-	vector<int> locations;
-	vector<int> read_locations;
-	vector<int> mismatches;
-	vector<char> read_mismatches;
-	vector<int> matched_exons;
-	vector<char> mismatchars;
+
 	int num_matched_alleles;
 	int i;
-	match_alleles(al,total_alleles,locations, read_locations, matched_alleles,
-				  mismatches,read_mismatches,mismatchars);
-	num_matched_alleles=matched_alleles.size();
+	ReadMatcher rm;
+	match_alleles(al,total_alleles,&rm);
+	num_matched_alleles=rm.num_matched_alleles;
 	if (num_matched_alleles>0){
 		allele_reads.insert(al);
 		for (i=0;i<num_matched_alleles;i++){
-			int exon_id=get_allele_exon(matched_alleles[i]);
+			int exon_id=get_allele_exon(rm.allele_transcript_locations[i]);
 			num_info_reads_per_exon[exon_id]++;
 			allele_reads_per_exon[exon_id].insert(al);
 		}

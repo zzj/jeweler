@@ -9,7 +9,7 @@
 #include <api/BamWriter.h>
 #include <Fasta.h>
 #include "jeweler.hpp"
-
+#include "read_matcher.hpp"
 #include "transcript.hpp"
 #include "transcript_mismatcher.hpp"
 #include "laboratory/cigar_holder.hpp"

@@ -120,7 +120,7 @@ int AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlignm
 	// alignment
 
 	for (i = 0; i < first->QueryBases.size(); i ++){
-		first->read_position.push_back(i);
+		first->read_position.push_back(get_read_position(first,i));
 	}
 	if (overlapped>=0){
 		// Great news! no overlapped region between first and second
@@ -133,7 +133,7 @@ int AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlignm
 		}
 		first->QueryBases += second->QueryBases;
 		for (j = 0 ; j < second->QueryBases.size(); j ++){
-			first->read_position.push_back(second->QueryBases.size() - 1 - j);
+			first->read_position.push_back(get_read_position(second, j));
 		}
 		if (overlapped > 0){
 			first->CigarData.push_back(CigarOp('J',overlapped));
@@ -152,7 +152,7 @@ int AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlignm
 		first->QueryBases += second->QueryBases.substr(skipped_read_length);
 		first->Qualities +=second->Qualities.substr(skipped_read_length);
 		for (j = skipped_read_length; j < second->QueryBases.size(); j ++){
-			first->read_position.push_back(second->QueryBases.size() - 1 - j);
+			first->read_position.push_back(get_read_position(second,j) );
 		}
 
 		first->CigarData.insert(first->CigarData.end(), 

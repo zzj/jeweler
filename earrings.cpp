@@ -374,37 +374,21 @@ int Earrings::align_reads(){
 			// the maternal_transcript should be the same with the paternal_transcript
 			if (maternal_transcripts[j]->is_compatible(bam_reads[i], Transcript::tolerate)){
 				is_compatible = true;
-				vector<int> paternal_mismatches;
-				vector<int> maternal_mismatches;
-				vector<char> paternal_read_qualities;
-				vector<char> maternal_read_qualities;
-				vector<char> paternal_mismatchars;
-				vector<char> maternal_mismatchars;
-				vector<int> maternal_locations;
-				vector<int> paternal_locations;
-				vector<int> maternal_read_locations;
-				vector<int> paternal_read_locations;
-		
+
+				// TODO: use a class to store the matched information
+				ReadMatcher maternal_matcher;
+				ReadMatcher paternal_matcher;
+
 				maternal_transcripts[j]->register_read(bam_reads[i]);
 				paternal_transcripts[j]->register_read(bam_reads[i]);
 			
 				maternal_transcripts[j]->match_alleles(bam_reads[i],
 													   total_alleles,
-													   maternal_locations,
-													   maternal_read_locations,
-													   maternal_alleles,
-													   maternal_mismatches,
-													   maternal_read_qualities,
-													   maternal_mismatchars);
+													   &maternal_matcher);
 
 				paternal_transcripts[j]->match_alleles(bam_reads[i],
 													   total_alleles,
-													   paternal_locations,
-													   paternal_read_locations,
-													   paternal_alleles,
-													   paternal_mismatches,
-													   paternal_read_qualities,
-													   paternal_mismatchars);
+													   &paternal_matcher);
 		
 				//fprintf(stdout,"%d\n",total_alleles);
 				num_maternal_alleles=maternal_alleles.size();
@@ -414,11 +398,7 @@ int Earrings::align_reads(){
 						noninfo[j].insert(bam_reads[i]);
 						mismatcher->add_mismatches(maternal_transcripts[j],
 												   bam_reads[i],
-												   maternal_locations,
-												   maternal_read_locations,
-												   maternal_mismatches, 
-												   maternal_read_qualities,
-												   maternal_mismatchars);
+												   &maternal_matcher);
 					}
 					else {
 						cleared.insert(bam_reads[i]);
@@ -426,21 +406,13 @@ int Earrings::align_reads(){
 							maternal_transcripts[j]->register_allele_read(bam_reads[i]);
 							mismatcher->add_mismatches(maternal_transcripts[j],
 													   bam_reads[i],
-													   maternal_locations,
-													   maternal_read_locations,
-													   maternal_mismatches,
-													   maternal_read_qualities,
-													   maternal_mismatchars);
+													   &maternal_matcher);
 						}
 						else{
 							paternal_transcripts[j]->register_allele_read(bam_reads[i]);
 							mismatcher->add_mismatches(paternal_transcripts[j],
 													   bam_reads[i],
-													   paternal_locations,
-													   paternal_read_locations,
-													   paternal_mismatches,
-													   paternal_read_qualities,
-													   paternal_mismatchars);
+													   &paternal_matcher);
 					
 						}
 					}
@@ -448,12 +420,7 @@ int Earrings::align_reads(){
 				else {
 					mismatcher->add_mismatches(maternal_transcripts[j],
 											   bam_reads[i],
-											   maternal_locations,
-											   maternal_read_locations,
-											   maternal_mismatches,
-											   maternal_read_qualities,
-											   maternal_mismatchars
-											   );
+											   &maternal_matcher);
 					noninfo[j].insert(bam_reads[i]);
 				}
 			}
