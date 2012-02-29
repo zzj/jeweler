@@ -10,8 +10,13 @@ int output_bamalignment(JewelerAlignment *al){
 		fprintf(stdout,"second one\n");
 	}
 	fprintf(stdout,"%s\n",al->QueryBases.c_str());
+	fprintf(stdout,"%s\n",al->Qualities.c_str());
 	fprintf(stdout,"%d\n",al->Position + 1);
 	fprintf(stdout,"%s\n",get_cigar_string((*al)).c_str());
+	for ( int i = 0; i < al->read_position.size(); i++){
+		fprintf(stdout, "%d\t", al->read_position[i]);
+	}
+	fprintf(stdout, "\n");
 	return 0;
 }
 
@@ -184,7 +189,7 @@ int AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlignm
 	
 	// DEBUG: output merged ones
 	// fprintf(stdout, "Merged: \n");
-	// output_bamalignment(first);
+	//output_bamalignment(first);
 }
 
 int AlignmentGlue::glue(vector<JewelerAlignment *> &in_reads, 

@@ -49,6 +49,10 @@ public :
 	int ref_id;
 	int left_pos, right_pos;
 	int num_total_reads;
+	
+	set<string> single_read_names;
+	set<string> multiple_read_names;
+
 	// find the reads that are mulitple aligned to other places
 	int count_multiple_alignments();
 	// create paternal and maternal transcripts databases

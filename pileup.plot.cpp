@@ -4,7 +4,8 @@
 
 PileupPlot::PileupPlot(Transcript * maternal_transcript, 
 					   Transcript * paternal_transcript, 
-					   set<JewelerAlignment *> & unknown_reads){
+					   set<JewelerAlignment *> & unknown_reads,
+					   set<string > & multiple_reads){
 	
 	int i, j;
 
@@ -18,6 +19,7 @@ PileupPlot::PileupPlot(Transcript * maternal_transcript,
 	unknown.resize(size, 0);
 	paternal.resize(size, 0);
 	maternal.resize(size, 0);
+	multiple.resize(size,0);
 	is_snp.resize(size, 0);
 	exon_jump.resize(size, 0); // the last position that an exon ends
 	genome_pos = maternal_transcript->genome_pos;
@@ -41,10 +43,21 @@ PileupPlot::PileupPlot(Transcript * maternal_transcript,
 	add_transcript_to_pileup(paternal_transcript,  
 							 paternal_transcript->allele_reads, 
 							 paternal);
-
 	add_transcript_to_pileup(paternal_transcript /* either one is fine */,   
 							 unknown_reads, 
 							 unknown);
+	add_transcript_to_pileup_filter(maternal_transcript,  
+									maternal_transcript->allele_reads, 
+									multiple,
+									multiple_reads);
+	add_transcript_to_pileup_filter(paternal_transcript,  
+									paternal_transcript->allele_reads, 
+									multiple,
+									multiple_reads);
+	add_transcript_to_pileup_filter(paternal_transcript /* either one is fine */,   
+									unknown_reads, 
+									multiple,
+									multiple_reads);
 
 }
 
@@ -55,6 +68,20 @@ int PileupPlot::add_transcript_to_pileup(Transcript * transcript,
 		 iter != reads.end();
 		 iter++){
 		add_coverage(transcript,  *iter,  coverage);
+	}
+	return 0;
+}
+int PileupPlot::add_transcript_to_pileup_filter(Transcript * transcript, 
+												set<JewelerAlignment *> &reads, 
+												vector<int> & coverage,
+												set<string> &multiple_names){
+	for (auto iter = reads.begin();
+		 iter != reads.end();
+		 iter++){
+		if (multiple_names.find((*iter)->Name) != multiple_names.end()){
+			fprintf(stdout, "here\n");
+			add_coverage(transcript,  *iter,  coverage);
+		}
 	}
 	return 0;
 }
@@ -129,9 +156,9 @@ int PileupPlot::add_coverage(Transcript * transcript,  JewelerAlignment *al,  ve
 int PileupPlot::generate_pileup_plot(FILE * info,  FILE * output){
 	int i;
 	fprintf(info, "%s\t%d\t%d\t%d\n", transcript_id.c_str(), num_unknown, num_maternal, num_paternal);
-	fprintf(output, "location\tunknown\tmaternal\tpaternal\tis_snp\texon_jump\t\n");
+	fprintf(output, "location\tunknown\tmaternal\tpaternal\tis_snp\texon_jump\tmultiple\n");
 	for (i=0;i<unknown.size();i++){
-		fprintf(output, "%d\t%d\t%d\t%d\t%d\t%d\n",  genome_pos[i], unknown[i],  maternal[i],  paternal[i],  is_snp[i],  exon_jump[i]);
+		fprintf(output, "%d\t%d\t%d\t%d\t%d\t%d\t%d\n",  genome_pos[i], unknown[i],  maternal[i],  paternal[i],  is_snp[i],  exon_jump[i], multiple[i]);
 	}
 			
 }

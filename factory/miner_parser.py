@@ -75,9 +75,9 @@ def initialize_parser():
                             action='store_true',
                             dest='is_appraiser')
 
-        parser.add_argument('--jeweler_only',
+        parser.add_argument('--earrings',
                             action='store_true',
-                            dest='is_jeweler_only')
+                            dest='is_earrings')
 
         parser.add_argument('--mismatch_analyzer',
                             action='store_true',

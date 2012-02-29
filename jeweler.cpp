@@ -120,6 +120,7 @@ jeweler::jeweler(int argc, char * argv[]) {
 		if (strcmp( argv[i], "-l") == 0){
 			i++;
 			if (i < argc){
+
 				log_file = file_open(argv[i],"w+");
 			}
 		}
@@ -191,6 +192,7 @@ int jeweler::run(){
 	}
 	
 	if (is_bracelet){
+		fprintf(stdout, "Bracelet analyzing ...\n");
 		Bracelet bracelet(jeweler_info);
 		bracelet.analyze();
 		FILE * output = fopen((bracelet_filename+".bracelet").c_str(), "w+");
@@ -203,6 +205,7 @@ int jeweler::run(){
 	}
 	
 	if (is_mismatch_analyzer){
+		fprintf(stdout, "Mismatch analyzing ...\n");
 		TranscriptMismatcherAnalyzer tma(mismatch_filename, jeweler_info);
 		tma.analyze();
 	}

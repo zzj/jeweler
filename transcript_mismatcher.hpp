@@ -127,6 +127,7 @@ public:
 	int mark_consistent_mismatch();
 
 	int dump_error_rate_by_quality(FILE *);
+	int dump_error_rate_by_location(FILE *);
 
 	int dump_location_results(FILE *, bool only_yes = false);
 
@@ -209,7 +210,6 @@ int TranscriptMismatcherAnalyzer::calculate_error(const vector<vector<T> > &read
 	// num of mismatches by quality in read
 	num_mismatches.clear();
 	num_calls.clear();
-	
 	error_rate.clear();
 
 	for ( i = 0; i < num_locations; i ++){
@@ -244,9 +244,6 @@ int TranscriptMismatcherAnalyzer::calculate_error(const vector<vector<T> > &read
 			num_mismatches[ i->first ] = 0;
 		}
 		error_rate[ i->first ] = (double)  num_mismatches[i->first] / i->second ;
-		fprintf(stdout, "%c\t%d\t%d\t%e\n", 
-				i->first, i->second, num_mismatches[i->first], 
-				error_rate[ i->first]);
 	}
 	return 0;
 }

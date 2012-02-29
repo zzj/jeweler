@@ -36,15 +36,14 @@ Earrings::Earrings(JewelerInfo *jeweler_info,
 	// load bamalignment by bamtools.
 	load_read_data();
 	// align reads back to the transcripts
+	if (sm != NULL) {
+		count_multiple_alignments();
+	}
 	align_reads();
-
 	// build graph;
 	build_graph();
 	test_allele_specific_transcript();
 	// have sewingmachine class, output maltiple aligment info
-	if (sm != NULL) {
-		count_multiple_alignments();
-	}
 }
 
 
@@ -74,19 +73,19 @@ Earrings::~Earrings(){
 // this function must be called after the align_reads 
 // otherwise the statistics may be incorrect.
 int Earrings::count_multiple_alignments(){
-	int i;
-	int single_reads;
-	vector<string> single_read_names;
-	vector<string> multiple_read_names;
 
-	for ( i = 0; i < bam_reads.size(); i ++){
+	int single_reads;
+	single_read_names.clear();
+	multiple_read_names.clear();
+
+	for ( int i = 0; i < bam_reads.size(); i ++){
 		if ( sm->multiple_alignment_set.find (bam_reads[i]->Name) == 
 			 sm->multiple_alignment_set.end()){
 			single_reads++;
-			single_read_names.push_back( bam_reads[i]->Name );
+			single_read_names.insert( bam_reads[i]->Name );
 		}
 		else {
-			multiple_read_names.push_back( bam_reads[i]->Name );
+			multiple_read_names.insert( bam_reads[i]->Name );
 		}
 	}
 	FILE *foutput_mamf = fopen(string(result_folder+"/"+gene_id+".mamf.meta").c_str(),"w+");
@@ -94,13 +93,13 @@ int Earrings::count_multiple_alignments(){
 	fprintf(stdout, "%d\t%d\n", single_reads, bam_reads.size());
 	fclose(foutput_mamf);
 	foutput_mamf=fopen(string(result_folder+"/"+gene_id+".mamf.multiple.reads").c_str(),"w+");
-	for (i = 0; i < multiple_read_names.size(); i++){
-		fprintf(foutput_mamf, "%s\n", multiple_read_names[i].c_str());
+	for (auto i = multiple_read_names.begin(); i != multiple_read_names.end(); i++){
+		fprintf(foutput_mamf, "%s\n", i->c_str());
 	}
 	fclose(foutput_mamf);
 	foutput_mamf=fopen(string(result_folder+"/"+gene_id+".mamf.single.reads").c_str(),"w+");
-	for (i = 0; i < single_read_names.size(); i++){
-		fprintf(foutput_mamf, "%s\n", single_read_names[i].c_str());
+	for (auto i = single_read_names.begin(); i != single_read_names.end(); i++){
+		fprintf(foutput_mamf, "%s\n", i->c_str());
 	}
 	fclose(foutput_mamf);
 }
@@ -457,7 +456,7 @@ int Earrings::align_reads(){
 					string(result_folder+"/"+maternal_transcripts[i]->transcript_id+".landscape.plot.info").c_str());
 		}
 		string name=maternal_transcripts[i]->transcript_id;
-		PileupPlot lp(maternal_transcripts[i],paternal_transcripts[i],noninfo[i]);
+		PileupPlot lp(maternal_transcripts[i],paternal_transcripts[i],noninfo[i], multiple_read_names);
 		lp.generate_pileup_plot(finfo, foutput);
 		fclose(foutput);
 	}

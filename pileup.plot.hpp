@@ -21,6 +21,7 @@ public:
 	vector<int> unknown;
 	vector<int> paternal;
 	vector<int> maternal;
+	vector<int> multiple;
 	vector<int> is_snp;
 	vector<int> exon_jump;
 	vector<int> genome_pos;
@@ -28,9 +29,14 @@ public:
 	string transcript_id;
 
 	PileupPlot(Transcript * maternal, 
-				  Transcript * paternal, 
-				  set<JewelerAlignment* > &unknown);
-	
+			   Transcript * paternal, 
+			   set<JewelerAlignment* > &unknown,
+			   set<string> &multiple);
+	int add_transcript_to_pileup_filter(Transcript * transcript, 
+										set<JewelerAlignment *> &reads, 
+										vector<int> & coverage,
+										set<string> &multiple);
+
 	int add_transcript_to_pileup(Transcript *,
 									set<JewelerAlignment *> &reads,
 									vector<int> & coverage);

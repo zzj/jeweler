@@ -158,6 +158,7 @@ int TranscriptMismatcherAnalyzer::append(FILE * file){
 						&maternal_char, &paternal_char) )== 10){
 
 		tempv_quality.clear();
+		tempv_location.clear();
 		genome_locations.push_back( genome_location );
 		coverages.push_back( coverage );
 		mismatches.push_back( miss );
@@ -177,15 +178,18 @@ int TranscriptMismatcherAnalyzer::append(FILE * file){
 		
 		for (int i = 0; i < miss; i ++ ){
 			fscanf(file, "\t%c\t%d", &tempc, &tempn);
+			if (tempn<10) continue;
 			tempv_quality.push_back(tempc);
 			tempv_location.push_back(tempn);
 		}
 		read_mismatch_qualities.push_back(tempv_quality);
+		read_mismatch_locations.push_back(tempv_location);
 		tempv_quality.clear();
-		
+		tempv_location.clear();
 		for (int i = 0; i < coverage; i ++ ){
 			fscanf(file, "\t%c\t%d", &tempc, &tempn);
 			tempv_quality.push_back(tempc);
+			if (tempn<10) continue;
 			tempv_location.push_back(tempn);
 		}
 		
@@ -206,19 +210,19 @@ TranscriptMismatcherAnalyzer::TranscriptMismatcherAnalyzer(string filename,
 	is_initialized = false;
 	this -> filename = filename;
 	for ( int i=0; i < jeweler_info->gene_id.size(); i++){
-		string filename = string(jeweler_info->result_folder+"/"+jeweler_info->gene_id[i]+".mismatcher.extra");
-		FILE * finfo=fopen(filename.c_str(),"r+");
+		string filename = string(jeweler_info->result_folder+"/"+jeweler_info->gene_id[i] +"/"+jeweler_info->gene_id[i]+".mismatcher.extra");
+		FILE * finfo=fopen(filename.c_str(),"r");
 
 		if (finfo == NULL){
 			fprintf (stdout, "cannot open file name %s\n", filename.c_str());
-			fclose(finfo);
 			continue;
 		}
 		append(finfo);
 		fclose(finfo);
-		if ( i % 100 == 0) {
+		if ( i % 1 == 0) {
 			fprintf(stdout, "%d/%d\n", i, jeweler_info->gene_id.size());
-		}
+	 	}
+
 	}
 	end_loading();
 }
@@ -261,8 +265,11 @@ int TranscriptMismatcherAnalyzer::analyze(){
 	calculate_error<int>(read_locations, read_mismatch_locations, 
 						  num_calls_by_location, num_mismatches_by_location,
 						  error_rate_by_location);
-	FILE * fd = fopen((filename+".error.first").c_str(), "w+");
+	FILE * fd = fopen((filename+".quality.error.first").c_str(), "w+");
 	dump_error_rate_by_quality (fd);
+	fclose(fd);
+	fd = fopen((filename+".location.error.first").c_str(), "w+");
+	dump_error_rate_by_location (fd);
 	fclose(fd);
 	do {
 		calculate_error<char>(read_qualities, read_mismatch_qualities, 
@@ -273,8 +280,11 @@ int TranscriptMismatcherAnalyzer::analyze(){
 							  num_calls_by_location, num_mismatches_by_location,
 							  error_rate_by_location);
 
-		FILE * fd = fopen((filename+".error.last").c_str(), "w+");
+		FILE * fd = fopen((filename+".quality.error.last").c_str(), "w+");
 		dump_error_rate_by_quality(fd);
+		fclose(fd);
+		fd = fopen((filename+".location.error.last").c_str(), "w+");
+		dump_error_rate_by_location(fd);
 		fclose(fd);
 		calculate_p_value<char>(read_qualities,error_rate_by_quality);
 		ret = mark_consistent_mismatch() ;
@@ -301,6 +311,17 @@ int TranscriptMismatcherAnalyzer::dump_error_rate_by_quality(FILE * fd){
 		fprintf(fd, "%c\t%d\t%d\t%e\n", 
 				i->first, i->second, num_mismatches_by_quality[i->first], 
 				error_rate_by_quality[ i->first]);
+	}
+	return 0;
+}
+int TranscriptMismatcherAnalyzer::dump_error_rate_by_location(FILE * fd){
+	fprintf(fd, "phred\tnum.quality\tnum.mismatches\tnum.error\n");
+	for ( auto i = num_calls_by_location.begin(); 
+		  i !=  num_calls_by_location.end(); 
+		  i ++){
+		fprintf(fd, "%d\t%d\t%d\t%e\n", 
+				i->first, i->second, num_mismatches_by_location[i->first], 
+				error_rate_by_location[ i->first]);
 	}
 	return 0;
 }
