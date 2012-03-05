@@ -6,7 +6,7 @@ source('shop/pileup.plot.R')
 
 args=(commandArgs(TRUE))
 if(length(args)==0){
-  name = "FH_0099_F_merged"
+  name = "FH_0096_M_merged"
   idx = 6
 }else{
   for(i in 1:length(args)){
@@ -25,7 +25,7 @@ plot.bracet.figure <- function(filename, name, resultfolder){
   if (n>0){
     for (i in 1:n){
       line <- unlist(strsplit(data[i], "\t"))
-      
+      print(i)
       resultfolder = line[1]
       k <- length(line)
       for ( j in 2:k){
@@ -36,18 +36,18 @@ plot.bracet.figure <- function(filename, name, resultfolder){
   }
 }
 
-
+root = 'result/new_merged_list/'
 bracelet.easyplot <- function(name, resultfolder, id, title){
   output <- paste(resultfolder,"/", id, ".pdf", sep = "")
   pdf(output, width = 14);
-  gene.pileup.plot(paste('result/merged_list/jeweler/',name,'/',id,'/',sep=""),
-                   paste('result/merged_list/jeweler/',name,'/',id,'/',id, '.landscape.plot.meta',sep=""),
-                   paste('result/merged_list/jeweler/',name,'/',id,'/',id, '.mismacher',sep=""),
+  gene.pileup.plot(paste(root, 'jeweler/',name,'/',id,'/',sep=""),
+                   paste(root, 'jeweler/',name,'/',id,'/',id, '.landscape.plot.meta',sep=""),
+                   paste(root, 'jeweler/',name,'/',id,'/',id, '.mismatcher',sep=""),
                    title)
   dev.off()
 }
 system("whoami")
-plot.bracet.figure(paste('result/merged_list/shared_graph/',name,'/shared_graph',sep=""),
+plot.bracet.figure(paste(root, '/shared_graph/',name,'/shared_graph',sep=""),
                    name,
-                   paste('result/merged_list/shared_graph/',name,'/figures/',sep = ""))
+                   paste(root, '/shared_graph/',name,'/figures/',sep = ""))
 

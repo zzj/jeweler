@@ -14,7 +14,7 @@ plot.comparision <- function(data, name, title){
 }
 log <- read.table('app.stats', header= T, stringsAsFactors =F)
 
-plot.comparision(log,"alignments", "Number of tatal alignments")
+plot.comparision(log,"alignments", "Number of total alignments")
 
 cuff <- read.table('cuff.stats', header= T, stringsAsFactors =F)
 plot.comparision(cuff,"exact", 'Number of transcripts extractly matched to a known one\n')

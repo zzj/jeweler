@@ -82,8 +82,6 @@ def main():
     print("there are totally " + str(len(bracelet_result))+ " graphs are built .")
     fd = open(result_folder +"/" + "shared_graph","w+")
     k=1
-
-
     
     for graph in bracelet_result:
         if (len(graph.nodes())>0):

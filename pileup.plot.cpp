@@ -79,7 +79,6 @@ int PileupPlot::add_transcript_to_pileup_filter(Transcript * transcript,
 		 iter != reads.end();
 		 iter++){
 		if (multiple_names.find((*iter)->Name) != multiple_names.end()){
-			fprintf(stdout, "here\n");
 			add_coverage(transcript,  *iter,  coverage);
 		}
 	}

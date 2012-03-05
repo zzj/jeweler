@@ -20,14 +20,15 @@ Bracelet::Bracelet(JewelerInfo * jeweler_info){
 					string(this->result_folder+"/"+gene_id+".mamf.multiple.reads").c_str());
 			continue;
 		}
-		if (id % 1000 == 0) fprintf(stdout, "%d\n", id);
-		id ++;
+		if (id % 1 == 0) fprintf(stdout, "%d\n", id);
 		char temp[100];
 		while(fscanf(foutput_mamf,"%s", temp)==1){
 			reads[id].push_back(temp);
 		}
 		fclose(foutput_mamf);
 		sort(reads[id].begin(),reads[id].end());
+		id ++;
+		
 	}
 }
 

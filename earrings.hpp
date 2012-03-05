@@ -54,7 +54,7 @@ public :
 	set<string> multiple_read_names;
 
 	// find the reads that are mulitple aligned to other places
-	int count_multiple_alignments();
+	int count_multiple_alignments(bool is_after_aligned);
 	// create paternal and maternal transcripts databases
 	// annotate SNPs for paternal  and maternal transcripts' sequence
 	int load_transcript_data(); // load transcript data 

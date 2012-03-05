@@ -35,10 +35,11 @@ Earrings::Earrings(JewelerInfo *jeweler_info,
 	
 	// load bamalignment by bamtools.
 	load_read_data();
-	// align reads back to the transcripts
-	if (sm != NULL) {
-		count_multiple_alignments();
+	if (sm!=NULL){
+		count_multiple_alignments(/* is after alignment*/ false);
 	}
+
+	// align reads back to the transcripts
 	align_reads();
 	// build graph;
 	build_graph();
@@ -72,9 +73,9 @@ Earrings::~Earrings(){
 
 // this function must be called after the align_reads 
 // otherwise the statistics may be incorrect.
-int Earrings::count_multiple_alignments(){
+int Earrings::count_multiple_alignments(bool is_after_aligned){
 
-	int single_reads;
+	int single_reads = 0;
 	single_read_names.clear();
 	multiple_read_names.clear();
 
@@ -92,12 +93,22 @@ int Earrings::count_multiple_alignments(){
 	fprintf(foutput_mamf, "%d\t%d\n", single_reads, bam_reads.size());
 	fprintf(stdout, "%d\t%d\n", single_reads, bam_reads.size());
 	fclose(foutput_mamf);
-	foutput_mamf=fopen(string(result_folder+"/"+gene_id+".mamf.multiple.reads").c_str(),"w+");
+	if (is_after_aligned) {
+		foutput_mamf=fopen(string(result_folder+"/"+gene_id+".mamf.multiple.reads").c_str(),"w+");
+	}
+	else {
+		foutput_mamf=fopen(string(result_folder+"/"+gene_id+".mamf.before.multiple.reads").c_str(),"w+");
+	}
 	for (auto i = multiple_read_names.begin(); i != multiple_read_names.end(); i++){
 		fprintf(foutput_mamf, "%s\n", i->c_str());
 	}
 	fclose(foutput_mamf);
-	foutput_mamf=fopen(string(result_folder+"/"+gene_id+".mamf.single.reads").c_str(),"w+");
+	if (is_after_aligned) {
+		foutput_mamf=fopen(string(result_folder+"/"+gene_id+".mamf.single.reads").c_str(),"w+");
+	}
+	else {
+		foutput_mamf=fopen(string(result_folder+"/"+gene_id+".mamf.before.single.reads").c_str(),"w+");
+	}
 	for (auto i = single_read_names.begin(); i != single_read_names.end(); i++){
 		fprintf(foutput_mamf, "%s\n", i->c_str());
 	}
@@ -445,7 +456,9 @@ int Earrings::align_reads(){
 			bam_reads.size()
 			);
 
-
+	if (sm!=NULL){
+		count_multiple_alignments(/* is after alignment*/ true);
+	}
 	FILE *finfo=fopen(string(result_folder+"/"+gene_id+".landscape.plot.meta").c_str(),"w+");
 
 	for (i=0;i<maternal_transcripts.size();i++){
