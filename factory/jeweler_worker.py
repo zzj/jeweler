@@ -23,7 +23,7 @@ def jeweler_worker(args, refidtable, reffiletable):
         paternal_strain_ref_seq=reffiletable[alias[1]]
         bam_file=f.strip()
         result_file=alias+'.info'
-        cuffresultfolder='result/'+os.path.basename(args.filelist)+'/cufflinks/'
+        cuffresultfolder='result/'+os.path.basename(args.filelist)+args.cufflinks_folder
         gtf_input_file=	cuffresultfolder+'/'+os.path.basename(f.strip().replace('.bam',''))+'/transcripts.gtf'
         jeweler_args = (' -maternal_strain_ref_file '+maternal_strain_ref_seq +' ' +
                         '-paternal_strain_ref_file '+paternal_strain_ref_seq +' ' +

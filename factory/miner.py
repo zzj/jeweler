@@ -35,7 +35,14 @@ def main():
             # if (args.reftable == None):
             # 	print('Error: no reftable supplied (--reftable)')
             # 	return 
-            
+            if (args.is_new_cufflinks):
+                args.cufflinks_folder="/new_cufflinks/"
+            else:
+                args.cufflinks_folder="/cufflinks/"
+            if (args.is_new_cufflinks):
+                args.cuffcompare_folder="/new_cuffcompare/"
+            else:
+                args.cuffcompare_folder="/cuffcompare/"
 
             if (args.is_cufflinks):
                 cufflinks_worker(args)

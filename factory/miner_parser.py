@@ -66,6 +66,10 @@ def initialize_parser():
         parser.add_argument('--cufflinks',
                             action='store_true',
                             dest='is_cufflinks')
+        
+        parser.add_argument('--new_cufflinks',
+                            action='store_true',
+                            dest='is_new_cufflinks')
 
         parser.add_argument('--jeweler',
                             action='store_true',

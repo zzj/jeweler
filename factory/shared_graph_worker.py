@@ -6,7 +6,7 @@ import argparse
 from subprocess import call
 
 def get_cuffcompare_folder(args, filename):
-    resultfolder='result/'+os.path.basename(args.filelist)+'/cuffcompare'
+    resultfolder='result/'+os.path.basename(args.filelist)+args.cuffcompare_folder
     resultsubfolder=resultfolder+'/'+os.path.basename(filename.strip().replace('.bam',''))
     return  resultsubfolder
 

@@ -9,8 +9,8 @@ from subprocess import call
 def cuffcompare_worker(args):
     files=open(args.filelist).readlines()
     ## run cuffcompare command
-    resultfolder='result/'+os.path.basename(args.filelist)+'/cuffcompare'
-    cuffresultfolder='result/'+os.path.basename(args.filelist)+'/cufflinks/'
+    resultfolder='result/'+os.path.basename(args.filelist)+args.cuffcompare_folder
+    cuffresultfolder='result/'+os.path.basename(args.filelist)+args.cufflinks_folder
     if not os.path.exists(resultfolder):
         os.makedirs(resultfolder)
     for f in files:
@@ -20,7 +20,7 @@ def cuffcompare_worker(args):
             os.makedirs(resultsubfolder)
 
         alias=os.path.basename(f.strip().replace('.bam',''))
-        print('cuffcompare -r data/database/Mus_musculus.NCBIM37.63.chr.gtf -o '+resultsubfolder + '/cuffcompare '+cuffresultfolder+'/'+alias+'/transcripts.gtf')
+        print('cuffcompare -r data/database/Mus_musculus.NCBIM37.63.chr.gtf -o '+resultsubfolder + args.cuffcompare_folder + " " + cuffresultfolder+'/'+alias+'/transcripts.gtf')
 
 
                 
