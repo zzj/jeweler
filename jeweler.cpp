@@ -50,6 +50,8 @@ JewelerInfo::JewelerInfo(int argc, char *argv []){
 		check_args(i, argv, "-alias", alias);
 		check_args(i, argv, "-result_file", result_file);
 		check_args(i, argv, "-result_folder", result_folder);
+		check_args(i, argv, "-left_unmapped_file", left_unmapped_file);
+		check_args(i, argv, "-right_unmapped_file", right_unmapped_file);
 		check_args(i, argv, "-gtf_input_file", gtf_input_file);
 	}
 	result_folder += string("/") + alias + "/";
@@ -93,6 +95,7 @@ jeweler::jeweler(int argc, char * argv[]) {
 	is_earrings = false;
 	is_bracelet = false;
 	is_mismatch_analyzer = false;
+	is_prepare = false;
 	test_case = -1;
 	sm = NULL;
 	log_file = stdout;
@@ -134,6 +137,9 @@ jeweler::jeweler(int argc, char * argv[]) {
 		if (strcmp( argv[i], "-earrings") == 0){
 			is_earrings = true;
 		}
+		if (strcmp( argv[i], "-prepare") == 0){
+			is_prepare = true;
+		}
 		if (strcmp( argv[i], "-mismatch_analyzer") == 0){
 			is_mismatch_analyzer = true;
 			i ++;
@@ -160,6 +166,7 @@ jeweler::jeweler(int argc, char * argv[]) {
 
 int jeweler::load_mamf_file(){
 	if (mamf_filename != "none") {
+		fprintf(stdout,"loading mamf files ...\n");
 		FILE * fd = fopen(mamf_filename.c_str(), "r");
 		sm =new SewingMachine();
 		sm->load_multiple_alignments_set(fd);
@@ -187,27 +194,30 @@ int jeweler::run(){
 			id ++;
 			Earrings earrings(jeweler_info, 
 							  i->first,
-							  sm);
+							  sm, 
+							  is_prepare);
 		}
 	}
+	if (!is_prepare) {
 	
-	if (is_bracelet){
-		fprintf(stdout, "Bracelet analyzing ...\n");
-		Bracelet bracelet(jeweler_info);
-		bracelet.analyze();
-		FILE * output = fopen((bracelet_filename+".bracelet").c_str(), "w+");
-		if (output == NULL){
-			fprintf(stdout, "cannot open file %s\n", (bracelet_filename+".bracelet").c_str());
-			exit(0);
+		if (is_bracelet){
+			fprintf(stdout, "Bracelet analyzing ...\n");
+			Bracelet bracelet(jeweler_info);
+			bracelet.analyze();
+			FILE * output = fopen((bracelet_filename+"/result.bracelet").c_str(), "w+");
+			if (output == NULL){
+				fprintf(stdout, "cannot open file %s\n", (bracelet_filename+"/result.bracelet").c_str());
+				exit(0);
+			}
+			bracelet.dump(output, bracelet_filename);
+			fclose(output);
 		}
-		bracelet.dump(output);
-		fclose(output);
-	}
 	
-	if (is_mismatch_analyzer){
-		fprintf(stdout, "Mismatch analyzing ...\n");
-		TranscriptMismatcherAnalyzer tma(mismatch_filename, jeweler_info);
-		tma.analyze();
+		if (is_mismatch_analyzer){
+			fprintf(stdout, "Mismatch analyzing ...\n");
+			TranscriptMismatcherAnalyzer tma(mismatch_filename, jeweler_info);
+			tma.analyze();
+		}
 	}
 	return 0;
 }

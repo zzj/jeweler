@@ -112,7 +112,9 @@ def mergeBams(args):
     setFound = 1 << 36
     bamA = pysam.Samfile(filenameA, 'rb')
     outHeader = dict(bamA.header.items())
-    outHeader['PG'] = [{'ID': 'annotateSNPs', 'PP': outHeader['PG'][0]['ID'], 'VN': VERSION, 'CL': ' '.join(args)}] + outHeader['PG']
+    if ('PG' not in outHeader):
+        outHeader['PG'] = []
+    outHeader['PG'] = [{'ID': 'annotateSNPs', 'PP': 'mergebam', 'VN': VERSION, 'CL': ' '.join(args)}] + outHeader['PG']
     tmpFilename = "/tmp/mrg%08d.bam" % random.randint(0, 99999999)
     bamO = pysam.Samfile(tmpFilename, 'wb', header=outHeader, referencenames=bamA.references)
     for rseq in bamA:

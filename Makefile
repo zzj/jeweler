@@ -5,7 +5,7 @@ LIB=-Llib/bamtools/lib/ -L$(HOME)/bin/lib
 LDFLAGS= -lz lib/bamtools/lib/libbamtools.a -lboost_filesystem
 
 
-JEWELER_SOURCES= jeweler.cpp  jeweler_alignment.cpp read_matcher.cpp pileup.plot.cpp alignment_glue.cpp transcript.cpp transcript_mismatcher.cpp earrings.cpp bracelet.cpp common.cpp fasta.cpp gtf.cpp rna_read.cpp laboratory/cigar_holder.cpp  laboratory/sewing_machine.cpp laboratory/bam_info.cpp graph/exon_node.cpp graph/graph.cpp  graph/path.cpp  math/probability.cpp lib/fastahack/Fasta.cpp lib/fastahack/split.cpp
+JEWELER_SOURCES= jeweler.cpp  jeweler_alignment.cpp read_matcher.cpp pileup.plot.cpp alignment_glue.cpp aligner.cpp transcript.cpp transcript_mismatcher.cpp earrings.cpp bracelet.cpp common.cpp fasta.cpp gtf.cpp rna_read.cpp laboratory/cigar_holder.cpp  laboratory/sewing_machine.cpp laboratory/bam_info.cpp graph/exon_node.cpp graph/graph.cpp  graph/path.cpp  math/probability.cpp lib/fastahack/Fasta.cpp lib/fastahack/split.cpp
 JEWELER_EXECUTABLE=jeweler 
 JEWELER_OBJECTS=$(JEWELER_SOURCES:.cpp=.o) 
 

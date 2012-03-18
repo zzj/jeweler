@@ -475,7 +475,6 @@ int Transcript::register_allele_read(JewelerAlignment *al){
 			num_info_reads_per_exon[exon_id]++;
 			allele_reads_per_exon[exon_id].insert(al);
 		}
-		
 	}
 	register_read(al);
 	return 0;
@@ -489,6 +488,9 @@ int Transcript::register_read(JewelerAlignment *al){
 	for (i = 0; i < matched_exons.size(); i++){
 		reads_per_exon[matched_exons[i]].insert(al);
 	}
+	al->genome_position = 	
+		get_transcript_aligned_info<vector<int> >(al, get_genome_location_info);
+
 	reads.insert(al);
 	
 	return 0;
@@ -519,6 +521,15 @@ int get_transcript_location_info(Transcript * ti, JewelerAlignment *al,
 	}
 	for (i = 0 ; i < length ; i++){
 		ret.push_back(transcript_start+i);
+	}
+	return 0;
+}
+int get_genome_location_info(Transcript * ti, JewelerAlignment *al,
+								 int genome_start, int alignment_start, int length, 
+								 vector<int>  &ret){
+	int i;
+	for (i = 0 ; i < length ; i++){
+		ret.push_back(genome_start+i);
 	}
 	return 0;
 }
@@ -611,6 +622,7 @@ int Transcript::add_transcript_to_graph(Graph *graph, vector<Path> &records){
 
 
 
+
 bool Transcript::is_equal(Transcript *t){
 	if (t->exon_start.size()!=this->exon_start.size()){
 		return false;
@@ -624,4 +636,9 @@ bool Transcript::is_equal(Transcript *t){
 		}
 	}
 	return true;
+}
+
+
+int Transcript::dump_seq(string &result_folder, string &filename){
+	write_fasta_file(result_folder + "/" + filename, transcript_id, seq);
 }

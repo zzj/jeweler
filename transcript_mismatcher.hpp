@@ -69,8 +69,8 @@ public:
 	vector<int> coverages;
 	vector<int> mismatches;
 	vector<char> maternal_seq, paternal_seq;
-	vector<vector<char> > read_mismatch_qualities;
-	vector<vector<char> > read_qualities;
+	vector<map<char, int> > read_mismatch_qualities;
+	vector<map<char, int> > read_qualities;
 	map<char, double> error_rate_by_quality;	
 	// the list of mismatching locations 
 	vector<vector<int > > read_mismatch_locations;

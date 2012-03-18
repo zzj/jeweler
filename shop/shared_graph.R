@@ -23,6 +23,7 @@ plot.bracet.figure <- function(filename, name, resultfolder){
   n <- length(data)
   print(n)
   if (n>0){
+    
     for (i in 1:n){
       line <- unlist(strsplit(data[i], "\t"))
       print(i)

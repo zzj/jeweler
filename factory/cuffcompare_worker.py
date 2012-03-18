@@ -20,7 +20,7 @@ def cuffcompare_worker(args):
             os.makedirs(resultsubfolder)
 
         alias=os.path.basename(f.strip().replace('.bam',''))
-        print('cuffcompare -r data/database/Mus_musculus.NCBIM37.63.chr.gtf -o '+resultsubfolder + args.cuffcompare_folder + " " + cuffresultfolder+'/'+alias+'/transcripts.gtf')
+        print('cuffcompare -r data/database/Mus_musculus.NCBIM37.63.chr.gtf -o '+resultsubfolder  + "/cuffcompare " + cuffresultfolder+'/'+alias+'/transcripts.gtf')
 
 
                 

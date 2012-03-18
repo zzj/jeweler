@@ -83,6 +83,10 @@ def initialize_parser():
                             action='store_true',
                             dest='is_earrings')
 
+        parser.add_argument('--prepare',
+                            action='store_true',
+                            dest='is_prepare')
+
         parser.add_argument('--mismatch_analyzer',
                             action='store_true',
                             dest='is_mismatch_analyzer')
@@ -94,5 +98,9 @@ def initialize_parser():
         parser.add_argument('--shared_graph',
                             action='store_true',
                             dest='plot_shared_graph')
-                            
+
+        parser.add_argument('--transcriptome_alignment',
+                            action='store_true',
+                            dest='is_transcriptome_alignment')
+
         return parser

@@ -16,6 +16,7 @@
 #include "laboratory/sewing_machine.hpp"
 #include "pileup.plot.hpp"
 #include "alignment_glue.hpp"
+#include "aligner.hpp"
 using namespace BamTools;
 using namespace std;
 
@@ -29,7 +30,7 @@ class TranscriptMismatcher;
 class Earrings{
 public :
 	Earrings(JewelerInfo *, string gene_id,
-			 SewingMachine * sm);
+			 SewingMachine * sm, bool is_prepare);
 
 	~Earrings();
 
@@ -57,14 +58,23 @@ public :
 	int count_multiple_alignments(bool is_after_aligned);
 	// create paternal and maternal transcripts databases
 	// annotate SNPs for paternal  and maternal transcripts' sequence
-	int load_transcript_data(); // load transcript data 
+	int load_transcript_data(bool is_prepares); // load transcript data 
 
 	// load cufflinks' gtf file 
 	int transcript_helper(vector<Transcript *> &new_transcripts,
-						  FastaReference *f);
+						  FastaReference *f, 
+						  string prefix,
+						  string unmapped_bam, 
+						  bool is_prepare);
 
 	// load JewelerAlignment into bam_reads
 	int load_read_data();
+	
+	// dump compatible reads to a file
+	// each line start with read id, 
+	// and followed by the genome locations it covered. 
+	int dump_compatible_reads(FILE *fd);
+
 	// align reads to maternal or paternal transcripts
 	int align_reads();
 

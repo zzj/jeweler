@@ -2,7 +2,8 @@
 
 Earrings::Earrings(JewelerInfo *jeweler_info, 
 				   string gene_id,
-				   SewingMachine *sm){
+				   SewingMachine *sm, 
+				   bool is_prepare = false){
 	int i;
 
 	this->sm = sm;
@@ -12,8 +13,9 @@ Earrings::Earrings(JewelerInfo *jeweler_info,
 	this->result_folder = jeweler_info->result_folder + "/" + gene_id;
 	
 	// load maternal and paternal transcripts sequences.
-	load_transcript_data();	
-
+	load_transcript_data(is_prepare);	
+	//if (is_prepare) return;
+	
 	this->chr = paternal_transcripts[0]->chr;
 	this->ref_id = jeweler_info->get_refID(chr);
 	if (ref_id == NOT_FOUND) {
@@ -113,6 +115,11 @@ int Earrings::count_multiple_alignments(bool is_after_aligned){
 		fprintf(foutput_mamf, "%s\n", i->c_str());
 	}
 	fclose(foutput_mamf);
+	FILE *finfo;
+	finfo=fopen(string(result_folder +"/" + gene_id +".compatible.reads").c_str(), "w+");
+	dump_compatible_reads(finfo);
+	fclose(finfo);
+
 }
 
 void Earrings::test_memory_leak(){
@@ -123,9 +130,6 @@ void Earrings::test_memory_leak(){
 }
 
 int Earrings::load_read_data(){
-	
-	
-
 	num_total_reads = 0;
 
 	if (! jeweler_info->bam_reader.SetRegion(ref_id, left_pos, ref_id, right_pos)){
@@ -145,14 +149,32 @@ int Earrings::load_read_data(){
 	return 0;
 }
 
-int Earrings::load_transcript_data(){
+int Earrings::load_transcript_data(bool is_prepare){
 	int i,j,k;
 
 	transcript_helper( maternal_transcripts ,
-					  jeweler_info->maternal_fasta);
+					   jeweler_info->maternal_fasta, "maternal.",
+					   result_folder + "/maternal.unmapped.bam",
+					   is_prepare);
 
 	transcript_helper(paternal_transcripts ,
-					  jeweler_info->paternal_fasta);
+					  jeweler_info->paternal_fasta, "paternal.",
+					  result_folder + "/paternal.unmapped.bam",
+					  is_prepare);
+	if (is_prepare){
+		// fprintf(stdout, "%s\n", (string("python pipeline/mergeBam.py ") 
+		// 						 + result_folder + "/maternal.unmapped.bam " + 
+		// 						 result_folder + "/paternal.unmapped.bam "+ 
+		// 						 result_folder+" unmapped.bam").c_str());
+		
+		// system((string("python pipeline/mergeBam.py ") 
+		// 		+ result_folder + "/maternal.unmapped.bam " + 
+		// 		result_folder + "/paternal.unmapped.bam " + 
+		// 		result_folder+" unmapped.bam").c_str());
+		system(string("cp "	+ result_folder + "/paternal.unmapped.bam " + 
+					  result_folder+"/unmapped.bam").c_str());
+
+	}
 	if (paternal_transcripts.size()!=maternal_transcripts.size() 
 		|| paternal_transcripts.size()==0){
 		fprintf(stderr, 
@@ -161,11 +183,11 @@ int Earrings::load_transcript_data(){
 		exit(0);
 	}
 
-
-
 	for (i=0;i<paternal_transcripts.size();i++){
 		Transcript *p=paternal_transcripts[i];
 		Transcript *m=maternal_transcripts[i];
+		p->transcript_file = "paternal."+p->transcript_id+".fasta";
+		m->transcript_file = "maternal."+m->transcript_id+".fasta";
 		
 		if (p->seq.size()!=m->seq.size()){
 			fprintf(stderr, 
@@ -239,16 +261,21 @@ vector<T *> duplicate_vector(vector<T *> in){
 }
 
 int Earrings::transcript_helper(vector<Transcript *> &transcripts, 
-								FastaReference *fasta_ref){
+								FastaReference *fasta_ref,
+								string prefix, 
+								string output_bam,
+								bool is_prepare){
 	//assuming gtf file has the same order of transcripts with the seq files
 	int i,j;
 
 	transcripts = duplicate_vector(jeweler_info->gene_id2transcripts[gene_id]);
-
-
 	// TODO: put these code into gtf.cpp files.
 	// All transcript class operations should be done in transcripts. 
-
+	TranscriptomeAligner ta;
+	vector<string> reference_sequences;
+	vector<string> reference_ids;
+	string merged_fasta_file= (result_folder+"/"+prefix + transcripts[0]->gene_id+".fasta");
+	FILE * file = fopen(merged_fasta_file.c_str(),"w+");;
 	for (j=0;j<transcripts.size();j++){
 		transcripts[j]->load_seq(fasta_ref);
 		
@@ -260,8 +287,16 @@ int Earrings::transcript_helper(vector<Transcript *> &transcripts,
 				fprintf(stderr, "something wrong in inferring the genome position");
 				exit(0);
 			}
-		
+		string filename = string(prefix+transcripts[j]->transcript_id);
+		transcripts[j]->dump_seq(result_folder, filename);
+		write_fasta_file(file, transcripts[j]->transcript_id, transcripts[j]->seq);
+		reference_sequences.push_back(result_folder + "/"+ filename);
+		reference_ids.push_back(transcripts[j]->transcript_id);
 	}
+	fclose(file);
+	if (is_prepare)
+		ta.align(jeweler_info->left_unmapped_file, jeweler_info->right_unmapped_file, 
+				 reference_sequences, reference_ids, merged_fasta_file,output_bam);
 	
 	return 0;
 }
@@ -345,6 +380,21 @@ int Earrings::get_compatible_reads(vector<set<JewelerAlignment *> > &read_lists)
 			bam_reads.size()  - num_unaligned_reads,
 			num_unaligned_reads);
 }
+int Earrings::dump_compatible_reads(FILE * fd){
+	int i;
+	for (i = 0; i < compatible_reads.size(); i ++){
+		if (multiple_read_names.find(compatible_reads[i]->Name) ==
+			multiple_read_names.end())
+			continue;
+		fprintf(fd, "%s\t%d", compatible_reads[i]->Name.c_str(),
+				compatible_reads[i]->genome_position.size());
+
+		for (int j = 0; j < compatible_reads[i]->genome_position.size(); j ++){
+			fprintf(fd, "\t%d", compatible_reads[i]->genome_position[j]);
+		}
+		fprintf(fd, "\n");
+	}
+}
 
 int Earrings::align_reads(){
 	int i,j,k;
@@ -388,7 +438,7 @@ int Earrings::align_reads(){
 				// TODO: use a class to store the matched information
 				ReadMatcher maternal_matcher;
 				ReadMatcher paternal_matcher;
-
+				
 				maternal_transcripts[j]->register_read(bam_reads[i]);
 				paternal_transcripts[j]->register_read(bam_reads[i]);
 			
@@ -450,6 +500,7 @@ int Earrings::align_reads(){
 			output_bamalignment(bam_reads[i]);
 		}
 	}
+	FILE * finfo;
 	 
 	fprintf(stdout, "%d compatible reads in %d reads\n", 
 			num_compatible_reads, 
@@ -459,7 +510,7 @@ int Earrings::align_reads(){
 	if (sm!=NULL){
 		count_multiple_alignments(/* is after alignment*/ true);
 	}
-	FILE *finfo=fopen(string(result_folder+"/"+gene_id+".landscape.plot.meta").c_str(),"w+");
+	finfo=fopen(string(result_folder+"/"+gene_id+".landscape.plot.meta").c_str(),"w+");
 
 	for (i=0;i<maternal_transcripts.size();i++){
 		FILE *foutput;
@@ -480,6 +531,7 @@ int Earrings::align_reads(){
 	finfo=fopen(string(result_folder+"/"+gene_id+".mismatcher.extra").c_str(),"w+");
 	mismatcher->write(finfo);
 	fclose(finfo);
+
 	//fprintf(stdout,"Unaligned\tUncleared\tCleared\tNoninfo\tTotal\n");
 	//fprintf(stdout,"%d\t%d\t%d\t%d\t%d\n",unaligned.size(),
 	//uncleared.size(),

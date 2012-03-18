@@ -11,17 +11,17 @@ def get_cuffcompare_folder(args, filename):
     return  resultsubfolder
 
 def get_jeweler_folder(args, filename):
-    resultfolder='result/'+os.path.basename(args.filelist)+'/jeweler'
+    resultfolder='result/'+os.path.basename(args.filelist)+ args.jeweler_folder
     resultsubfolder=resultfolder+'/'+os.path.basename(filename.strip().replace('.bam',''))
     return  resultsubfolder
 
 def get_bracelet_folder(args, filename):
-    resultfolder='result/'+os.path.basename(args.filelist)+'/bracelet'
+    resultfolder='result/'+os.path.basename(args.filelist)+ args.bracelet_folder
     resultsubfolder=resultfolder+'/'+os.path.basename(filename.strip().replace('.bam',''))
     return  resultsubfolder
 
 def get_shared_graph_folder(args, filename):
-    resultfolder='result/'+os.path.basename(args.filelist)+'/shared_graph/'
+    resultfolder='result/'+os.path.basename(args.filelist)+ args.shared_graph_folder
     
     resultsubfolder=resultfolder+'/'+os.path.basename(filename.strip().replace('.bam',''))
     return  resultsubfolder

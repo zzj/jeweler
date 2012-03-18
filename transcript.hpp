@@ -15,6 +15,7 @@
 #include "laboratory/cigar_holder.hpp"
 #include "alignment_glue.hpp"
 #include "read_matcher.hpp"
+#include "fasta.hpp"
 using namespace BamTools;
 
 
@@ -36,6 +37,7 @@ public:
 	string transcript_id;
 	string seq;
 	string chr;  // storing chromosome name
+	string transcript_file;
 	int start, end;
 
 	// exon info
@@ -125,6 +127,8 @@ public:
 	 * Graph utility
 	 *****************/
 	int add_transcript_to_graph(Graph *, vector<Path> &records);
+
+	int dump_seq(string &result_folder, string &filename);
 	
 	/******************
      * Landscape plot 
@@ -140,6 +144,9 @@ int get_seq_info(Transcript *, JewelerAlignment * al,
 				 string &ret);
 
 int get_transcript_location_info(Transcript *, JewelerAlignment * al, 
+					  int genome_start, int alignment_start, int length, 
+					  vector<int>  &ret);
+int get_genome_location_info(Transcript *, JewelerAlignment * al, 
 					  int genome_start, int alignment_start, int length, 
 					  vector<int>  &ret);
 int get_read_location_info(Transcript *, JewelerAlignment * al, 

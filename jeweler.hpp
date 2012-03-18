@@ -43,7 +43,8 @@ public:
 	string result_file;
 	string result_folder;
 	string gtf_input_file;
-
+	string left_unmapped_file;
+	string right_unmapped_file;
 	BamReader bam_reader;
 	RefVector references;
 	FastaReference *maternal_fasta, *paternal_fasta;
@@ -80,6 +81,7 @@ public:
 	bool is_earrings;
 	bool is_bracelet;
 	bool is_mismatch_analyzer;
+	bool is_prepare;
 	// function to run the analysis 
 	int run();
 

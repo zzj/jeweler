@@ -26,7 +26,7 @@ PileupPlot::PileupPlot(Transcript * maternal_transcript,
 	this->num_maternal = maternal_transcript->allele_reads.size();
 	this->num_paternal = paternal_transcript->allele_reads.size();
 	this->num_unknown = unknown_reads.size();
-
+	this->num_exons = 0;
 	for (i = 0;i<maternal_transcript->snp_pos.size();i++){
 		is_snp[maternal_transcript->snp_pos[i]] = 1;
 	}
@@ -35,6 +35,7 @@ PileupPlot::PileupPlot(Transcript * maternal_transcript,
 		//exon_end is inclusive
 		current_pos = current_pos+maternal_transcript->exon_end[j]-maternal_transcript->exon_start[j]+1;
 		exon_jump[current_pos-1] = 1;
+		this->num_exons ++;
 	}
 
 	add_transcript_to_pileup(maternal_transcript,  
@@ -154,7 +155,7 @@ int PileupPlot::add_coverage(Transcript * transcript,  JewelerAlignment *al,  ve
 
 int PileupPlot::generate_pileup_plot(FILE * info,  FILE * output){
 	int i;
-	fprintf(info, "%s\t%d\t%d\t%d\n", transcript_id.c_str(), num_unknown, num_maternal, num_paternal);
+	fprintf(info, "%s\t%d\t%d\t%d\t%d\n", transcript_id.c_str(), num_exons, num_unknown, num_maternal, num_paternal);
 	fprintf(output, "location\tunknown\tmaternal\tpaternal\tis_snp\texon_jump\tmultiple\n");
 	for (i=0;i<unknown.size();i++){
 		fprintf(output, "%d\t%d\t%d\t%d\t%d\t%d\t%d\n",  genome_pos[i], unknown[i],  maternal[i],  paternal[i],  is_snp[i],  exon_jump[i], multiple[i]);

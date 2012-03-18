@@ -9,6 +9,7 @@ class JewelerAlignment : public BamAlignment {
 public:
 	// if two reads are merged, record the read position
 	vector<int> read_position;
+	vector<int> genome_position;
 };
 
 int get_read_position(JewelerAlignment *al, int i);

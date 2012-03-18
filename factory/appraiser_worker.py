@@ -7,7 +7,10 @@ from subprocess import call
 
 def appraiser_worker(args):
     files=open(args.filelist).readlines()
-    resultfolder='result/'+os.path.basename(args.filelist)+'/appraiser/'
+    if (args.is_new_cufflinks):
+        resultfolder='result/'+os.path.basename(args.filelist)+'/new_appraiser/'
+    else:
+        resultfolder='result/'+os.path.basename(args.filelist)+'/appraiser/'
     if not os.path.exists(resultfolder):
         os.makedirs(resultfolder)
     for f in files:

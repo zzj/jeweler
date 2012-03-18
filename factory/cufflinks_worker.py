@@ -16,5 +16,5 @@ def cufflinks_worker(args):
         resultsubfolder=resultfolder+'/'+os.path.basename(f.strip().replace('.bam',''))
         if not os.path.exists(resultsubfolder):
             os.makedirs(resultsubfolder)
-        print('cufflinks -o '+resultsubfolder+' '+f.strip())
+        print('cufflinks  -q -v -o '+resultsubfolder+' '+f.strip())
 
