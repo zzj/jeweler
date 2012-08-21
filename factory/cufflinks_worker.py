@@ -16,5 +16,7 @@ def cufflinks_worker(args):
         resultsubfolder=resultfolder+'/'+os.path.basename(f.strip().replace('.bam',''))
         if not os.path.exists(resultsubfolder):
             os.makedirs(resultsubfolder)
-        print('cufflinks  -q -v -o '+resultsubfolder+' '+f.strip())
-
+        if (args.is_new_cufflinks):
+            print('cufflinks -F 0.1 -p 8 -q -o '+resultsubfolder+' '+f.strip())
+        else :
+            print('old_cufflinks  -F 0.1 -p 8 -q  -o '+resultsubfolder+' '+f.strip())

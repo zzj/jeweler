@@ -2,8 +2,8 @@ import os, sys, time
 
 import glob
 
-bamfolder = '/nas02/home/z/z/zzj/Research/rna_seq/jeweler/data/cegs_rnaseq_bam_new_combined/'
-output_folder = '/nas02/home/z/z/zzj/Research/rna_seq/jeweler/data/cegs_rnaseq_bam_new_merged/'
+bamfolder = '/nas02/home/z/z/zzj/Research/rna_seq/jeweler/data/cegs_rnaseq_bam_combined/'
+output_folder = '/nas02/home/z/z/zzj/Research/rna_seq/jeweler/data/cegs_rnaseq_bam_merged/'
 
 ref_map={'F':'CAST','G':'PWK','H':'WSB'}
 
@@ -40,10 +40,10 @@ for infile in glob.glob(os.path.join(bamfolder + "*.right.fastq")):
 
 for key, value in table.items():
         if (len(value)==2):
-                ##print('~/bin/bin/python2.7 mergeBam.py ' + ' '.join(value) + ' '+output_folder + '/'+key+'_merged.bam ')
-                if (key in fastq_left):
-                        print('mv '+ (fastq_left[key][0]) + ' ' + output_folder + '/' + key +".left.unmapped.fastq")
-                        print('mv '+ (fastq_right[key][0]) + ' ' + output_folder + '/' + key +".right.unmapped.fastq")
+                print('~/bin/bin/python2.7 mergeBam.py ' + ' '.join(value) + ' '+output_folder + '/'+key+'_merged.bam ')
+                # if (key in fastq_left):
+                #         print('mv '+ (fastq_left[key][0]) + ' ' + output_folder + '/' + key +".left.unmapped.fastq")
+                #         print('mv '+ (fastq_right[key][0]) + ' ' + output_folder + '/' + key +".right.unmapped.fastq")
         else:
                 bn = os.path.basename(value[0])
                 if (bn[0] == bn[1]):

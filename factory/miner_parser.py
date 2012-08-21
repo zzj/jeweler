@@ -99,6 +99,15 @@ def initialize_parser():
                             action='store_true',
                             dest='plot_shared_graph')
 
+
+        parser.add_argument('--black_list',
+                            action='store_true',
+                            dest='is_black_list')
+
+        parser.add_argument('--classify_gene',
+                            action='store_true',
+                            dest='classify_gene')
+
         parser.add_argument('--transcriptome_alignment',
                             action='store_true',
                             dest='is_transcriptome_alignment')

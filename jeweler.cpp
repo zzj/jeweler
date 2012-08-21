@@ -183,15 +183,21 @@ int jeweler::run(){
 	if (is_earrings) {
 
 		load_mamf_file();
-		int id = 0;
+		int id = -1;
 		for (auto i = jeweler_info->gene_id2transcripts.begin();
 			 i != jeweler_info->gene_id2transcripts.end();
 			 i++){
 			if (i->second[0]->chr =="chrM") continue;
 			create_directory(path(jeweler_info->result_folder + "/" + i->first));
-			if (test_case > 0  && id != test_case)  continue;
-			if (id%10 == 0) fprintf(log_file,"%d\n",id);
 			id ++;
+			if (test_case > 0  && id != test_case)  continue;
+			else {
+				if (test_case > 0){
+
+				}
+			}
+			if (id%10 == 0) fprintf(log_file,"%d\n",id);
+			printf("%s\n", i->first.c_str());
 			Earrings earrings(jeweler_info, 
 							  i->first,
 							  sm, 

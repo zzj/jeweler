@@ -195,7 +195,12 @@ int AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlignm
 int AlignmentGlue::glue(vector<JewelerAlignment *> &in_reads, 
 						vector<JewelerAlignment *> &new_reads,
 						vector<JewelerAlignment *> &noused_reads){
-	int i;
+	int i, j;
+
+	int ignore_unpaired_read = 0;
+	int ignore_unproper_read = 0;
+	int num_first_mate = 0;
+		
 	set<JewelerAlignment *> checklist;
 	
 	name2reads.clear();
@@ -203,14 +208,17 @@ int AlignmentGlue::glue(vector<JewelerAlignment *> &in_reads,
 	for ( i = 0; i < in_reads.size(); i++) {
 		name2reads[ in_reads[i]->Name ].push_back(in_reads[ i ]);
 	}
-
+	
 	for ( i = 0; i < in_reads.size(); i++) {
 		if ( in_reads[i]->IsFirstMate() ) {
+			num_first_mate ++;
 			if ( name2reads.find(in_reads[i]->Name) != name2reads.end()) {
 				vector<JewelerAlignment *> alignments = name2reads[in_reads[i]->Name];
 				if ( alignments.size() == 1 ) {
 					// TODO:
-					// not paired, but still counted as a valid alignment.
+					// not paired, but still counted as a valid
+					// alignment.
+					ignore_unpaired_read ++;
 					continue;
 				}
 				else if (alignments.size()==2){
@@ -229,6 +237,7 @@ int AlignmentGlue::glue(vector<JewelerAlignment *> &in_reads,
 					}
 					else {
 						//fprintf(stdout, "not properly mapped\n");
+						ignore_unproper_read ++;
 					}
 				}
 				else {
@@ -241,10 +250,18 @@ int AlignmentGlue::glue(vector<JewelerAlignment *> &in_reads,
 			}
 		}
 	}
-
+	//fprintf(stdout, " %d unpaired and %d not propered and %d of first paried\n", ignore_unpaired_read, ignore_unproper_read, num_first_mate);
 	for ( i = 0; i < in_reads.size(); i++){
 		if (checklist.find(in_reads[i]) == checklist.end()){
 			noused_reads.push_back(in_reads[i]);
+			continue;
+			// push into single paired reads 
+
+			// new_reads.push_back(in_reads[i]);
+			// for (j = 0; j < in_reads[i]->QueryBases.size(); j ++){
+			// 	in_reads[i]->read_position.push_back(get_read_position(in_reads[i],j));
+			// }
+
 		}
 	}
 	

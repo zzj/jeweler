@@ -9,8 +9,8 @@ job_id=int(sys.argv[1])
 log_file_fd=open('log_'+str(job_id),"w+")
 tophat_log_file='log_tophat'+str(job_id)
 
-playpen_index='../data/index/'
-playpen_root='/nas02/home/z/z/zzj/Research/rna_seq/jeweler/data/cegs_rnaseq_bam_new/'
+playpen_index='/lustre/scr/z/z/zzj/jeweler/data/index/'
+playpen_root='/nas02/home/z/z/zzj/Research/rna_seq/jeweler/data/cegs_rnaseq_bam/'
 
 ##run_command(log_file_fd,'mkdir '+playpen_root)
 
@@ -22,8 +22,8 @@ with open('../info/fastq') as f:
 first_read_file=read_meta[job_id*2-2].strip()
 second_read_file=read_meta[job_id*2-1].strip()
 
-first_local_read_file="../data/fastq/"+first_read_file
-second_local_read_file="../data/fastq/"+second_read_file
+first_local_read_file="/lustre/scr/z/z/zzj/jeweler/data/fastq/"+first_read_file
+second_local_read_file="/lustre/scr/z/z/zzj/jeweler/data/fastq/"+second_read_file
 	
 filebasename=os.path.basename(first_read_file)
 batch=first_read_file.strip().split('_')[2].split('/')[0]

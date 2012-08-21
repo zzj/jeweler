@@ -62,10 +62,10 @@ def jeweler_worker(args, refidtable, reffiletable):
             ## multiple alignments maps
             prepare_command = " -prepare" 
         if (args.is_mismatch_analyzer):
-            ma_result_folder = 'result/'+os.path.basename(args.filelist)+'/mismatch_analyzer/'
-            if not os.path.exists(ma_result_folder):
-                os.makedirs(ma_result_folder)
-            ma_result_folder = 'result/'+os.path.basename(args.filelist)+'/mismatch_analyzer/' + alias + '/'
+            if (args.is_new_cufflinks):
+                ma_result_folder = 'result/'+os.path.basename(args.filelist)+'/new_mismatch_analyzer/' + alias + '/'
+            else:
+                ma_result_folder = 'result/'+os.path.basename(args.filelist)+'/mismatch_analyzer/' + alias + '/'                
             if not os.path.exists(ma_result_folder):
                 os.makedirs(ma_result_folder)
             ma_command = " -mismatch_analyzer " + ma_result_folder+ "result"

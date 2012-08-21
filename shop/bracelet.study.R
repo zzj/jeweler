@@ -25,10 +25,10 @@ plot.bracet.figure <- function(filename, name, resultfolder){
 
 bracelet.easyplot <- function(name, resultfolder, id, title){
   output <- paste(resultfolder, id, ".pdf", sep = "")
-  pdf(output, width = 14);
-  gene.pileup.plot(paste('../result/merged_list/jeweler/',name,'/',id,'/',sep=""),
-                   paste('../result/merged_list/jeweler/',name,'/',id,'/',id, '.landscape.plot.meta',sep=""),
-                   paste('../result/merged_list/jeweler/',name,'/',id,'/',id, '.mismacher',sep=""),
+  pdf(output, width = 20);
+  gene.pileup.plot(paste('../result/new_combined/new_jeweler/',name,'/',id,'/',sep=""),
+                   paste('../result/new_combined/new_jeweler/',name,'/',id,'/',id, '.landscape.plot.meta',sep=""),
+                   paste('../result/new_combined/new_jeweler/',name,'/',id,'/',id, '.mismacher',sep=""),
                    title)
   dev.off()
 }

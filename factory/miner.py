@@ -6,6 +6,9 @@ import argparse
 from subprocess import call
 
 from shared_graph_worker import shared_graph_worker
+
+from shared_graph_worker import classify_gene_worker
+from shared_graph_worker import black_list_worker
 from  miner_parser import initialize_parser
 from cufflinks_worker import cufflinks_worker
 from cuffcompare_worker import cuffcompare_worker
@@ -38,27 +41,16 @@ def main():
             # 	return 
             if (args.is_new_cufflinks):
                 args.cufflinks_folder="/new_cufflinks/"
-            else:
-                args.cufflinks_folder="/cufflinks/"
-            if (args.is_new_cufflinks):
                 args.cuffcompare_folder="/new_cuffcompare/"
-            else:
-                args.cuffcompare_folder="/cuffcompare/"
-
-            if (args.is_new_cufflinks):
                 args.jeweler_folder="/new_jeweler/"
-            else:
-                args.jeweler_folder="/jeweler/"
-
-            if (args.is_new_cufflinks):
                 args.bracelet_folder="/new_bracelet/"
-            else:
-                args.bracelet_folder="/bracelet/"
-            if (args.is_new_cufflinks):
                 args.shared_graph_folder="/new_shared_graph/"
             else:
+                args.cufflinks_folder="/cufflinks/"
+                args.jeweler_folder="/jeweler/"
+                args.cuffcompare_folder="/cuffcompare/"
+                args.bracelet_folder="/bracelet/"
                 args.shared_graph_folder="/shared_graph/"
-                
                 
             if (args.is_cufflinks):
                 cufflinks_worker(args)
@@ -72,6 +64,10 @@ def main():
                 appraiser_worker(args)
             elif (args.plot_shared_graph):
                 shared_graph_worker(args)
+            elif (args.is_black_list):
+                black_list_worker(args)
+            elif (args.classify_gene):
+                classify_gene_worker(args)
 
     except: 
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()

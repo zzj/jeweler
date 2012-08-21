@@ -44,8 +44,8 @@ Earrings::Earrings(JewelerInfo *jeweler_info,
 	// align reads back to the transcripts
 	align_reads();
 	// build graph;
-	build_graph();
-	test_allele_specific_transcript();
+	//build_graph();
+	//test_allele_specific_transcript();
 	// have sewingmachine class, output maltiple aligment info
 }
 
@@ -337,6 +337,7 @@ int Earrings::get_compatible_reads(vector<set<JewelerAlignment *> > &read_lists)
 					min_penalty = penalties[j];
 				}
 			}
+
 		}
 		is_fixed=false;
 
@@ -379,6 +380,8 @@ int Earrings::get_compatible_reads(vector<set<JewelerAlignment *> > &read_lists)
 			bam_reads.size(),
 			bam_reads.size()  - num_unaligned_reads,
 			num_unaligned_reads);
+
+
 }
 int Earrings::dump_compatible_reads(FILE * fd){
 	int i;
@@ -395,6 +398,7 @@ int Earrings::dump_compatible_reads(FILE * fd){
 		fprintf(fd, "\n");
 	}
 }
+
 
 int Earrings::align_reads(){
 	int i,j,k;
@@ -415,6 +419,7 @@ int Earrings::align_reads(){
 	Transcript::tolerate = 0;
 
 	ag.glue(bam_reads, new_bam_reads, noused_reads);
+	printf("%d new paired reads, %d unused reads\n", new_bam_reads.size(), noused_reads.size());
 	bam_reads=new_bam_reads;
 
 	get_compatible_reads(read_lists);

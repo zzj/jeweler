@@ -71,31 +71,40 @@ public:
 	vector<char> maternal_seq, paternal_seq;
 	vector<map<char, int> > read_mismatch_qualities;
 	vector<map<char, int> > read_qualities;
+	vector<string> gene_ids;
 	map<char, double> error_rate_by_quality;	
 	// the list of mismatching locations 
-	vector<vector<int > > read_mismatch_locations;
-	vector<vector<int > > read_locations;
-	map<int, double> error_rate_by_location;	
-	// number of non informative mismatches equaling to A per base
-	vector<int> A_mismatches; 
-	// number of non informative mismatches equaling to C per base
-	vector<int> C_mismatches; 
-	// number of non informative mismatches equaling to G per base
-	vector<int> G_mismatches; 
-	// number of non informative mismatches equaling to T per base
-	vector<int> T_mismatches; 
-	// number of non informative mismatches equaling to N per base
-	vector<int> N_mismatches; 
+	//vector<vector<int > > read_mismatch_locations;
+	//vector<vector<int > > read_locations;
+	//// map<int, double> error_rate_by_location;	
+	// // // number of non informative mismatches equaling to A per base
+	// // vector<int> A_mismatches; 
+	// // // number of non informative mismatches equaling to C per base
+	// // vector<int> C_mismatches; 
+	// // // number of non informative mismatches equaling to G per base
+	// // vector<int> G_mismatches; 
+	// // // number of non informative mismatches equaling to T per base
+	// // vector<int> T_mismatches; 
+	// // // number of non informative mismatches equaling to N per base
+	// // vector<int> N_mismatches; 
 	
 
-	// prefix of output files
+	// // prefix of output files
 	string filename;
 	int num_reads;
 	int num_locations;
 	boost::dynamic_bitset<> is_consistent_mismatches;
 
+	// if the location has less than 1% mismatches. put the count into
+	// the baseline, and skip the current location. 
+	boost::dynamic_bitset<> is_skipped_locations;
+	vector<int> skipped_locations;
 	map<char, int> num_mismatches_by_quality;
 	map<char, int> num_calls_by_quality;
+
+	map<char, int> num_mismatches_by_quality_baseline;
+	map<char, int> num_calls_by_quality_baseline;
+
 	map<int, int> num_mismatches_by_location;
 	map<int, int> num_calls_by_location;
 	map<int, int> num_mismatches_histogram;
@@ -106,43 +115,43 @@ public:
 	TranscriptMismatcherAnalyzer(string filename);
 	TranscriptMismatcherAnalyzer(string filename, JewelerInfo *jeweler_info);
 
-	int append(FILE *);
+	int append(FILE *, string gene_id );
 	
 	int end_loading();
 	
 	template<class T>
-	int calculate_error(const vector<vector<T> > &read_calls,
-						const vector<vector<T> > &read_mismatches,
+	int calculate_error(const vector<map<T, int> > &read_calls,
+						const vector<map<T, int> > &read_mismatches,
 						map<T, int> &num_calls,
+						map<T, int> &num_calls_baseline,
 						map<T, int> &num_mismatches,
+						map<T, int> &num_mismatches_baseline,
 						map<T,double> &error_rate
 						);
+	int add_calls_by_quality(FILE * file, int num, 
+							 map<char, int> & target_quality);
 
 	template<class T> 
-	int calculate_p_value(const vector<vector<T> > &read_calls,
+	int calculate_p_value(const vector<map<T, int> > &read_calls,
 						  map<T,double> &error_rate
 						  );
-
 
 	int mark_consistent_mismatch();
 
 	int dump_error_rate_by_quality(FILE *);
-	int dump_error_rate_by_location(FILE *);
-
 	int dump_location_results(FILE *, bool only_yes = false);
 
 	int analyze();
 };
 
 template<class T> 
-int TranscriptMismatcherAnalyzer::calculate_p_value(const vector<vector<T> > &read_calls,
+int TranscriptMismatcherAnalyzer::calculate_p_value(const vector<map<T, int> > &read_calls,
 													map<T,double> &error_rate
 													){
 	int i;
 	double le_cam_upper_bound;
 	double mean;
 	vector<double> prob;
-	int j;
 
 	for ( i = 0; i < num_locations; i ++) {
 		prob.clear();
@@ -151,10 +160,14 @@ int TranscriptMismatcherAnalyzer::calculate_p_value(const vector<vector<T> > &re
 		}
 		le_cam_upper_bound = 0;
 		mean = 0;
-		for (j = 0 ; j < read_calls[i].size(); j ++){
-			le_cam_upper_bound = pow(error_rate[ read_calls[ i ][ j ] ],2);
-			mean += error_rate[ read_calls[ i ][ j ] ];
-			prob.push_back(error_rate[ read_calls[ i ][ j ] ]);
+		for (auto j = read_calls[i].begin() ; 
+			 j != read_calls[i].end(); 
+			 j ++){
+			le_cam_upper_bound = pow(error_rate[ j->first ],2);
+			mean += error_rate[j->first ];
+			for ( int k = 0; k < j->second; k++){
+				prob.push_back(error_rate[ j->first ]);
+			}
 		}
 		p_values[i] = 0;
 		if (coverages[i] == 0){
@@ -200,41 +213,50 @@ int TranscriptMismatcherAnalyzer::calculate_p_value(const vector<vector<T> > &re
 	}
 }
 template<class T>
-int TranscriptMismatcherAnalyzer::calculate_error(const vector<vector<T> > &read_calls,
-												  const vector<vector<T> > &read_mismatches,
+int TranscriptMismatcherAnalyzer::calculate_error(const vector<map<T, int> > &read_calls,
+												  const vector<map<T, int> > &read_mismatches,
 												  map<T, int> &num_calls,
+												  map<T, int> &num_calls_baseline,
 												  map<T, int> &num_mismatches,
+												  map<T, int> &num_mismatches_baseline,
 												  map<T,double> &error_rate
 												  ){
-	int i, j;
+	int i;
 	// num of mismatches by quality in read
-	num_mismatches.clear();
-	num_calls.clear();
+	num_mismatches = num_mismatches_baseline;
+	num_calls = num_calls_baseline;
 	error_rate.clear();
 
 	for ( i = 0; i < num_locations; i ++){
-		if ( is_consistent_mismatches.test( i ) ){
-			continue;
-		}
 		// Right now, just remove locations 
 		// TODO: remove the whole transcript if it contains consistent
 		// mismatches
-		for (j = 0 ; j < read_mismatches[i].size(); j ++){
-			if (num_mismatches.find(read_mismatches[ i ][ j ]) == 
+		if ( is_consistent_mismatches.test( i ) ){
+			continue;
+		}
+		if (is_skipped_locations.test(i)){
+			continue;
+		}
+		for (auto j = read_mismatches[i].begin() ; 
+			 j != read_mismatches[i].end(); 
+			 j ++){
+			if (num_mismatches.find(j->first) == 
 				num_mismatches.end()){
-				num_mismatches[ read_mismatches[ i ][ j ] ] = 1;
+				num_mismatches[ j->first ] = j->second;
 			}
 			else {
-				num_mismatches[ read_mismatches[ i ][ j ] ] ++;
+				num_mismatches[ j->first ] += j->second;
 			}
 		}
-		for (j = 0 ; j < read_calls[i].size(); j ++){
-			if (num_calls.find(read_calls[ i ][ j ]) == 
+		for (auto j = read_calls[i].begin() ; 
+			 j != read_calls[i].end(); 
+			 j ++){
+			if (num_calls.find(j->first) == 
 				num_calls.end()){
-				num_calls[ read_calls[ i ][ j ] ] = 1;
+				num_calls[ j->first ] = j->second;
 			}
 			else {
-				num_calls[ read_calls[ i ][ j ] ] ++;
+				num_calls[j->first ] += j->second;
 			}
 		}
  	}

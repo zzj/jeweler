@@ -37,7 +37,7 @@ gene.pileup.plot <- function(data.folder, landscape.file, mismatcher.file, title
     index <-which (locations %in% mismatcher$location)
     tracking.mismatches[index] = mismatcher$mismatches
   }
-  par(mfrow=c(num.transcripts,1),mar=c(3,3,3,3))
+  #par(mfrow=c(num.transcripts,1),mar=c(3,3,3,3))
   ymax=max(tracking.total)
   xrange=1:length(locations)
 
