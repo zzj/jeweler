@@ -1,6 +1,8 @@
 
 #include "transcript.hpp"
 
+int Transcript::tolerate=0;
+
 Transcript::Transcript(){
 	is_initialized=false;
 }

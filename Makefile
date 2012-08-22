@@ -30,7 +30,7 @@ CC=g++
 LIB=-Llib/bamtools/lib/ -L$(HOME)/bin/lib
 LDFLAGS= -lz lib/bamtools/lib/libbamtools.a -lboost_filesystem
 
-JEWELER_LIB_SOURCES =  jeweler_alignment.cpp read_matcher.cpp \
+JEWELER_LIB_SOURCES =  jeweler_info.cpp jeweler_alignment.cpp read_matcher.cpp \
                  pileup.plot.cpp alignment_glue.cpp aligner.cpp transcript.cpp \
                  transcript_mismatcher.cpp earrings.cpp bracelet.cpp common.cpp \
                  fasta.cpp gtf.cpp rna_read.cpp laboratory/cigar_holder.cpp \
@@ -41,7 +41,7 @@ JEWELER_LIB_SOURCES =  jeweler_alignment.cpp read_matcher.cpp \
 
 JEWELER_SOURCES= jeweler.cpp $(JEWELER_LIB_SOURCES)
 
-TEST_JEWELER_SOURCES= test_jeweler.cpp
+TEST_JEWELER_SOURCES= test_common.cpp test_jeweler_alignment.cpp
 TEST_JEWELER_OBJECTS=$(TEST_JEWELER_SOURCES:.cpp=.o)
 TEST_JEWELER = test_jeweler
 
@@ -70,12 +70,14 @@ EXECUTABLE=$(JEWELER_EXECUTABLE) $(APPRAISER_EXECUTABLE) $(TEST_BAM_EXECUTABLE)
 SOURCES=$(JEWELER_SOURCES) $(APPRAISER_SOURCES)
 OBJECTS=$(JEWELER_OBJECTS) $(APPRAISER_OBJECTS) $(TEST_BAM_OBJECTS)
 
-all: $(SOURCES) $(EXECUTABLE) $(TEST)
+TESTS = $(TEST_JEWELER)
+
+all: $(SOURCES) $(EXECUTABLE) $(TESTS)
 
 $(JEWELER_EXECUTABLE): $(JEWELER_OBJECTS)
 	$(CC) $(LIB) $^ $(LDFLAGS) -o $@
 
-$(TEST_JEWELER): $(JEWELER_LIB_OBJECTS) $(TEST_JEWELER_OBJECTS)
+$(TEST_JEWELER): $(JEWELER_LIB_OBJECTS) $(TEST_JEWELER_OBJECTS) gtest_main.a 
 	$(CC) $(LIB) $^ $(LDFLAGS) -lpthread  -o $@
 
 $(APPRAISER_EXECUTABLE): $(APPRAISER_OBJECTS)

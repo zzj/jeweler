@@ -138,7 +138,6 @@ public:
 	int build_landscape_plot();
 };
 
-
 int get_seq_info(Transcript *, JewelerAlignment * al, 
 				 int genome_start, int alignment_start, int length, 
 				 string &ret);
