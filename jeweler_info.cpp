@@ -1,0 +1,85 @@
+#include "jeweler_info.hpp"
+
+int JewelerInfo::check_args(int &i, char *argv[], const char * name, string &a){
+	if (strcmp(argv[i], name) == 0){
+		i++;
+		a = argv[i];
+	}
+	return 0;
+}
+
+
+int JewelerInfo::build_gene_id2transcripts(){
+	fprintf(stdout, "Bulding gene_id to transcripts index ...\n");
+	int i;
+	gene_id2transcripts.clear();
+	for ( i = 0; i < transcripts.size(); i++){
+		gene_id2transcripts[transcripts[i]->gene_id].push_back(transcripts[i]);
+	}
+	gene_id.clear();
+	for ( auto j = gene_id2transcripts.begin();
+		  j != gene_id2transcripts.end();
+		  j ++){
+		gene_id.push_back(j->first);
+	}
+	return 0;
+}
+
+int JewelerInfo::get_refID(string chr){
+	for ( int i = 0; i < references.size(); i++){
+		if (references[i].RefName == chr){
+			return i;
+		}
+	}
+	return NOT_FOUND;
+}
+
+JewelerInfo::JewelerInfo(int argc, char *argv []){
+	int i;
+	for ( i = 1; i < argc; i ++){
+		check_args(i, argv, "-maternal_strain_ref_file", maternal_strain_ref_file);
+		check_args(i, argv, "-paternal_strain_ref_file", paternal_strain_ref_file);
+		check_args(i, argv, "-maternal_strain_id", maternal_strain_id);
+		check_args(i, argv, "-paternal_strain_id", paternal_strain_id);
+		check_args(i, argv, "-bam_file", bam_file);
+		check_args(i, argv, "-alias", alias);
+		check_args(i, argv, "-result_file", result_file);
+		check_args(i, argv, "-result_folder", result_folder);
+		check_args(i, argv, "-left_unmapped_file", left_unmapped_file);
+		check_args(i, argv, "-right_unmapped_file", right_unmapped_file);
+		check_args(i, argv, "-gtf_input_file", gtf_input_file);
+	}
+	result_folder += string("/") + alias + "/";
+	create_directory(path(result_folder));
+	load_gtf_file(gtf_input_file, transcripts);
+	build_gene_id2transcripts();
+	
+	fprintf(stdout, "There are totally %d transcripts loaded from %s\n", 
+			transcripts.size(), gtf_input_file.c_str());
+	maternal_fasta = new FastaReference();
+	paternal_fasta = new FastaReference();
+	maternal_fasta->open(maternal_strain_ref_file);
+	paternal_fasta->open(paternal_strain_ref_file);
+
+	if (!bam_reader.Open(bam_file)){
+		fprintf(stderr,"Cannot open bam file %s!\n", bam_file.c_str());
+		exit(0);
+	}
+
+	if (bam_reader.LocateIndex(BamTools::BamIndex::IndexType::STANDARD) ) {
+		fprintf(stdout, "Loaded index for bamfiles ...\n");
+	}
+	else {
+		fprintf(stdout, "Build index for bamfiles ...\n");
+		if (!bam_reader.CreateIndex(BamTools::BamIndex::IndexType::STANDARD)){
+			fprintf(stderr,"%s!\n", bam_reader.GetErrorString().c_str());
+			exit(0);
+		}
+	}
+	references = bam_reader.GetReferenceData();
+}
+
+JewelerInfo::~JewelerInfo(){
+
+}
+
