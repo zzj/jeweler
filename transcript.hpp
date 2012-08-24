@@ -161,7 +161,7 @@ int insert_mismatch_info(Transcript *,  JewelerAlignment * al,
 
 
 template<typename T, typename get_info> 
-T Transcript::get_transcript_aligned_info(JewelerAlignment * al, get_info gi){
+T Transcript::get_transcript_aligned_info(JewelerAlignment * al, get_info gi) {
 	// must perform the compatible test first!
 	// justify whether the sequences contains the JewelerAlignment
 

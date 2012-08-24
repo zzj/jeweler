@@ -24,18 +24,18 @@ int JewelerInfo::build_gene_id2transcripts() {
 	return 0;
 }
 
-int JewelerInfo::get_refID(string chr){
-	for ( size_t i = 0; i < references.size(); i++){
-		if (references[i].RefName == chr){
+int JewelerInfo::get_refID(string chr) {
+	for ( size_t i = 0; i < references.size(); i++) {
+		if (references[i].RefName == chr) {
 			return i;
 		}
 	}
 	return NOT_FOUND;
 }
 
-JewelerInfo::JewelerInfo(int argc, char *argv []){
+JewelerInfo::JewelerInfo(int argc, char *argv []) {
 	int i;
-	for ( i = 1; i < argc; i ++){
+	for ( i = 1; i < argc; i ++) {
 		i = check_args(i, argv, "-maternal_strain_ref_file", maternal_strain_ref_file);
 		i = check_args(i, argv, "-paternal_strain_ref_file", paternal_strain_ref_file);
 		i = check_args(i, argv, "-maternal_strain_id", maternal_strain_id);
@@ -60,7 +60,7 @@ JewelerInfo::JewelerInfo(int argc, char *argv []){
 	maternal_fasta->open(maternal_strain_ref_file);
 	paternal_fasta->open(paternal_strain_ref_file);
 
-	if (!bam_reader.Open(bam_file)){
+	if (!bam_reader.Open(bam_file)) {
 		fprintf(stderr,"Cannot open bam file %s!\n", bam_file.c_str());
 		exit(1);
 	}
@@ -70,7 +70,7 @@ JewelerInfo::JewelerInfo(int argc, char *argv []){
 	}
 	else {
 		fprintf(stdout, "Build index for bamfiles ...\n");
-		if (!bam_reader.CreateIndex(BamTools::BamIndex::IndexType::STANDARD)){
+		if (!bam_reader.CreateIndex(BamTools::BamIndex::IndexType::STANDARD)) {
 			fprintf(stderr,"%s!\n", bam_reader.GetErrorString().c_str());
 			exit(1);
 		}
@@ -78,11 +78,11 @@ JewelerInfo::JewelerInfo(int argc, char *argv []){
 	references = bam_reader.GetReferenceData();
 }
 
-JewelerInfo::JewelerInfo(){
+JewelerInfo::JewelerInfo() {
 
 }
 
-JewelerInfo::~JewelerInfo(){
+JewelerInfo::~JewelerInfo() {
 
 }
 

@@ -147,7 +147,7 @@ public:
 template<class T>
 void TranscriptMismatcherAnalyzer::calculate_p_value(const vector<map<T, int> > &read_calls,
 													map<T,double> &error_rate
-													){
+													) {
 	int i;
 	double le_cam_upper_bound;
 	double mean;
@@ -155,44 +155,44 @@ void TranscriptMismatcherAnalyzer::calculate_p_value(const vector<map<T, int> > 
 
 	for ( i = 0; i < num_locations; i ++) {
 		prob.clear();
-		if ( is_consistent_mismatches.test( i ) ){
+		if ( is_consistent_mismatches.test( i ) ) {
 			continue;
 		}
 		le_cam_upper_bound = 0;
 		mean = 0;
 		for (auto j = read_calls[i].begin() ;
 			 j != read_calls[i].end();
-			 j ++){
+			 j ++) {
 			le_cam_upper_bound = pow(error_rate[ j->first ],2);
 			mean += error_rate[j->first ];
-			for ( int k = 0; k < j->second; k++){
+			for ( int k = 0; k < j->second; k++) {
 				prob.push_back(error_rate[ j->first ]);
 			}
 		}
 		p_values[i] = 0;
-		if (coverages[i] == 0){
+		if (coverages[i] == 0) {
 			p_values[i] = 1;
 		}
 
 		if (mean == 0) continue;
 		boost::math::poisson_distribution<double> pd = boost::math::poisson_distribution<double> (mean);
 		bool test = false;
-		if (coverages[i] == 0){
+		if (coverages[i] == 0) {
 			p_values[i] = 1;
 		}
-		else if (mismatches[i] == 0){
+		else if (mismatches[i] == 0) {
 			p_values[i] = 1;
 		}
-		else if (mismatches[i] == 1){
+		else if (mismatches[i] == 1) {
 			p_values[i] = 1 - exp(log_prod_prob(prob, true));
 		}
-		else if (mismatches[i] ==2){
+		else if (mismatches[i] ==2) {
 			p_values[i] = 1 - exp(log_prod_prob(prob, true)) - exp(log_prod_prob_with_one_flipped(prob, true));
 		}
-		else if (mismatches[i] == coverages[i]){
+		else if (mismatches[i] == coverages[i]) {
 			p_values[i] = exp(log_prod_prob(prob));
 		}
-		else if (mismatches[i] == coverages[i] - 1){
+		else if (mismatches[i] == coverages[i] - 1) {
 			p_values[i] = exp(log_prod_prob(prob) )
 				+ exp(log_prod_prob_with_one_flipped(prob));
 		}
@@ -200,11 +200,11 @@ void TranscriptMismatcherAnalyzer::calculate_p_value(const vector<map<T, int> > 
 			test = true;
 			p_values[i]=(cdf(complement(pd, mismatches[i] - 1)));
 		}
-		if (false){
+		if (false) {
 			if (mismatches[i] == 0) continue;
 			double test1 = p_values[i];
 			double test2 = (cdf(complement(pd, mismatches[i] - 1)));
-			if (abs(test1 -test2) > 0.00001){
+			if (abs(test1 -test2) > 0.00001) {
 				fprintf(stdout, "Cov %d Miss %d Exact %lf estimate %lf\n",
 						coverages[i], mismatches[i], test1, test2);
 			}
@@ -220,28 +220,28 @@ void TranscriptMismatcherAnalyzer::calculate_error(const vector<map<T, int> > &r
 												  map<T, int> &num_mismatches,
 												  map<T, int> &num_mismatches_baseline,
 												  map<T,double> &error_rate
-												  ){
+												  ) {
 	int i;
 	// num of mismatches by quality in read
 	num_mismatches = num_mismatches_baseline;
 	num_calls = num_calls_baseline;
 	error_rate.clear();
 
-	for ( i = 0; i < num_locations; i ++){
+	for ( i = 0; i < num_locations; i ++) {
 		// Right now, just remove locations
 		// TODO: remove the whole transcript if it contains consistent
 		// mismatches
-		if ( is_consistent_mismatches.test( i ) ){
+		if ( is_consistent_mismatches.test( i ) ) {
 			continue;
 		}
-		if (is_skipped_locations.test(i)){
+		if (is_skipped_locations.test(i)) {
 			continue;
 		}
 		for (auto j = read_mismatches[i].begin() ;
 			 j != read_mismatches[i].end();
-			 j ++){
+			 j ++) {
 			if (num_mismatches.find(j->first) ==
-				num_mismatches.end()){
+				num_mismatches.end()) {
 				num_mismatches[ j->first ] = j->second;
 			}
 			else {
@@ -250,9 +250,9 @@ void TranscriptMismatcherAnalyzer::calculate_error(const vector<map<T, int> > &r
 		}
 		for (auto j = read_calls[i].begin() ;
 			 j != read_calls[i].end();
-			 j ++){
+			 j ++) {
 			if (num_calls.find(j->first) ==
-				num_calls.end()){
+				num_calls.end()) {
 				num_calls[ j->first ] = j->second;
 			}
 			else {
@@ -261,7 +261,7 @@ void TranscriptMismatcherAnalyzer::calculate_error(const vector<map<T, int> > &r
 		}
  	}
 
-	for ( auto i = num_calls.begin(); i !=  num_calls.end(); i ++){
+	for ( auto i = num_calls.begin(); i !=  num_calls.end(); i ++) {
 		if (num_mismatches.find(i->first) == num_mismatches.end()) {
 			num_mismatches[ i->first ] = 0;
 		}

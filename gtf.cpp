@@ -3,7 +3,7 @@ using namespace std;
 
 // This function is too long, should first get a vector of rows for
 // just one transcript 
-void load_gtf_file(const string &gtf_filename, vector<Transcript *> &transcripts){
+void load_gtf_file(const string &gtf_filename, vector<Transcript *> &transcripts) {
 
 
 	FILE *fd = file_open(gtf_filename.c_str(),"r");
@@ -19,16 +19,16 @@ void load_gtf_file(const string &gtf_filename, vector<Transcript *> &transcripts
 	t->end = 0;
 
 	transcripts.clear();
-	while(fgets(temp, MAXLINE, fd)!=NULL){
+	while(fgets(temp, MAXLINE, fd)!=NULL) {
 		vector<string> strs;
 		line = trim(temp);
 		boost::split(strs, line, boost::is_any_of("\t"));
-		if (strs.size() != 9){
+		if (strs.size() != 9) {
 			fprintf(stderr, "ERROR: GTF file %s corrupted \n",
 					gtf_filename.c_str());
 			exit(0);
 		}
-		if (strs[2]=="transcript" && num != -1){
+		if (strs[2]=="transcript" && num != -1) {
 			transcripts.push_back(t);
 			t=new Transcript();
 			t->start = atoi(strs[3].c_str());
@@ -36,13 +36,13 @@ void load_gtf_file(const string &gtf_filename, vector<Transcript *> &transcripts
 			chr = strs[0];
 			num++;
 		}
-		else if (strs[2]=="transcript"){
+		else if (strs[2]=="transcript") {
 			num++;
 			t->start = atoi(strs[3].c_str());
 			t->end = atoi(strs[4].c_str());
 			chr = strs[0];
 		}
-		else if (strs[2]=="exon"){
+		else if (strs[2]=="exon") {
 			int e_start = atoi(strs[3].c_str());
 			int e_end = atoi(strs[4].c_str());
 			t->exon_start.push_back(e_start);

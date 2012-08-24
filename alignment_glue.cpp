@@ -1,9 +1,9 @@
 #include "alignment_glue.hpp"
 
 
-int output_bamalignment(JewelerAlignment *al){
+int output_bamalignment(JewelerAlignment *al) {
 	fprintf(stdout,"%s\n",al->Name.c_str());
-	if (al->IsFirstMate()){
+	if (al->IsFirstMate()) {
 		fprintf(stdout,"first one\n");
 	}
 	else {
@@ -13,14 +13,14 @@ int output_bamalignment(JewelerAlignment *al){
 	fprintf(stdout,"%s\n",al->Qualities.c_str());
 	fprintf(stdout,"%d\n",al->Position + 1);
 	fprintf(stdout,"%s\n",get_cigar_string((*al)).c_str());
-	for (size_t i = 0; i < al->read_position.size(); i++){
+	for (size_t i = 0; i < al->read_position.size(); i++) {
 		fprintf(stdout, "%d\t", al->read_position[i]);
 	}
 	fprintf(stdout, "\n");
 	return 0;
 }
 
-int cigar_trim(JewelerAlignment *al){
+int cigar_trim(JewelerAlignment *al) {
 	
 	vector<CigarOp>& cigar_data = al->CigarData;
 	vector<CigarOp> new_cigar_data;
@@ -32,11 +32,11 @@ int cigar_trim(JewelerAlignment *al){
 		i ++;
 	}
 
-	while ( i != cigar_data.end() ){
+	while ( i != cigar_data.end() ) {
 		auto j= i;
 		j++;
 		if (j != cigar_data.end() ) {
-			if (i->Type == Constants::BAM_CIGAR_REFSKIP_CHAR){
+			if (i->Type == Constants::BAM_CIGAR_REFSKIP_CHAR) {
 				while( j !=cigar_data.end() &&
 					   j->Type == Constants::BAM_CIGAR_REFSKIP_CHAR 
 					   ) {
@@ -54,7 +54,7 @@ int cigar_trim(JewelerAlignment *al){
 }
 
 int AlignmentGlue::get_skipped_region(JewelerAlignment *al, int skipped_alignment_length, 
-									  vector<CigarOp> &cigar_data, int &skipped_length){
+									  vector<CigarOp> &cigar_data, int &skipped_length) {
 
 	vector<CigarOp>::const_iterator cigar_iter = al->CigarData.begin();
 	vector<CigarOp>::const_iterator cigar_end  = al->CigarData.end();
@@ -87,7 +87,7 @@ int AlignmentGlue::get_skipped_region(JewelerAlignment *al, int skipped_alignmen
 		case ( Constants::BAM_CIGAR_DEL_CHAR):
 		case ( Constants::BAM_CIGAR_PAD_CHAR):
 			// not completely skipped, go to next opk
-			if (skipped_alignment_length >= 0 ){
+			if (skipped_alignment_length >= 0 ) {
 				continue;
 			}
 			cigar_data.push_back(new_op);
@@ -110,7 +110,7 @@ int AlignmentGlue::get_skipped_region(JewelerAlignment *al, int skipped_alignmen
 }
 
 
-void AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlignment *second){
+void AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlignment *second) {
 	// DEBUG:
 	// output_bamalignment(first);
 	// output_bamalignment(second);
@@ -124,20 +124,20 @@ void AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlign
 	// Check weather the first alignment is always before the second
 	// alignment
 
-	for (i = 0; i < first->QueryBases.size(); i ++){
+	for (i = 0; i < first->QueryBases.size(); i ++) {
 		first->read_position.push_back(get_read_position(first,i));
 	}
-	if (overlapped>=0){
+	if (overlapped>=0) {
 		// Great news! no overlapped region between first and second
 		// reads.
 		first->Length += second->Length;
 		first->Qualities += second->Qualities;
 		string pad(overlapped, 'N');
 		first->QueryBases += second->QueryBases;
-		for (j = 0 ; j < second->QueryBases.size(); j ++){
+		for (j = 0 ; j < second->QueryBases.size(); j ++) {
 			first->read_position.push_back(get_read_position(second, j));
 		}
-		if (overlapped > 0){
+		if (overlapped > 0) {
 			first->CigarData.push_back(CigarOp('J',overlapped));
 		}
 		first->CigarData.insert(first->CigarData.end(), 
@@ -153,17 +153,17 @@ void AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlign
 		first->Length += second->Length - skipped_read_length;
 		first->QueryBases += second->QueryBases.substr(skipped_read_length);
 		first->Qualities +=second->Qualities.substr(skipped_read_length);
-		for (j = skipped_read_length; j < second->QueryBases.size(); j ++){
+		for (j = skipped_read_length; j < second->QueryBases.size(); j ++) {
 			first->read_position.push_back(get_read_position(second,j) );
 		}
 
 		first->CigarData.insert(first->CigarData.end(), 
 								new_cigar_data.begin(), new_cigar_data.end());
 		// merge consective ops
-		for (i = 0, j = 0; j< first->CigarData.size(); ){
+		for (i = 0, j = 0; j< first->CigarData.size(); ) {
 			j ++; 
-			while(j != first->CigarData.size()){
-				if (first->CigarData[i].Type == first->CigarData[j].Type){
+			while(j != first->CigarData.size()) {
+				if (first->CigarData[i].Type == first->CigarData[j].Type) {
 					first->CigarData[i].Length += first->CigarData[j].Length;
 					j++;
 				}
@@ -191,7 +191,7 @@ void AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlign
 
 int AlignmentGlue::glue(vector<JewelerAlignment *> &in_reads, 
 						vector<JewelerAlignment *> &new_reads,
-						vector<JewelerAlignment *> &noused_reads){
+						vector<JewelerAlignment *> &noused_reads) {
 	size_t i;
 
 	int ignore_unpaired_read = 0;
@@ -218,9 +218,9 @@ int AlignmentGlue::glue(vector<JewelerAlignment *> &in_reads,
 					ignore_unpaired_read ++;
 					continue;
 				}
-				else if (alignments.size()==2){
+				else if (alignments.size()==2) {
 					if ((alignments[1]->IsFirstMate() && alignments[0]->IsSecondMate()) || 
-						(alignments[0]->IsFirstMate() && alignments[1]->IsSecondMate())){
+						(alignments[0]->IsFirstMate() && alignments[1]->IsSecondMate())) {
 						if (alignments[0]->Position < alignments[1]->Position) {
 							glue_paired_alignments(alignments[0], alignments[1]);
 							new_reads.push_back(alignments[0]);
@@ -240,7 +240,7 @@ int AlignmentGlue::glue(vector<JewelerAlignment *> &in_reads,
 				else {
 					//fprintf(stdout, 
 					//"Oops, there are mulitple alignments within a gene?!\n");
-					//for (int i = 0; i < alignments.size(); i++){
+					//for (int i = 0; i < alignments.size(); i++) {
 					//output_bamalignment(alignments[i]);
 					//}
 				}
@@ -248,14 +248,14 @@ int AlignmentGlue::glue(vector<JewelerAlignment *> &in_reads,
 		}
 	}
 	//fprintf(stdout, " %d unpaired and %d not propered and %d of first paried\n", ignore_unpaired_read, ignore_unproper_read, num_first_mate);
-	for ( i = 0; i < in_reads.size(); i++){
-		if (checklist.find(in_reads[i]) == checklist.end()){
+	for ( i = 0; i < in_reads.size(); i++) {
+		if (checklist.find(in_reads[i]) == checklist.end()) {
 			noused_reads.push_back(in_reads[i]);
 			continue;
 			// push into single paired reads 
 
 			// new_reads.push_back(in_reads[i]);
-			// for (j = 0; j < in_reads[i]->QueryBases.size(); j ++){
+			// for (j = 0; j < in_reads[i]->QueryBases.size(); j ++) {
 			// 	in_reads[i]->read_position.push_back(get_read_position(in_reads[i],j));
 			// }
 

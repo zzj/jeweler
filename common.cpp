@@ -22,7 +22,7 @@ char *trim(char *str)
 	return str;
 }
 
-FILE * file_open( const char *name, const char * mode){
+FILE * file_open( const char *name, const char * mode) {
      FILE * ret=NULL;
      ret=fopen(name, mode);
      if (ret==NULL)  {

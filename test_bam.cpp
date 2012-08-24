@@ -9,14 +9,14 @@ using namespace BamTools;
 using namespace std;
 
 
-int main (int argc, char *argv[]){
+int main (int argc, char *argv[]) {
 	BamReader reader;
 	JewelerAlignment al;
 
 	FastaReference fr;
 
 
-	if (!reader.Open(argv[1])){
+	if (!reader.Open(argv[1])) {
 		fprintf(stderr,"Cannot open bam file!\n");
 		exit(0);
 	}
@@ -24,17 +24,17 @@ int main (int argc, char *argv[]){
 	fr.open(argv[2]);
 	auto references=reader.GetReferenceData();
 
-	for (size_t i=0;i<references.size();i++){
+	for (size_t i=0;i<references.size();i++) {
 		fprintf(stdout,"%s\n",references[i].RefName.c_str());
 	}
 
 	fprintf(stdout,"fasta\n");
 	for (size_t i= 0;
 		 i<fr.index->sequenceNames.size();
-		 i++){
+		 i++) {
 		fprintf(stdout,"%s\n",fr.index->sequenceNames[i].c_str());
 	}
-	while (reader.GetNextAlignment(al)){
+	while (reader.GetNextAlignment(al)) {
 
 		string refseq=fr.getSubSequence(references[al.RefID].RefName,
 										al.Position,

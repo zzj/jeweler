@@ -5,11 +5,11 @@
 PileupPlot::PileupPlot(Transcript * maternal_transcript,
 					   Transcript * paternal_transcript,
 					   set<JewelerAlignment *> & unknown_reads,
-					   set<string > & multiple_reads){
+					   set<string > & multiple_reads) {
 
 	size_t i, j;
 
-	if (maternal_transcript->seq.size() != paternal_transcript->seq.size()){
+	if (maternal_transcript->seq.size() != paternal_transcript->seq.size()) {
 		fprintf(stderr,  "Maternal and paternal transcripts must be the same one");
 		exit(0);
 	}
@@ -27,11 +27,11 @@ PileupPlot::PileupPlot(Transcript * maternal_transcript,
 	this->num_paternal = paternal_transcript->allele_reads.size();
 	this->num_unknown = unknown_reads.size();
 	this->num_exons = 0;
-	for (i = 0;i<maternal_transcript->snp_pos.size();i++){
+	for (i = 0;i<maternal_transcript->snp_pos.size();i++) {
 		is_snp[maternal_transcript->snp_pos[i]] = 1;
 	}
 	int current_pos = 0;
-	for (j = 0;j<maternal_transcript->exon_start.size();j++){
+	for (j = 0;j<maternal_transcript->exon_start.size();j++) {
 		//exon_end is inclusive
 		current_pos = current_pos+maternal_transcript->exon_end[j]-maternal_transcript->exon_start[j]+1;
 		exon_jump[current_pos-1] = 1;
@@ -64,10 +64,10 @@ PileupPlot::PileupPlot(Transcript * maternal_transcript,
 
 int PileupPlot::add_transcript_to_pileup(Transcript * transcript,
 										  set<JewelerAlignment *> &reads,
-										  vector<int> & coverage){
+										  vector<int> & coverage) {
 	for (auto iter = reads.begin();
 		 iter != reads.end();
-		 iter++){
+		 iter++) {
 		add_coverage(transcript,  *iter,  coverage);
 	}
 	return 0;
@@ -75,11 +75,11 @@ int PileupPlot::add_transcript_to_pileup(Transcript * transcript,
 int PileupPlot::add_transcript_to_pileup_filter(Transcript * transcript,
 												set<JewelerAlignment *> &reads,
 												vector<int> & coverage,
-												set<string> &multiple_names){
+												set<string> &multiple_names) {
 	for (auto iter = reads.begin();
 		 iter != reads.end();
-		 iter++){
-		if (multiple_names.find((*iter)->Name) != multiple_names.end()){
+		 iter++) {
+		if (multiple_names.find((*iter)->Name) != multiple_names.end()) {
 			add_coverage(transcript,  *iter,  coverage);
 		}
 	}
@@ -87,7 +87,7 @@ int PileupPlot::add_transcript_to_pileup_filter(Transcript * transcript,
 }
 
 
-int PileupPlot::add_coverage(Transcript * transcript,  JewelerAlignment *al,  vector<int> &coverage){
+int PileupPlot::add_coverage(Transcript * transcript,  JewelerAlignment *al,  vector<int> &coverage) {
 	// must perform the compatible test first!
 	// justify whether the sequences contains the JewelerAlignment
 
@@ -114,7 +114,7 @@ int PileupPlot::add_coverage(Transcript * transcript,  JewelerAlignment *al,  ve
 			// the beginning and end of the matched sequence must
 			// be belong to the same sequences.
 			start=transcript->get_transcript_location(start_pos);
-			for (i=start;i<start+op.Length;i++){
+			for (i=start;i<start+op.Length;i++) {
 				coverage[i]++;
 			}
 			start_pos+=op.Length;
@@ -153,11 +153,11 @@ int PileupPlot::add_coverage(Transcript * transcript,  JewelerAlignment *al,  ve
 	return 0;
 }
 
-void PileupPlot::generate_pileup_plot(FILE * info,  FILE * output){
+void PileupPlot::generate_pileup_plot(FILE * info,  FILE * output) {
 	size_t i;
 	fprintf(info, "%s\t%d\t%d\t%d\t%d\n", transcript_id.c_str(), num_exons, num_unknown, num_maternal, num_paternal);
 	fprintf(output, "location\tunknown\tmaternal\tpaternal\tis_snp\texon_jump\tmultiple\n");
-	for (i=0;i<unknown.size();i++){
+	for (i=0;i<unknown.size();i++) {
 		fprintf(output, "%d\t%d\t%d\t%d\t%d\t%d\t%d\n",  genome_pos[i], unknown[i],  maternal[i],  paternal[i],  is_snp[i],  exon_jump[i], multiple[i]);
 	}
 

@@ -18,68 +18,68 @@ jeweler::jeweler(int argc, char * argv[]) {
 	log_file = stdout;
 	mamf_filename = "none";
 	jeweler_info = new JewelerInfo(argc, argv);
-	for (i = 1; i < argc; i++){
-		if (strcmp( argv[i], "-h") == 0){
+	for (i = 1; i < argc; i++) {
+		if (strcmp( argv[i], "-h") == 0) {
 			fprintf( stdout, "help information for jeweler:\n");
 			fprintf( stdout, "command: jeweler -i infofile [-l logfile] [-mamf multiple_alignment_file] -earrnings -bracelet -mismatch_analyzer\n");
 			exit(0);
 		}
-		if (strcmp( argv[i], "-i") == 0){
+		if (strcmp( argv[i], "-i") == 0) {
 			i++;
-			if (i < argc){
+			if (i < argc) {
 				info_filename = argv[i];
 				has_info = true;
 			}
 		}
-		if (strcmp( argv[i], "-mamf") == 0){
+		if (strcmp( argv[i], "-mamf") == 0) {
 			i++;
-			if (i < argc){
+			if (i < argc) {
 				mamf_filename = argv[i];
 			}
 		}
-		if (strcmp( argv[i], "-l") == 0){
+		if (strcmp( argv[i], "-l") == 0) {
 			i++;
-			if (i < argc){
+			if (i < argc) {
 
 				log_file = file_open(argv[i],"w+");
 			}
 		}
-		if (strcmp( argv[i], "-bracelet") == 0){
+		if (strcmp( argv[i], "-bracelet") == 0) {
 			is_bracelet = true;
 			i ++;
 			if (i < argc) {
 				bracelet_filename = argv[i];
 			}
 		}
-		if (strcmp( argv[i], "-earrings") == 0){
+		if (strcmp( argv[i], "-earrings") == 0) {
 			is_earrings = true;
 		}
-		if (strcmp( argv[i], "-prepare") == 0){
+		if (strcmp( argv[i], "-prepare") == 0) {
 			is_prepare = true;
 		}
-		if (strcmp( argv[i], "-mismatch_analyzer") == 0){
+		if (strcmp( argv[i], "-mismatch_analyzer") == 0) {
 			is_mismatch_analyzer = true;
 			i ++;
-			if (i < argc){
+			if (i < argc) {
 				mismatch_filename = argv[i];
 			}
 		}
-		if (strcmp( argv[i], "-testcase") == 0){
+		if (strcmp( argv[i], "-testcase") == 0) {
 			i++;
-			if (i < argc){
+			if (i < argc) {
 				sscanf(argv[i],"%d", &test_case );
 			}
 		}
 	}
 
-	if (!has_info){
+	if (!has_info) {
 		fprintf(stderr, "ERROR: No infomation file! You need to specify it by -i\n");
 		exit(0);
 	}
 	
 }
 
-void jeweler::load_mamf_file(){
+void jeweler::load_mamf_file() {
 	if (mamf_filename != "none") {
 		fprintf(stdout,"loading mamf files ...\n");
 		FILE * fd = fopen(mamf_filename.c_str(), "r");
@@ -89,7 +89,7 @@ void jeweler::load_mamf_file(){
 	}
 }
 
-int jeweler::run(){
+int jeweler::run() {
 
 	if (is_earrings) {
 
@@ -97,13 +97,13 @@ int jeweler::run(){
 		int id = -1;
 		for (auto i = jeweler_info->gene_id2transcripts.begin();
 			 i != jeweler_info->gene_id2transcripts.end();
-			 i++){
+			 i++) {
 			if (i->second[0]->chr =="chrM") continue;
 			create_directory(path(jeweler_info->result_folder + "/" + i->first));
 			id ++;
 			if (test_case > 0  && id != test_case)  continue;
 			else {
-				if (test_case > 0){
+				if (test_case > 0) {
 
 				}
 			}
@@ -117,12 +117,12 @@ int jeweler::run(){
 	}
 	if (!is_prepare) {
 	
-		if (is_bracelet){
+		if (is_bracelet) {
 			fprintf(stdout, "Bracelet analyzing ...\n");
 			Bracelet bracelet(jeweler_info);
 			bracelet.analyze();
 			FILE * output = fopen((bracelet_filename+"/result.bracelet").c_str(), "w+");
-			if (output == NULL){
+			if (output == NULL) {
 				fprintf(stdout, "cannot open file %s\n", (bracelet_filename+"/result.bracelet").c_str());
 				exit(0);
 			}
@@ -130,7 +130,7 @@ int jeweler::run(){
 			fclose(output);
 		}
 	
-		if (is_mismatch_analyzer){
+		if (is_mismatch_analyzer) {
 			fprintf(stdout, "Mismatch analyzing ...\n");
 			TranscriptMismatcherAnalyzer tma(mismatch_filename, jeweler_info);
 			tma.analyze();
@@ -139,7 +139,7 @@ int jeweler::run(){
 	return 0;
 }
 
-int main(int argc, char * argv[]){
+int main(int argc, char * argv[]) {
 	jeweler j=jeweler(argc, argv);
 	j.run();
 	return 0;

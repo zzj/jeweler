@@ -1,13 +1,13 @@
 #include "metabam.hpp"
 
-Metabam::Metabam(){
+Metabam::Metabam() {
 }
 
-Metabam::Metabam(BamReader &reader){
+Metabam::Metabam(BamReader &reader) {
 	initialize(reader);
 }
 
-void Metabam::initialize(BamReader &reader){
+void Metabam::initialize(BamReader &reader) {
 	BamInfo::initialize(reader);
 	total_num_alignments = 0;
 	total_num_duplicate = 0;
@@ -21,39 +21,39 @@ void Metabam::initialize(BamReader &reader){
 	num_alignment_per_reference.resize(this->references.size(),0);
 }
 
-int Metabam::add_alignment(JewelerAlignment &al){
+int Metabam::add_alignment(JewelerAlignment &al) {
 	total_num_alignments++;
 	num_alignment_per_reference[al.RefID]++;
 	mapquality_list.push_back(al.MapQuality);
-	if (al.IsDuplicate()){
+	if (al.IsDuplicate()) {
 		total_num_duplicate++;
 	}
-	if (al.IsFirstMate()){
+	if (al.IsFirstMate()) {
 		total_num_first_mate++;
 	}
-	if (al.IsSecondMate()){
+	if (al.IsSecondMate()) {
 		total_num_second_mate++;
 	}
-	if (al.IsMapped()){
+	if (al.IsMapped()) {
 		total_num_mapped++;
 	}
-	if (al.IsMateMapped()){
+	if (al.IsMateMapped()) {
 		total_num_mate_mapped++;
 	}
-	if (al.IsProperPair()){
+	if (al.IsProperPair()) {
 		total_num_proper_pair++;
 	}
-	if (al.IsReverseStrand()){
+	if (al.IsReverseStrand()) {
 		total_num_reverse_strand++;
 	}
 
 	return 0;
 }
 
-void Metabam::dump_meta_data(FILE * log_file, bool is_readable){
+void Metabam::dump_meta_data(FILE * log_file, bool is_readable) {
 	size_t i;
-	if (is_readable){
-		for (i = 0; i < references.size(); i++){
+	if (is_readable) {
+		for (i = 0; i < references.size(); i++) {
 			fprintf(log_file,"%s\t%d\n",references[i].RefName.c_str(),
 					                    num_alignment_per_reference[i]);
 		}
@@ -72,8 +72,8 @@ void Metabam::dump_meta_data(FILE * log_file, bool is_readable){
 	}
 }
 
-void Metabam::dump_mapquality_list(FILE *output){
-	for (size_t i=0; i<mapquality_list.size(); i++){
+void Metabam::dump_mapquality_list(FILE *output) {
+	for (size_t i=0; i<mapquality_list.size(); i++) {
 		fprintf(output, "%d\n",mapquality_list[i]);
 	}
 }

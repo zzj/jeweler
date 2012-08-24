@@ -73,7 +73,7 @@ int jeweler::annotate_mismatch_pos(Transcript *t, rna_read_query * rrq)
 		fprintf(stderr, "%d %d %d %d\n",
 				num_mismatches, rrq->mismatch,
 				rrq->query_start.size(),count_mismatches(t,rrq));
-		for (i=0;i<rrq->query_start.size();i++){
+		for (i=0;i<rrq->query_start.size();i++) {
 			fprintf(stderr,"%s\n",rrq->seq.substr(rrq->query_start[i],rrq->block_size[i]).c_str());
 			fprintf(stderr,"%d\n",rrq->block_size[i]);
 		}
@@ -87,12 +87,12 @@ int jeweler::annotate_mismatch_pos(Transcript *t, rna_read_query * rrq)
 
 int jeweler::generate_landscape(TranscriptInfo * ti,
 								vector<Transcript *> &ref,
-								map<rna_read_key,rna_read_query *> &queries){
+								map<rna_read_key,rna_read_query *> &queries) {
 	
 	int i,j,k,m;
 	string filename=string(ti->folder+ti->gene_id+"landscape.plot.info");
 	FILE *fd=file_open(filename.c_str(),"w+");
-	for ( i=0;i<ref.size();i++){
+	for ( i=0;i<ref.size();i++) {
 		int size=ref[i]->seq.size();
 		int num_unknown=0,num_paternal=0,num_maternal=0;
 
@@ -108,37 +108,37 @@ int jeweler::generate_landscape(TranscriptInfo * ti,
 		}
 
 		int current_pos=0;
-		for (j=0;j<ref[i]->exon_start.size();j++){
+		for (j=0;j<ref[i]->exon_start.size();j++) {
 			//exon_end is inclusive
 			current_pos=current_pos+ref[i]->exon_end[j]-ref[i]->exon_start[j]+1;
 			exon_jump[current_pos-1]=1;
 		}
 
-		for (auto iter=queries.begin();iter!=queries.end();iter++){
-			if (iter->first.transcript_name==ref[i]->name){
+		for (auto iter=queries.begin();iter!=queries.end();iter++) {
+			if (iter->first.transcript_name==ref[i]->name) {
 
 				vector<int> *target=NULL;
 
-				if (iter->second->source_id==0){
+				if (iter->second->source_id==0) {
 					num_unknown++;
 					target=&unknown;
 				}
-				if (iter->second->source_id==1){
+				if (iter->second->source_id==1) {
 					num_paternal++;
 					target=&paternal;
 				}
-				if (iter->second->source_id==2){
+				if (iter->second->source_id==2) {
 					num_maternal++;
 					target=&maternal;
 				}
-				if(target==NULL){
+				if(target==NULL) {
 					fprintf(stderr,"No source id?!\n");
 					exit(0);
 				}
 
-				for (k=0;k<iter->second->target_start.size();k++){
-					for (m=0;m<iter->second->block_size[k];m++){
-						if (iter->second->target_start[k]+m>target->size()){
+				for (k=0;k<iter->second->target_start.size();k++) {
+					for (m=0;m<iter->second->block_size[k];m++) {
+						if (iter->second->target_start[k]+m>target->size()) {
 							fprintf(stderr,"out of range\n");
 							exit(0);
 						}
@@ -156,12 +156,12 @@ int jeweler::generate_landscape(TranscriptInfo * ti,
 			}
 		}
 
-		for (k=0;k<ref[i]->snp_pos.size();k++){
+		for (k=0;k<ref[i]->snp_pos.size();k++) {
 			int target=ref[i]->snp_pos[k];
 			//printf("%d\t%d\t%d\n",unknown[target],paternal[target],maternal[target]);
  		}
 		
-		if (i==0){
+		if (i==0) {
 			string filename=string(ti->folder+ti->gene_id+"landscape.plot.info.meta");
 			FILE *fd=file_open(filename.c_str(),"w+");
 			fprintf(fd,"%d\t%d\t%d\n",num_unknown,num_paternal,num_maternal);
@@ -169,7 +169,7 @@ int jeweler::generate_landscape(TranscriptInfo * ti,
 		}
 
 
-		for (k=0;k<ref[i]->seq.size();k++){
+		for (k=0;k<ref[i]->seq.size();k++) {
 			// revised by weibo
 			int target=k;
 			fprintf(fd,"%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\n", 
@@ -220,16 +220,16 @@ int jeweler::generate_landscape(TranscriptInfo * ti,
 	int count_mismatches(Transcript *t, rna_read_query *rrq);
 	
 
-int jeweler::count_mismatches(Transcript *t, rna_read_query  *rrq){
-	if (t->name != rrq->target){
+int jeweler::count_mismatches(Transcript *t, rna_read_query  *rrq) {
+	if (t->name != rrq->target) {
 		fprintf(stderr,"transcript names do not match with each other\n");
 		exit(0);
 	}
 	int i,j,mismatches=0;
 
-	for (i=0;i<rrq->block_size.size();i++){
-		for (j=0;j<rrq->block_size[i];j++){
-			if (rrq->seq[rrq->query_start[i]+j] != t->seq[rrq->target_start[i]+j]){
+	for (i=0;i<rrq->block_size.size();i++) {
+		for (j=0;j<rrq->block_size[i];j++) {
+			if (rrq->seq[rrq->query_start[i]+j] != t->seq[rrq->target_start[i]+j]) {
 				mismatches++;
 			}
 		}
@@ -238,7 +238,7 @@ int jeweler::count_mismatches(Transcript *t, rna_read_query  *rrq){
 }
 
 int jeweler::merge_paired_reads(vector<Transcript *> &ref,
-								vector<rna_read_query *> &bam_result){
+								vector<rna_read_query *> &bam_result) {
 	
 	int i,j,k;
 
@@ -248,7 +248,7 @@ int jeweler::merge_paired_reads(vector<Transcript *> &ref,
 	map<rna_read_key, vector<rna_read_query *> > read_id2queries;
 	map<rna_read_key, vector<rna_read_query *> > :: iterator iter;
 
-	for (i=0;i<bam_result.size();i++){
+	for (i=0;i<bam_result.size();i++) {
 		vector<string> strs;
 		string read_id,flag_field;
 		// first field is read_id
@@ -260,7 +260,7 @@ int jeweler::merge_paired_reads(vector<Transcript *> &ref,
 		rna_read_key  rrk = rna_read_key(bam_result[i]->target,bam_result[i]->name);
 		iter=read_id2queries.find(rrk);
 		
-		if (iter==read_id2queries.end()){
+		if (iter==read_id2queries.end()) {
 			vector<rna_read_query *> vrrqs;
 			vrrqs.push_back(bam_result[i]);
 			read_id2queries.insert(make_pair(rrk, vrrqs));
@@ -268,14 +268,14 @@ int jeweler::merge_paired_reads(vector<Transcript *> &ref,
 		else {
 			vector<rna_read_query *> &vrrqs=iter->second;
 			bool has_conflict=false;
-			for (j=0;j<vrrqs.size();j++){
+			for (j=0;j<vrrqs.size();j++) {
 
-				if (vrrqs[j]->flag_field!=bam_result[i]->flag_field){
+				if (vrrqs[j]->flag_field!=bam_result[i]->flag_field) {
 					continue;
 				}
 				else {
 					has_conflict=true;
-					if (is_better_alignment(bam_result[i],vrrqs[j])){
+					if (is_better_alignment(bam_result[i],vrrqs[j])) {
 						vrrqs[j]=bam_result[i];
 					}
 					// no matter this is a good alignment or not
@@ -283,7 +283,7 @@ int jeweler::merge_paired_reads(vector<Transcript *> &ref,
 					break;
 				}
 			}
-			if (!has_conflict){
+			if (!has_conflict) {
 				vrrqs.push_back(bam_result[i]);
 			}
 		}
@@ -294,13 +294,13 @@ int jeweler::merge_paired_reads(vector<Transcript *> &ref,
 	// merge them, and generate new bam result
 	bam_result.clear();
 	
-	for (iter=read_id2queries.begin();iter!=read_id2queries.end();iter++){
+	for (iter=read_id2queries.begin();iter!=read_id2queries.end();iter++) {
 		vector<rna_read_query *>& vrrqs=iter->second;
-		if (vrrqs.size()==1){
+		if (vrrqs.size()==1) {
 		}
 		else if (vrrqs.size()==2) {
 
-			if (vrrqs[0]->target_start>vrrqs[1]->target_start){
+			if (vrrqs[0]->target_start>vrrqs[1]->target_start) {
 				swap(vrrqs[0],vrrqs[1]);
 			}
 			// using s simple rule. 
@@ -321,16 +321,16 @@ int jeweler::merge_paired_reads(vector<Transcript *> &ref,
 			vrrqs[0]->first_end = last_in_first_tran;
 			vrrqs[0]->second_start = vrrqs[1]->target_start[0];
 			
-			for (i=0;i<vrrqs[1]->target_start.size();i++){
+			for (i=0;i<vrrqs[1]->target_start.size();i++) {
 				int tran_block_end=vrrqs[1]->target_start[i]+vrrqs[1]->block_size[i];
-				if (tran_block_end<=last_in_first_tran){
+				if (tran_block_end<=last_in_first_tran) {
 					continue;
 				}
 				int tran_block_start=vrrqs[1]->target_start[i];
 				// no overlap, happy, just append to the read
 				int shift=0;
 				// overlapped 
-				if (tran_block_start<last_in_first_tran){
+				if (tran_block_start<last_in_first_tran) {
 						shift=last_in_first_tran-tran_block_start;
 				}
 				vrrqs[0]->query_start.push_back(vrrqs[0]->seq.size());
@@ -345,7 +345,7 @@ int jeweler::merge_paired_reads(vector<Transcript *> &ref,
 			}
 		}
 		else { //(vrrqs.size()>3)
-			for (i=0;i<vrrqs.size();i++){
+			for (i=0;i<vrrqs.size();i++) {
 				fprintf(stderr,"%s\t%s\t%s\n",vrrqs[i]->name.c_str(),
 						vrrqs[i]->target.c_str(),vrrqs[i]->flag_field.c_str());
 			}
@@ -355,8 +355,8 @@ int jeweler::merge_paired_reads(vector<Transcript *> &ref,
 		}
 
 		// find reference genome, and count mismatches
-		for (j=0;j<ref.size();j++){
-			if (ref[j]->name==vrrqs[0]->target){
+		for (j=0;j<ref.size();j++) {
+			if (ref[j]->name==vrrqs[0]->target) {
 				vrrqs[0]->mismatch=count_mismatches(ref[j],vrrqs[0]);
 				break;
 			}
@@ -368,13 +368,13 @@ int jeweler::merge_paired_reads(vector<Transcript *> &ref,
 int jeweler::add_queries(vector<Transcript *> &ref, 
 				multimap<string,string> &srmap,
 				vector<rna_read_query *> &bam_result,
-				map<rna_read_key,rna_read_query *>& queries){
+				map<rna_read_key,rna_read_query *>& queries) {
 	int i,j,k;
 
 	
 	// associate each read with its sequence data
 
-	for (i=0;i<bam_result.size();i++){
+	for (i=0;i<bam_result.size();i++) {
 		
 		// double check the read with the aligned segments
 		// bam has the exactly same sequence. 
@@ -382,18 +382,18 @@ int jeweler::add_queries(vector<Transcript *> &ref,
 		map<string,string>::iterator finder;
 		string read_id_in_fasta=bam_result[i]->name+";"+bam_result[i]->flag_field;
 		//fprintf(stderr,"%s\n",read_id_in_fasta.c_str());
-		if ((finder=srmap.find(read_id_in_fasta))!=srmap.end()){
+		if ((finder=srmap.find(read_id_in_fasta))!=srmap.end()) {
 			bam_result[i]->seq=finder->second;
 
-			for (j=0;j<ref.size();j++){
-				if (ref[j]->name==bam_result[i]->target){
+			for (j=0;j<ref.size();j++) {
+				if (ref[j]->name==bam_result[i]->target) {
 
 					// the number of mismatches does not conform with 
 					// the result from bam, which means the seq need to be reversed and 
 					// complemented
 					int mismatches=count_mismatches(ref[j],bam_result[i]);						
 
-					if (mismatches!=bam_result[i]->mismatch){
+					if (mismatches!=bam_result[i]->mismatch) {
 						recover_original_read(bam_result[i]->seq);
 					}
 					mismatches=count_mismatches(ref[j],bam_result[i]);						
@@ -419,7 +419,7 @@ int jeweler::add_queries(vector<Transcript *> &ref,
 		if(bam_result[i]->mismatch>threshold
 		   ||bam_result[i]->target_gap_num>gap_threshold
 		   || bam_result[i]->matches<(bam_result[i]->size-threshold )
-		   ){
+		   ) {
 			//fprintf(stderr,"%d\t%d\t%d\n",bam_result[i]->mismatch,bam_result[i]->matches,bam_result[i]->size-threshold);
 			bam_result[i]->is_ignored=true;
 			bam_result[i]->is_initialized=false;
@@ -438,15 +438,15 @@ int jeweler::add_queries(vector<Transcript *> &ref,
 	// may have multiple alignment 
 	// choose the best one that can be aligned to either transcript
 	//fprintf(log_file,"Total %d reads inserted into reads database.\n",bam_result.size());
-	for (i=0;i<bam_result.size();i++){
+	for (i=0;i<bam_result.size();i++) {
 		rna_read_key rrk=rna_read_key(bam_result[i]->target, bam_result[i]->name);
 		map<rna_read_key,rna_read_query *>::iterator iter=queries.find(rrk);
 
-		if (iter==queries.end()){
+		if (iter==queries.end()) {
 			queries.insert(make_pair(rrk,bam_result[i]));
 		}
 		else {
-			if (is_better_alignment(bam_result[i],(iter->second))){
+			if (is_better_alignment(bam_result[i],(iter->second))) {
 				iter->second=bam_result[i];
 			}
 		}
@@ -466,7 +466,7 @@ int jeweler::label_mismatches_perbase(std::vector<Transcript*> &ptrans,
 
 		for(int i = 0; i < ptrans.size(); ++i)
 		{
-			if (it->second->target==ptrans[i]->name){
+			if (it->second->target==ptrans[i]->name) {
 				//annotate_mismatch_pos(ptrans[i], it->second);		
 				//annotate_mismatch_pos(mtrans[i], it->second);			}
 		}
@@ -478,7 +478,7 @@ int jeweler::load_read_data(TranscriptInfo * ti,
 							vector<Transcript *> &ptrans,
 							vector<Transcript *> &mtrans,
 							map<rna_read_key , rna_read_query *> &queries
-							){
+							) {
 	
 	vector<seq_read *> sr;
 	vector<rna_read_query *> pqueries,mqueries;
@@ -486,7 +486,7 @@ int jeweler::load_read_data(TranscriptInfo * ti,
 	int i;
 
 	//load_fasta_file(ti->read_seq_filename,sr);
-	//for (i=0;i<sr.size();i++){
+	//for (i=0;i<sr.size();i++) {
 	//srmap.insert(make_pair(sr[i]->name,sr[i]->seq));
 	//}
 	
@@ -501,7 +501,7 @@ int jeweler::load_read_data(TranscriptInfo * ti,
 	return 0;
 }
 
-bool jeweler::match_snp(Transcript *t, rna_read_query* rrq){
+bool jeweler::match_snp(Transcript *t, rna_read_query* rrq) {
 	if (t->snp_pos.size()==0) 
 		return false;
 	int i,j;
@@ -509,14 +509,14 @@ bool jeweler::match_snp(Transcript *t, rna_read_query* rrq){
 	int query_allele_pos;
 	int no_allele=true;
 
-	for (i=0;i<rrq->target_start.size();i++){
-		for (j=0;j<t->snp_pos.size();j++){
+	for (i=0;i<rrq->target_start.size();i++) {
+		for (j=0;j<t->snp_pos.size();j++) {
 			if (t->snp_pos[j]>=rrq->target_start[i]
-				&& t->snp_pos[j]<rrq->target_start[i]+rrq->block_size[i]){
+				&& t->snp_pos[j]<rrq->target_start[i]+rrq->block_size[i]) {
 				no_allele=false;
 				shift=t->snp_pos[j]-rrq->target_start[i];
 				query_allele_pos=rrq->query_start[i]+shift;
-				if (t->seq[t->snp_pos[j]]!=rrq->seq[query_allele_pos]){
+				if (t->seq[t->snp_pos[j]]!=rrq->seq[query_allele_pos]) {
 					return false;
 				}
 			}
@@ -526,7 +526,7 @@ bool jeweler::match_snp(Transcript *t, rna_read_query* rrq){
 }
 
 
-bool test_match_snp(Transcript * t, Transcript* t2, rna_read_query* rrq){
+bool test_match_snp(Transcript * t, Transcript* t2, rna_read_query* rrq) {
 	if (t->snp_pos.size()==0) 
 		return false;
 	int i,j;
@@ -534,15 +534,15 @@ bool test_match_snp(Transcript * t, Transcript* t2, rna_read_query* rrq){
 	int query_allele_pos;
 	int no_allele=true;
 
-	for (i=0;i<rrq->target_start.size();i++){
-		for (j=0;j<t->snp_pos.size();j++){
+	for (i=0;i<rrq->target_start.size();i++) {
+		for (j=0;j<t->snp_pos.size();j++) {
 			if (t->snp_pos[j]>=rrq->target_start[i]
-				&& t->snp_pos[j]<rrq->target_start[i]+rrq->block_size[i]){
+				&& t->snp_pos[j]<rrq->target_start[i]+rrq->block_size[i]) {
 				no_allele=false;
 				shift=t->snp_pos[j]-rrq->target_start[i];
 				query_allele_pos=rrq->query_start[i]+shift;
 				if (t->seq[t->snp_pos[j]]!=rrq->seq[query_allele_pos] && 
-					t2->seq[t->snp_pos[j]]!=rrq->seq[query_allele_pos]  ){
+					t2->seq[t->snp_pos[j]]!=rrq->seq[query_allele_pos]  ) {
 					printf("%s\t%s\n",rrq->name.c_str(),rrq->seq.c_str());
 					printf("%d\t%d\n",rrq->target_start[i],rrq->mismatch);
 					printf("%s\t%s\n",t->name.c_str(),t->seq.substr(rrq->target_start[i],rrq->block_size[i]).c_str());
@@ -556,17 +556,17 @@ bool test_match_snp(Transcript * t, Transcript* t2, rna_read_query* rrq){
 
 int jeweler::identify_sources(vector<Transcript *> &source,
 							  map<rna_read_key,rna_read_query *> &queries,
-							  int source_id){
+							  int source_id) {
 	int i;
 
 	// because the number of transcripts are no more than five
 	// so a full loop should be efficient enough.
-	for (i=0;i<source.size();i++){
+	for (i=0;i<source.size();i++) {
 		map<rna_read_key,rna_read_query *>::iterator j;
-		for (j=queries.begin();j!=queries.end();j++){
+		for (j=queries.begin();j!=queries.end();j++) {
 			if (j->first.transcript_name!=source[i]->name) 
 				continue;
-			if (match_snp(source[i],j->second)){
+			if (match_snp(source[i],j->second)) {
 				j->second->source_id=source_id;
 			}
 		}
