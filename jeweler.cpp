@@ -79,8 +79,6 @@ jeweler::jeweler(int argc, char * argv[]) {
 	
 }
 
-
-
 int jeweler::load_mamf_file(){
 	if (mamf_filename != "none") {
 		fprintf(stdout,"loading mamf files ...\n");
@@ -90,9 +88,6 @@ int jeweler::load_mamf_file(){
 		fclose(fd);
 	}
 }
-
-
-
 
 int jeweler::run(){
 	int i,j;
@@ -117,7 +112,7 @@ int jeweler::run(){
 			printf("%s\n", i->first.c_str());
 			Earrings earrings(jeweler_info, 
 							  i->first,
-							  sm, 
+							  sm,
 							  is_prepare);
 		}
 	}
@@ -150,4 +145,3 @@ int main(int argc, char * argv[]){
 	j.run();
 	return 0;
 }
-

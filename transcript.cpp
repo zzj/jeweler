@@ -34,7 +34,9 @@ int Transcript::get_next_exon(int start_pos, int start_seg = 0, int tolerate = 0
 	return start_seg;
 }
 
-int Transcript::get_overlapped_alignment(JewelerAlignment *al , int &penalty, bool is_to_fix){
+int Transcript::get_overlapped_alignment(JewelerAlignment *al,
+										 int &penalty,
+										 bool is_to_fix){
 
 	penalty = 0;
 

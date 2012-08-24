@@ -23,7 +23,7 @@ public:
 	FILE *quality_file; //quality file
 	int test_num;
 
-	int run();
+	void run();
 
 };
 

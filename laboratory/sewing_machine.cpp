@@ -3,9 +3,9 @@
 
 locator::locator(JewelerAlignment &al){
 	int i;
-	this->ref_id=al.RefID;
-	this->position=al.Position;
-	this->cigar_string=get_cigar_string(al);
+	this->ref_id = al.RefID;
+	this->position = al.Position;
+	this->cigar_string = get_cigar_string(al);
 	al.GetTag("NM", this->edit_distance);
 }
 
@@ -49,7 +49,7 @@ int SewingMachine::add_alignment(JewelerAlignment &al, bool count_only){
 			multiple_alignment_map[al.Name+is_first] = 1;
 		}
 		else {
-		multiple_alignment_map[al.Name+is_first] ++;
+			multiple_alignment_map[al.Name+is_first] ++;
 		}
 	}
 	else {
@@ -86,7 +86,6 @@ int SewingMachine::load_multiple_alignments_set(FILE *file ){
 	int i;
 	int last;
 	while((last = fscanf(file, "%s%s%d", read_id, is_first, &size)) == 3) {
-
 		// ignored
 		for (i = 0; i < size; i++) {
 			fscanf(file, "%s%d%s%d", refname, &pos, cigar, &distance);
@@ -96,9 +95,7 @@ int SewingMachine::load_multiple_alignments_set(FILE *file ){
 		if (size >= 2){
 			multiple_alignment_set.insert(read_id);
 		}
-
 	}
-
 }
 
 int SewingMachine::output_alignment_map(FILE * file){

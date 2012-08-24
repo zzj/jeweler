@@ -68,7 +68,7 @@ Appraiser::Appraiser(int argc, char* argv[]){
 	}
 }
 
-int Appraiser::run(){
+void Appraiser::run(){
 	
 	BamReader reader;
 	JewelerAlignment al;
@@ -101,7 +101,6 @@ int Appraiser::run(){
 	mb.dump_mapquality_list(quality_file);
 	sm.output_multiple_alignment_map(mam_table_file);
 	//sm.output_alignment_connection_map(mam_map_file);
-	return 0;
 }
 
 int main( int argc, char * argv[]){

@@ -53,9 +53,10 @@ public:
 
 	map<string, vector<Transcript *> > gene_id2transcripts;
 	vector<string> gene_id;
+	JewelerInfo();
 	JewelerInfo(int argc, char * argv[]);
 	~JewelerInfo();
-	int check_args(int &i, char *  argv[], const char *name, string &a);
+	int check_args(const int i, char *  argv[], const char *name, string &a);
 	int build_gene_id2transcripts();
 	int get_refID(string chr);
 };

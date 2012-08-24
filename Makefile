@@ -41,7 +41,8 @@ JEWELER_LIB_SOURCES =  jeweler_info.cpp jeweler_alignment.cpp read_matcher.cpp \
 
 JEWELER_SOURCES= jeweler.cpp $(JEWELER_LIB_SOURCES)
 
-TEST_JEWELER_SOURCES= test_common.cpp test_jeweler_alignment.cpp
+TEST_JEWELER_SOURCES= test_common.cpp test_jeweler_alignment.cpp test_gtf.cpp \
+                      test_jeweler_info.cpp
 TEST_JEWELER_OBJECTS=$(TEST_JEWELER_SOURCES:.cpp=.o)
 TEST_JEWELER = test_jeweler
 
