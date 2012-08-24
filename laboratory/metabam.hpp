@@ -12,12 +12,12 @@ class Metabam: public BamInfo{
 public:
 	Metabam();
 	Metabam(BamReader &reader);
-	int initialize(BamReader &reader);
+	void initialize(BamReader &reader);
 
 	// functions
 	int add_alignment(JewelerAlignment &al);
-	int dump_meta_data(FILE * log_file,bool is_readable=true);
-	int dump_mapquality_list(FILE *output_file);
+	void dump_meta_data(FILE * log_file,bool is_readable=true);
+	void dump_mapquality_list(FILE *output_file);
 	// statistics 
 	int total_num_alignments;
 	int total_num_duplicate;

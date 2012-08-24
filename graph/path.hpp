@@ -8,7 +8,7 @@ public:
 	vector<ExonNode *> path;
 	bool is_mirrored(Path & path);
 	bool is_equal(Path & path);
-	int dump_path(FILE * file);
+	void dump_path(FILE * file);
 	// contains allele specific exons or not
 	bool is_informative();
 	// contains NULL pointer or not

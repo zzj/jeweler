@@ -7,7 +7,7 @@ Metabam::Metabam(BamReader &reader){
 	initialize(reader);
 }
 
-int Metabam::initialize(BamReader &reader){
+void Metabam::initialize(BamReader &reader){
 	BamInfo::initialize(reader);
 	total_num_alignments = 0;
 	total_num_duplicate = 0;
@@ -50,10 +50,10 @@ int Metabam::add_alignment(JewelerAlignment &al){
 	return 0;
 }
 
-int Metabam::dump_meta_data(FILE * log_file, bool is_readable){
-	int i;
+void Metabam::dump_meta_data(FILE * log_file, bool is_readable){
+	size_t i;
 	if (is_readable){
-		for (i=0;i<references.size();i++){
+		for (i = 0; i < references.size(); i++){
 			fprintf(log_file,"%s\t%d\n",references[i].RefName.c_str(),
 					                    num_alignment_per_reference[i]);
 		}
@@ -72,8 +72,8 @@ int Metabam::dump_meta_data(FILE * log_file, bool is_readable){
 	}
 }
 
-int Metabam::dump_mapquality_list(FILE *output){
-	for (int i=0; i<mapquality_list.size(); i++){
+void Metabam::dump_mapquality_list(FILE *output){
+	for (size_t i=0; i<mapquality_list.size(); i++){
 		fprintf(output, "%d\n",mapquality_list[i]);
 	}
 }

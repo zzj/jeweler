@@ -13,7 +13,7 @@ int output_bamalignment(JewelerAlignment *al){
 	fprintf(stdout,"%s\n",al->Qualities.c_str());
 	fprintf(stdout,"%d\n",al->Position + 1);
 	fprintf(stdout,"%s\n",get_cigar_string((*al)).c_str());
-	for ( int i = 0; i < al->read_position.size(); i++){
+	for (size_t i = 0; i < al->read_position.size(); i++){
 		fprintf(stdout, "%d\t", al->read_position[i]);
 	}
 	fprintf(stdout, "\n");
@@ -110,15 +110,15 @@ int AlignmentGlue::get_skipped_region(JewelerAlignment *al, int skipped_alignmen
 }
 
 
-int AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlignment *second){
+void AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlignment *second){
 	// DEBUG:
 	// output_bamalignment(first);
 	// output_bamalignment(second);
-	int i, j;
-	int first_start	 = first->Position + 1;
-	int first_end	 = first->GetEndPosition() + 1;
-	int second_start = second->Position + 1;
-	int second_end	 = second->GetEndPosition() + 1;
+	size_t i, j;
+	// int first_start	 = first->Position + 1;
+	size_t first_end	 = first->GetEndPosition() + 1;
+	size_t second_start = second->Position + 1;
+	size_t second_end	 = second->GetEndPosition() + 1;
 	int overlapped	 = second_start - first_end ;
 	// DEBUG:
 	// Check weather the first alignment is always before the second
@@ -132,10 +132,7 @@ int AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlignm
 		// reads.
 		first->Length += second->Length;
 		first->Qualities += second->Qualities;
-		string pad;
-		for (i = 0; i < overlapped; i++){
-			pad += 'N';
-		}
+		string pad(overlapped, 'N');
 		first->QueryBases += second->QueryBases;
 		for (j = 0 ; j < second->QueryBases.size(); j ++){
 			first->read_position.push_back(get_read_position(second, j));
@@ -195,7 +192,7 @@ int AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlignm
 int AlignmentGlue::glue(vector<JewelerAlignment *> &in_reads, 
 						vector<JewelerAlignment *> &new_reads,
 						vector<JewelerAlignment *> &noused_reads){
-	int i, j;
+	size_t i;
 
 	int ignore_unpaired_read = 0;
 	int ignore_unproper_read = 0;

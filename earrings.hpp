@@ -49,13 +49,13 @@ public :
 	string chr;
 	int ref_id;
 	int left_pos, right_pos;
-	int num_total_reads;
+	size_t num_total_reads;
 	
 	set<string> single_read_names;
 	set<string> multiple_read_names;
 
 	// find the reads that are mulitple aligned to other places
-	int count_multiple_alignments(bool is_after_aligned);
+	void count_multiple_alignments(bool is_after_aligned);
 	// create paternal and maternal transcripts databases
 	// annotate SNPs for paternal  and maternal transcripts' sequence
 	int load_transcript_data(bool is_prepares); // load transcript data 
@@ -73,10 +73,10 @@ public :
 	// dump compatible reads to a file
 	// each line start with read id, 
 	// and followed by the genome locations it covered. 
-	int dump_compatible_reads(FILE *fd);
+	void dump_compatible_reads(FILE *fd);
 
-	// align reads to maternal or paternal transcripts
-	int align_reads();
+    // align reads to maternal or paternal transcripts
+    void align_reads();
 
 	// test allele specific transcript
 	int test_allele_specific_transcript();
@@ -88,7 +88,7 @@ public :
 	int study_compatible_reads();
 
 	// get compatible reads
-	int get_compatible_reads(vector<set<JewelerAlignment*> >& read_lists );
+	void get_compatible_reads(vector<set<JewelerAlignment*> >& read_lists );
 
 	void test_memory_leak();
 };

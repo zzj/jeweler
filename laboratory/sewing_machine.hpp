@@ -47,8 +47,8 @@ public:
 	
 	SewingMachine();
 	SewingMachine(BamReader &reader);
-	int initialize(BamReader &reader);
-	int load_multiple_alignments_set(FILE *);
+	void initialize(BamReader &reader);
+	void load_multiple_alignments_set(FILE *);
 	// functions
 	// first time count_only = true
 	// second time count_only = false

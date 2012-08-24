@@ -14,7 +14,7 @@ bool Path::is_mirrored(Path &a){
 		return false;
 	}
 	
-	for (int i=0;i<path.size();i++){
+	for (size_t i = 0; i < path.size(); i++){
 		if (!path[i]->is_mirrored(a.path[i])){
 			return false;
 		}
@@ -26,7 +26,7 @@ bool Path::is_mirrored(Path &a){
 }
 
 bool Path::is_informative(){
-	for (int i=0;i<path.size();i++){
+	for (size_t i = 0; i < path.size(); i++){
 		if (path[i]->origin!=EXON_NO_INFO){
 			return true;
 		}
@@ -35,7 +35,7 @@ bool Path::is_informative(){
 }
 
 bool Path::is_equal(Path &a){
-	for (int i=0;i<path.size();i++){
+	for (size_t i = 0; i < path.size(); i++){
 		if (!path[i]->is_equal(a.path[i])){
 			return false;
 		}
@@ -44,19 +44,19 @@ bool Path::is_equal(Path &a){
 }
 
 
-int Path::dump_path(FILE * file){
-	int i;
+void Path::dump_path(FILE * file){
+	size_t i;
 	if (is_valid()){
 		fprintf(file,"%s ",path[0]->detach().c_str());
-		for (i=1;i<path.size();i++){
+		for (i = 1; i < path.size(); i++){
 			fprintf(file,"-> %s ",path[i]->detach().c_str());
 		}
-		fprintf(file,"\n");
+		fprintf(file, "\n");
 	}
 }
 
 bool Path::is_valid(){
-	for (int i=0;i<path.size();i++){
+	for (size_t i = 0; i < path.size(); i++){
 		if (path[i]==NULL){
 			return false;
 		}
@@ -67,7 +67,7 @@ bool Path::is_valid(){
 bool Path::is_compatible(){
 	bool maternal=false, paternal=false;
 	
-	for (int i=0;i<path.size();i++){
+	for (size_t i=0;i<path.size();i++){
 		if (path[i]==NULL){
 			continue;
 		}

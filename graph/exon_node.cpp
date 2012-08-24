@@ -6,19 +6,19 @@ ExonNode::ExonNode(int start, int end, int origin){
 	this->origin=origin;
 }
 
-int ExonNode::insert_reads( set<JewelerAlignment *> & reads){
+void ExonNode::insert_reads( set<JewelerAlignment *> & reads){
 	this->reads.insert(reads.begin(),reads.end());
 }
 
 
-int ExonNode::insert_allele_reads( set<JewelerAlignment *> & reads){
+void ExonNode::insert_allele_reads( set<JewelerAlignment *> & reads){
 	this->allele_reads.insert(reads.begin(),reads.end());
 }
 
 string ExonNode::detach(){
 	string ret;
 	char temp[1000];
-	sprintf(temp,"%d:%d:%d:%d:%d",start, end, reads.size(),allele_reads.size(), origin);
+	sprintf(temp,"%d:%d:%zu:%zu:%d",start, end, reads.size(),allele_reads.size(), origin);
 	ret=temp;
 	return ret;
 }

@@ -113,10 +113,10 @@ int load_psl_file(string psl_filename, vector<rna_read_query *> &queries){
 	return 0;
 }
 
-int recover_original_read(string &seq){
-	int i;
+void recover_original_read(string &seq){
+	size_t i;
 
-	for (i=0;i<seq.size();i++){
+	for (i = 0; i < seq.size(); i++){
 		if (seq[i]=='A'){
 			seq[i]='T';
 		}

@@ -24,7 +24,6 @@ int load_fasta_file(string fasta_filename, vector<seq_read *> &seq_reads){
 	string seq;
 	char * temp=(char *)malloc(MAXLINE+1);
 	char * line;
-	int ret;
 
 	seq_reads.clear();
 	
@@ -52,14 +51,14 @@ int load_fasta_file(string fasta_filename, vector<seq_read *> &seq_reads){
 	return 0;
 }
 
-int write_fasta_file(string fasta_filename, string &name, string &seq){
+void write_fasta_file(string fasta_filename, string &name, string &seq){
 	FILE *fd = file_open(fasta_filename.c_str(), "w+");
 	write_fasta_file(fd, name,seq);
 	fclose(fd);
 }
-int write_fasta_file(FILE *fd, string &name, string &seq){
+void write_fasta_file(FILE *fd, string &name, string &seq){
 	fprintf(fd,">%s\n", name.c_str());
-	for (int i = 0; i < seq.size(); i = i + 80){
+	for (size_t i = 0; i < seq.size(); i = i + 80){
 		fprintf(fd,"%s\n", seq.substr(i, 80).c_str());
 	}
 }

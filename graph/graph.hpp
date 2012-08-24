@@ -14,10 +14,10 @@ public:
 	ExonNode * add_exon_node(int start, int end, int origin, 
 							 set<JewelerAlignment *> &reads,
 							 set<JewelerAlignment *> &allele_reads);
-	int add_edge(ExonNode * first, ExonNode *second, vector<JewelerAlignment *> reads);
-	int add_edge(ExonNode * first, ExonNode *second, int num_reads);
+	void add_edge(ExonNode * first, ExonNode *second, vector<JewelerAlignment *> reads);
+	void add_edge(ExonNode * first, ExonNode *second, int num_reads);
 	vector<ExonNode *> get_starting_nodes();
-	int dump_graph(FILE * filename);
+	void dump_graph(FILE * filename);
 	int get_all_paths(vector<Path> &records);
 	int traverse_graph( ExonNode * current_node, vector<ExonNode *> &path, vector<Path> &records, int origin);
 	

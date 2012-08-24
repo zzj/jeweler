@@ -32,7 +32,7 @@ ExonNode * Graph::add_exon_node(int start, int end, int origin,
 	return ret;
 }
 
-int Graph::add_edge(ExonNode * first, ExonNode *second, int num_reads){
+void Graph::add_edge(ExonNode * first, ExonNode *second, int num_reads){
 	if (first->origin==EXON_NO_INFO || second->origin==EXON_NO_INFO ||
 		(first->origin==second->origin)
 		){
@@ -54,11 +54,11 @@ int Graph::add_edge(ExonNode * first, ExonNode *second, int num_reads){
 }
 
 
-int Graph::add_edge(ExonNode * first, ExonNode *second, vector<JewelerAlignment *> reads){
+void Graph::add_edge(ExonNode * first, ExonNode *second, vector<JewelerAlignment *> reads){
 	if (first->origin==EXON_NO_INFO || second->origin==EXON_NO_INFO ||
 		(first->origin==second->origin)
 		){
-		for (int i=0;i<reads.size();i++){
+		for (size_t i=0;i<reads.size();i++){
 			// TODO: finish this function
 		}
 	}
@@ -68,8 +68,7 @@ int Graph::add_edge(ExonNode * first, ExonNode *second, vector<JewelerAlignment 
 	}
 }
 
-
-int Graph::dump_graph(FILE *foutput){
+void Graph::dump_graph(FILE *foutput){
 	fprintf(foutput,"digraph G{\n");
 	vector<ExonNode *> queue;
 	set<ExonNode *> checklist;
@@ -88,7 +87,7 @@ int Graph::dump_graph(FILE *foutput){
 	}
 	queue=get_starting_nodes();
 	
-	while(queue.size()!=top){
+	while(queue.size() != top){
 		ExonNode *current=queue[top];
 		top++;
 		string current_node_name=current->detach();

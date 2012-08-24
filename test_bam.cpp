@@ -1,5 +1,5 @@
 #include <iostream>
-#include <string> 
+#include <string>
 #include <api/BamReader.h>
 #include <api/BamWriter.h>
 #include <api/BamConstants.h>
@@ -12,30 +12,30 @@ using namespace std;
 int main (int argc, char *argv[]){
 	BamReader reader;
 	JewelerAlignment al;
-	
+
 	FastaReference fr;
-	
+
 
 	if (!reader.Open(argv[1])){
 		fprintf(stderr,"Cannot open bam file!\n");
 		exit(0);
 	}
-	
+
 	fr.open(argv[2]);
 	auto references=reader.GetReferenceData();
 
-	for (int i=0;i<references.size();i++){
+	for (size_t i=0;i<references.size();i++){
 		fprintf(stdout,"%s\n",references[i].RefName.c_str());
 	}
 
 	fprintf(stdout,"fasta\n");
-	for (int i= 0;
+	for (size_t i= 0;
 		 i<fr.index->sequenceNames.size();
 		 i++){
 		fprintf(stdout,"%s\n",fr.index->sequenceNames[i].c_str());
 	}
 	while (reader.GetNextAlignment(al)){
-		
+
 		string refseq=fr.getSubSequence(references[al.RefID].RefName,
 										al.Position,
 										al.Length);

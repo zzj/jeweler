@@ -51,8 +51,8 @@ public :
 	string detach();
 	bool is_mirrored(ExonNode *a);
 	bool is_equal(ExonNode *a);
-	int insert_reads(set<JewelerAlignment *> &al);
-	int insert_allele_reads(set<JewelerAlignment *> &al);
+	void insert_reads(set<JewelerAlignment *> &al);
+	void insert_allele_reads(set<JewelerAlignment *> &al);
 };
 
 

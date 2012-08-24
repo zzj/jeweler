@@ -57,7 +57,7 @@ public:
 	// function to run the analysis 
 	int run();
 
-	int load_mamf_file();
+	void load_mamf_file();
 	
 };
 

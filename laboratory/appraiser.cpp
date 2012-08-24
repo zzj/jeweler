@@ -75,7 +75,6 @@ void Appraiser::run(){
 	Metabam mb;
 	SewingMachine sm;
 	int i=0;
-	int edit_distance=0;
 
 	if (!reader.Open(bamfile)){
 		fprintf(stderr,"Cannot open bam file!\n");

@@ -79,7 +79,7 @@ jeweler::jeweler(int argc, char * argv[]) {
 	
 }
 
-int jeweler::load_mamf_file(){
+void jeweler::load_mamf_file(){
 	if (mamf_filename != "none") {
 		fprintf(stdout,"loading mamf files ...\n");
 		FILE * fd = fopen(mamf_filename.c_str(), "r");
@@ -90,7 +90,6 @@ int jeweler::load_mamf_file(){
 }
 
 int jeweler::run(){
-	int i,j;
 
 	if (is_earrings) {
 

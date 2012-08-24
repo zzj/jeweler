@@ -20,9 +20,9 @@ public:
 	int intersect(vector<string> &a, vector<string> &b);
 	int analyze();
 	int dump(FILE *file);
-	int dump_shared_pileup(FILE * fd, string root,
-						   string original, int original_id,
-						   string target, int target_id);
+    void dump_shared_pileup(FILE * fd,
+                           int original_id,
+                           int target_id);
 
 	int dump(FILE * file, string root);
 

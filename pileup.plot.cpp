@@ -2,12 +2,12 @@
 
 #include "pileup.plot.hpp"
 
-PileupPlot::PileupPlot(Transcript * maternal_transcript, 
-					   Transcript * paternal_transcript, 
+PileupPlot::PileupPlot(Transcript * maternal_transcript,
+					   Transcript * paternal_transcript,
 					   set<JewelerAlignment *> & unknown_reads,
 					   set<string > & multiple_reads){
-	
-	int i, j;
+
+	size_t i, j;
 
 	if (maternal_transcript->seq.size() != paternal_transcript->seq.size()){
 		fprintf(stderr,  "Maternal and paternal transcripts must be the same one");
@@ -15,7 +15,7 @@ PileupPlot::PileupPlot(Transcript * maternal_transcript,
 	}
 	transcript_id = maternal_transcript->transcript_id;
 	int size = maternal_transcript->seq.size();
-	
+
 	unknown.resize(size, 0);
 	paternal.resize(size, 0);
 	maternal.resize(size, 0);
@@ -38,32 +38,32 @@ PileupPlot::PileupPlot(Transcript * maternal_transcript,
 		this->num_exons ++;
 	}
 
-	add_transcript_to_pileup(maternal_transcript,  
-							 maternal_transcript->allele_reads, 
+	add_transcript_to_pileup(maternal_transcript,
+							 maternal_transcript->allele_reads,
 							 maternal);
-	add_transcript_to_pileup(paternal_transcript,  
-							 paternal_transcript->allele_reads, 
+	add_transcript_to_pileup(paternal_transcript,
+							 paternal_transcript->allele_reads,
 							 paternal);
-	add_transcript_to_pileup(paternal_transcript /* either one is fine */,   
-							 unknown_reads, 
+	add_transcript_to_pileup(paternal_transcript /* either one is fine */,
+							 unknown_reads,
 							 unknown);
-	add_transcript_to_pileup_filter(maternal_transcript,  
-									maternal_transcript->allele_reads, 
+	add_transcript_to_pileup_filter(maternal_transcript,
+									maternal_transcript->allele_reads,
 									multiple,
 									multiple_reads);
-	add_transcript_to_pileup_filter(paternal_transcript,  
-									paternal_transcript->allele_reads, 
+	add_transcript_to_pileup_filter(paternal_transcript,
+									paternal_transcript->allele_reads,
 									multiple,
 									multiple_reads);
-	add_transcript_to_pileup_filter(paternal_transcript /* either one is fine */,   
-									unknown_reads, 
+	add_transcript_to_pileup_filter(paternal_transcript /* either one is fine */,
+									unknown_reads,
 									multiple,
 									multiple_reads);
 
 }
 
-int PileupPlot::add_transcript_to_pileup(Transcript * transcript, 
-										  set<JewelerAlignment *> &reads, 
+int PileupPlot::add_transcript_to_pileup(Transcript * transcript,
+										  set<JewelerAlignment *> &reads,
 										  vector<int> & coverage){
 	for (auto iter = reads.begin();
 		 iter != reads.end();
@@ -72,8 +72,8 @@ int PileupPlot::add_transcript_to_pileup(Transcript * transcript,
 	}
 	return 0;
 }
-int PileupPlot::add_transcript_to_pileup_filter(Transcript * transcript, 
-												set<JewelerAlignment *> &reads, 
+int PileupPlot::add_transcript_to_pileup_filter(Transcript * transcript,
+												set<JewelerAlignment *> &reads,
 												vector<int> & coverage,
 												set<string> &multiple_names){
 	for (auto iter = reads.begin();
@@ -97,51 +97,51 @@ int PileupPlot::add_coverage(Transcript * transcript,  JewelerAlignment *al,  ve
 	int start_pos = al->Position+1;
 	int start;
 	string aligned_string;
-	
+
 	std::vector< CigarOp > &cigar_data  =  al->CigarData;
 	vector<CigarOp>::const_iterator cigar_iter  =  cigar_data.begin();
 	vector<CigarOp>::const_iterator cigar_end   =  cigar_data.end();
-	int i;
+	size_t i;
 	for ( ; cigar_iter != cigar_end; ++cigar_iter ) {
 		const CigarOp& op = (*cigar_iter);
-		
+
 		switch ( op.Type ) {
-			
+
 			// for 'M',  '=',  'X' - write bases
 		case (Constants::BAM_CIGAR_MATCH_CHAR)    :
 		case (Constants::BAM_CIGAR_SEQMATCH_CHAR) :
 		case (Constants::BAM_CIGAR_MISMATCH_CHAR) :
-			// the beginning and end of the matched sequence must 
-			// be belong to the same sequences. 
+			// the beginning and end of the matched sequence must
+			// be belong to the same sequences.
 			start=transcript->get_transcript_location(start_pos);
 			for (i=start;i<start+op.Length;i++){
 				coverage[i]++;
 			}
 			start_pos+=op.Length;
 			break;
-			
-		case (Constants::BAM_CIGAR_INS_CHAR)      :			
+
+		case (Constants::BAM_CIGAR_INS_CHAR)      :
 				// fall through
 			break;
 		// for 'S' - soft clip,  do not write bases
 		// but increment placeholder 'k'
 		case (Constants::BAM_CIGAR_SOFTCLIP_CHAR) :
 			break;
-			
+
 		// for 'D' - write gap character
 		// for 'N' - write N's,  skip bases in original query sequence
-		// for 'P' - write padding character			
+		// for 'P' - write padding character
 		case ('J'):
 		case (Constants::BAM_CIGAR_DEL_CHAR) :
 		case (Constants::BAM_CIGAR_PAD_CHAR) :
 		case (Constants::BAM_CIGAR_REFSKIP_CHAR) :
 			start_pos+=op.Length;
 			break;
-			
+
 			// for 'H' - hard clip,  do nothing to AlignedBases,  move to next op
 		case (Constants::BAM_CIGAR_HARDCLIP_CHAR) :
 			break;
-			
+
 			// invalid CIGAR op-code
 		default:
 			const string message = string("invalid CIGAR operation type: ") + op.Type;
@@ -153,12 +153,12 @@ int PileupPlot::add_coverage(Transcript * transcript,  JewelerAlignment *al,  ve
 	return 0;
 }
 
-int PileupPlot::generate_pileup_plot(FILE * info,  FILE * output){
-	int i;
+void PileupPlot::generate_pileup_plot(FILE * info,  FILE * output){
+	size_t i;
 	fprintf(info, "%s\t%d\t%d\t%d\t%d\n", transcript_id.c_str(), num_exons, num_unknown, num_maternal, num_paternal);
 	fprintf(output, "location\tunknown\tmaternal\tpaternal\tis_snp\texon_jump\tmultiple\n");
 	for (i=0;i<unknown.size();i++){
 		fprintf(output, "%d\t%d\t%d\t%d\t%d\t%d\t%d\n",  genome_pos[i], unknown[i],  maternal[i],  paternal[i],  is_snp[i],  exon_jump[i], multiple[i]);
 	}
-			
+
 }

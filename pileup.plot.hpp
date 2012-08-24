@@ -41,7 +41,7 @@ public:
 									set<JewelerAlignment *> &reads,
 									vector<int> & coverage);
 								
-	int generate_pileup_plot(FILE * info, FILE * output);
+	void generate_pileup_plot(FILE * info, FILE * output);
 
 	int add_coverage(Transcript * transcript, JewelerAlignment *, vector<int>& coverage);
 };

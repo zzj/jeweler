@@ -11,9 +11,8 @@ int JewelerInfo::check_args(const int i, char *argv[], const char * name, string
 
 int JewelerInfo::build_gene_id2transcripts() {
 	fprintf(stdout, "Bulding gene_id to transcripts index ...\n");
-	int i;
 	gene_id2transcripts.clear();
-	for (i = 0; i < transcripts.size(); i++) {
+	for (size_t i = 0; i < transcripts.size(); i++) {
 		gene_id2transcripts[transcripts[i]->gene_id].push_back(transcripts[i]);
 	}
 	gene_id.clear();
@@ -26,7 +25,7 @@ int JewelerInfo::build_gene_id2transcripts() {
 }
 
 int JewelerInfo::get_refID(string chr){
-	for ( int i = 0; i < references.size(); i++){
+	for ( size_t i = 0; i < references.size(); i++){
 		if (references[i].RefName == chr){
 			return i;
 		}
@@ -54,7 +53,7 @@ JewelerInfo::JewelerInfo(int argc, char *argv []){
 	load_gtf_file(gtf_input_file, transcripts);
 	this->build_gene_id2transcripts();
 	
-	fprintf(stdout, "There are totally %d transcripts loaded from %s\n", 
+	fprintf(stdout, "There are totally %zu transcripts loaded from %s\n", 
 			transcripts.size(), gtf_input_file.c_str());
 	maternal_fasta = new FastaReference();
 	paternal_fasta = new FastaReference();

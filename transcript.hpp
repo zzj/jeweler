@@ -104,7 +104,7 @@ public:
 	int get_transcript_exon(int genome_location);
 
 	// get next exons
-	int get_next_exon(int start_pos, int start_seg , int tolerate);
+	int get_next_exon(int start_pos, size_t start_seg , int tolerate);
 
 	// get allele char
 	char get_allele_char(int transcript_location);
@@ -121,14 +121,14 @@ public:
 	// register informative reads by exon
 	int register_allele_read(JewelerAlignment *);
 
-    int output_segments();
+    void output_segments();
 
 	/*****************
 	 * Graph utility
 	 *****************/
 	int add_transcript_to_graph(Graph *, vector<Path> &records);
 
-	int dump_seq(string &result_folder, string &filename);
+	void dump_seq(string &result_folder, string &filename);
 	
 	/******************
      * Landscape plot 

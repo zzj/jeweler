@@ -6,6 +6,7 @@ void TranscriptomeAligner::run_command(string command){
 	fprintf(stdout, "%s  2> stderr_log \n", command.c_str());
 	system((command+" 2> stderr_log\n").c_str());
 }
+
 void TranscriptomeAligner::align(string &left, string &right, vector<string>  &reference_sequences, vector<string> &reference_id, string & merged_fasta_file, string &output_file){
 	string left_unmapped_file = left;
 	string right_unmapped_file = right;
@@ -14,7 +15,7 @@ void TranscriptomeAligner::align(string &left, string &right, vector<string>  &r
 	string last, new_last;
 	string command;
 	run_command(string("samtools faidx " + merged_fasta_file));
-	for (int i = 0; i < reference_sequences.size(); i ++){
+	for (size_t i = 0; i < reference_sequences.size(); i ++){
 		string left_sai = reference_sequences[i] + ".left.sai";
 		string right_sai = reference_sequences[i] + ".right.sai";
 		string output_bam = reference_sequences[i] + ".bam";
@@ -40,7 +41,7 @@ void TranscriptomeAligner::align(string &left, string &right, vector<string>  &r
 	}
 	if (output_bams.size() ==0) return ;
 	command = "lib/bamtools/bin/bamtools merge ";
-	for (int i=0; i < output_bams.size(); i ++){
+	for (size_t i=0; i < output_bams.size(); i ++){
 		command += " -in " + output_bams[i];
 	}
 	command += " -out " + output_file;

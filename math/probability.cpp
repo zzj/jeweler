@@ -18,12 +18,12 @@ double log1mx(double x){
 		for (i = 1; i < 20; i ++){
 			ret += exp(x * i) / i;
 		}
+        return ret;
 	}
 }
 
 double log_prod_prob(vector<double> &prod, bool is_complementary ){
-	int n = prod.size();
-	int i;
+	size_t i;
 	double ret = 0;
 	for ( i = 0; i< prod.size(); i ++){
 		if (is_complementary) {
@@ -39,11 +39,11 @@ double log_prod_prob(vector<double> &prod, bool is_complementary ){
 double log_prod_prob_with_one_flipped(vector<double> &prod, bool is_complememtary){
 
 	// left[i] \sum_{j}^{i} log (prod[j])
-	int i;
+	size_t i;
 	double left = 0;
 	double right = 0;
 	double ret = 0;
-	for ( i = 0; i < prod.size(); i ++){
+	for (i = 0; i < prod.size(); i ++){
 		if (is_complememtary)
 			right += log1mx(prod[i]);
 		else {
@@ -51,10 +51,10 @@ double log_prod_prob_with_one_flipped(vector<double> &prod, bool is_complememtar
 		}
 	}
 	
-	for ( i = 0; i < prod.size(); i ++){
+	for (i = 0; i < prod.size(); i ++){
 		
 		double curr = 0;
-		if ( is_complememtary) {
+		if (is_complememtary) {
 			right -= log1mx(prod[i]);
 			curr = left + right + log(prod[i]);
 			left += log1mx(prod[i]);

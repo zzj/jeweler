@@ -9,7 +9,7 @@ Transcript::Transcript(){
 
 int Transcript::load_seq(FastaReference * fr){
 	seq = "";
-	for ( int i=0; i < exon_start.size(); i++){
+	for (size_t i=0; i < exon_start.size(); i++){
 		seq+=fr->getSubSequence(chr, exon_start[i] - 1, exon_end[i]-exon_start[i]+1);
 	}
 	return 0;
@@ -24,7 +24,7 @@ bool Transcript::is_aligned(JewelerAlignment *al ){
 	return reads.find(al)!=reads.end();
 }
 
-int Transcript::get_next_exon(int start_pos, int start_seg = 0, int tolerate = 0) {
+int Transcript::get_next_exon(int start_pos, size_t start_seg = 0, int tolerate = 0) {
 	while(!(exon_start[start_seg] - tolerate <= start_pos &&
 			exon_end[start_seg] + tolerate >= start_pos)){
 		start_seg++;
@@ -45,7 +45,6 @@ int Transcript::get_overlapped_alignment(JewelerAlignment *al,
 		exit(0);
 	}
 	// Get start segments
-	int start_seg = 0;
 	int start_pos = al->Position + 1;
 
 	int new_length = 0;
@@ -213,7 +212,6 @@ bool Transcript::is_compatible(JewelerAlignment *al , int tolerate , bool debug)
 		return false;
 	}
 	
-	int new_length = 0;
 	string new_querybases = "";
 
 	std::vector< CigarOp > &cigar_data = al->CigarData;
@@ -308,11 +306,11 @@ bool Transcript::is_compatible(JewelerAlignment *al , int tolerate , bool debug)
 	return true;
 }
 
-int Transcript::output_segments(){
-	for (int i=0;i<exon_start.size();i++){
-		fprintf(stdout,"(%d,%d)",exon_start[i],exon_end[i]);
+void Transcript::output_segments(){
+	for (size_t i = 0; i < exon_start.size(); i++){
+		fprintf(stdout, "(%d,%d)", exon_start[i], exon_end[i]);
 	}
-	fprintf(stdout,"\n");
+	fprintf(stdout, "\n");
 }
 
 
@@ -324,7 +322,6 @@ string Transcript::get_query_aligned_seq(JewelerAlignment * al){
 	// sometimes. TODO: read the samtools's specification, and make
 	// the coordinates right.
 	int start_pos=0;
-	int start;
 	string aligned_string;
 	string query_seq=al->QueryBases;
 	std::vector< CigarOp > &cigar_data = al->CigarData;
@@ -379,7 +376,7 @@ string Transcript::get_query_aligned_seq(JewelerAlignment * al){
 int Transcript::match_alleles(JewelerAlignment *al, int &total_alleles, 
 							  ReadMatcher * rm
 							  ){
-	int i;
+	size_t i;
 	string transcript_seq = get_transcript_aligned_info<string>(al, get_seq_info);
 	rm->transcript_aligned_locations =
 		get_transcript_aligned_info<vector<int> >(al, get_transcript_location_info);
@@ -391,8 +388,8 @@ int Transcript::match_alleles(JewelerAlignment *al, int &total_alleles,
 
 	if (transcript_seq.size()!=query_seq.size()){
 		
-		fprintf(stderr,"Transcript: %d\t%s\n", transcript_seq.size(), transcript_seq.c_str());
-		fprintf(stderr,"Read:     : %d\t%s\n", query_seq.size(), query_seq.c_str());
+		fprintf(stderr,"Transcript: %zu\t%s\n", transcript_seq.size(), transcript_seq.c_str());
+		fprintf(stderr,"Read:     : %zu\t%s\n", query_seq.size(), query_seq.c_str());
 		fprintf(stderr,"%s\t%d\t%s\n", 
 				al->Name.c_str(), 
 				al->Position + 1, 
@@ -444,7 +441,7 @@ int Transcript::get_allele_exon(int transcript_location){
 
 int Transcript::get_transcript_location(int genome_location){
 
-	int ret = lower_bound(genome_pos.begin(),genome_pos.end(),genome_location) - genome_pos.begin();
+	size_t ret = lower_bound(genome_pos.begin(),genome_pos.end(),genome_location) - genome_pos.begin();
 	if (ret==genome_pos.size()){
 		return -1;
 	}
@@ -453,7 +450,7 @@ int Transcript::get_transcript_location(int genome_location){
 
 int Transcript::get_transcript_exon(int genome_location){
 	
-	int i;
+	size_t i;
 	for (i=0;i<exon_start.size();i++){
 		if (genome_location >= exon_start[i]-tolerate  && 
 			genome_location <= exon_end[i] + tolerate){
@@ -487,7 +484,7 @@ int Transcript::register_allele_read(JewelerAlignment *al){
 int Transcript::register_read(JewelerAlignment *al){
 
 	vector<int> matched_exons;
-	int i;
+	size_t i;
 	matched_exons=get_transcript_aligned_info<vector<int> > (al,get_exon_info);
 	for (i = 0; i < matched_exons.size(); i++){
 		reads_per_exon[matched_exons[i]].insert(al);
@@ -506,7 +503,7 @@ int get_seq_info(Transcript * ti, JewelerAlignment *al,
 				 string &ret){
 	int transcript_start=ti->get_transcript_location(genome_start);
 	if (transcript_start==NOT_FOUND){
-		fprintf(stderr,"cannot find transcript postition, did you run Transcript::is_compatible ?\n %d\n%d\n", genome_start,ti->genome_pos.size());
+		fprintf(stderr,"cannot find transcript postition, did you run Transcript::is_compatible ?\n %d\n%zu\n", genome_start,ti->genome_pos.size());
 		ti->output_segments();
 		exit(0);
 	}
@@ -519,7 +516,8 @@ int get_transcript_location_info(Transcript * ti, JewelerAlignment *al,
 	int transcript_start = ti->get_transcript_location(genome_start);
 	int i;
 	if (transcript_start == NOT_FOUND){
-		fprintf(stderr,"cannot find transcript postition, did you run Transcript::is_compatible ?\n %d\n%d\n", genome_start,ti->genome_pos.size());
+		fprintf(stderr,"cannot find transcript postition, did you run Transcript::is_compatible ?\n %d\n%zu\n",
+                genome_start, ti->genome_pos.size());
 		ti->output_segments();
 		exit(0);
 	}
@@ -528,18 +526,20 @@ int get_transcript_location_info(Transcript * ti, JewelerAlignment *al,
 	}
 	return 0;
 }
+
 int get_genome_location_info(Transcript * ti, JewelerAlignment *al,
-								 int genome_start, int alignment_start, int length, 
-								 vector<int>  &ret){
+                             int genome_start, int alignment_start, int length, 
+                             vector<int>  &ret){
 	int i;
 	for (i = 0 ; i < length ; i++){
 		ret.push_back(genome_start+i);
 	}
 	return 0;
 }
+
 int get_read_location_info(Transcript * ti, JewelerAlignment *al,
-								 int genome_start, int alignment_start, int length, 
-								 vector<int>  &ret){
+                           int genome_start, int alignment_start, int length, 
+                           vector<int>  &ret){
 	int transcript_start = ti->get_transcript_location(genome_start);
 	int i;
 	if (transcript_start == NOT_FOUND){
@@ -559,7 +559,7 @@ int get_exon_info(Transcript * ti,  JewelerAlignment * al,
 
 	int transcript_start=ti->get_transcript_location(genome_start);
 	if (transcript_start==NOT_FOUND){
-		fprintf(stderr,"cannot find transcript postition, did you run Transcript::is_compatible ?\n %d\n%d\n", genome_start,ti->genome_pos.size());
+		fprintf(stderr,"cannot find transcript postition, did you run Transcript::is_compatible ?\n %d\n%zu\n", genome_start,ti->genome_pos.size());
 		
 		ti->output_segments();
 		exit(0);
@@ -571,13 +571,13 @@ int get_exon_info(Transcript * ti,  JewelerAlignment * al,
 int insert_mismatch_info(Transcript *ti,  JewelerAlignment * al, 
 						 int genome_start, int alignment_start, int length, 
 						 vector<int> &mismatches){
-	int i;
+	size_t i;
 	int transcript_start=ti->get_transcript_location(genome_start);
 	if (transcript_start==NOT_FOUND){
-		fprintf(stderr,"cannot find transcript postition, did you run Transcript::is_compatible ?\n %d\n%d\n", genome_start,ti->genome_pos.size());
+		fprintf(stderr,"cannot find transcript postition, did you run Transcript::is_compatible ?\n %d\n%zu\n", genome_start,ti->genome_pos.size());
 		
 		ti->output_segments();
-		exit(0);
+		exit(1);
 	}
 	string genome_seq    = ti->seq.substr(transcript_start, length);
 	string alignment_seq = al->QueryBases.substr(alignment_start, length);
@@ -594,7 +594,7 @@ int Transcript::add_transcript_to_graph(Graph *graph, vector<Path> &records){
 	bool is_valid=true;
 	exon_chain.resize(exon_start.size(),NULL);
 	
-	for (int i=0;i<exon_start.size();i++){
+	for (size_t i=0;i<exon_start.size();i++){
 		int exon_origin=EXON_NO_INFO;
 		if (num_alleles_per_exon[i]>0){
 			if (num_info_reads_per_exon[i]>0){
@@ -628,14 +628,14 @@ int Transcript::add_transcript_to_graph(Graph *graph, vector<Path> &records){
 
 
 bool Transcript::is_equal(Transcript *t){
-	if (t->exon_start.size()!=this->exon_start.size()){
+	if (t->exon_start.size() != this->exon_start.size()) {
 		return false;
 	}
-	for (int i=0;i<t->exon_start.size();i++){
-		if (t->exon_start[i]!=this->exon_start[i]){
+	for (size_t i=0;i<t->exon_start.size();i++) {
+		if (t->exon_start[i]!=this->exon_start[i]) {
 			return false;
 		}
-		if (t->exon_end[i]!=this->exon_end[i]){
+		if (t->exon_end[i]!=this->exon_end[i]) {
 			return false;
 		}
 	}
@@ -643,6 +643,6 @@ bool Transcript::is_equal(Transcript *t){
 }
 
 
-int Transcript::dump_seq(string &result_folder, string &filename){
+void Transcript::dump_seq(string &result_folder, string &filename) {
 	write_fasta_file(result_folder + "/" + filename, transcript_id, seq);
 }
