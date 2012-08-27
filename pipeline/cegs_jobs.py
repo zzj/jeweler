@@ -1,6 +1,5 @@
 import os, sys, socket, time
 
-
 def run_command(fd, comm):
     print(comm)
     ##os.system(comm)
@@ -29,7 +28,7 @@ def main():
     batch = first_read_file.strip().split('_')[2].split('/')[0]
 
     info = filebasename.strip().split('_')
-    lane_id = info[info.index('s')+1]
+    lane_id = info[info.index('s') + 1]
 
     ##print(lane_id + '\n')
 

@@ -42,7 +42,7 @@ JEWELER_LIB_SOURCES =  jeweler_info.cpp jeweler_alignment.cpp read_matcher.cpp \
 JEWELER_SOURCES= jeweler.cpp $(JEWELER_LIB_SOURCES)
 
 TEST_JEWELER_SOURCES= test_common.cpp test_jeweler_alignment.cpp test_gtf.cpp \
-                      test_jeweler_info.cpp
+                      test_jeweler_info.cpp test_transcript.cpp
 TEST_JEWELER_OBJECTS=$(TEST_JEWELER_SOURCES:.cpp=.o)
 TEST_JEWELER = test_jeweler
 
@@ -80,6 +80,7 @@ $(JEWELER_EXECUTABLE): $(JEWELER_OBJECTS)
 
 $(TEST_JEWELER): $(JEWELER_LIB_OBJECTS) $(TEST_JEWELER_OBJECTS) gtest_main.a 
 	$(CC) $(LIB) $^ $(LDFLAGS) -lpthread  -o $@
+	./$(TEST_JEWELER)
 
 $(APPRAISER_EXECUTABLE): $(APPRAISER_OBJECTS)
 	$(CC) $(LIB) $^ $(LDFLAGS) -o $@

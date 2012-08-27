@@ -1,8 +1,8 @@
 #include "earrings.hpp"
 
-Earrings::Earrings(JewelerInfo *jeweler_info, 
+Earrings::Earrings(JewelerInfo *jeweler_info,
 				   string gene_id,
-				   SewingMachine *sm, 
+				   SewingMachine *sm,
 				   bool is_prepare = false) {
 	size_t i;
 
@@ -11,11 +11,11 @@ Earrings::Earrings(JewelerInfo *jeweler_info,
 	this->jeweler_info = jeweler_info;
 	this->gene_id = gene_id;
 	this->result_folder = jeweler_info->result_folder + "/" + gene_id;
-	
+
 	// load maternal and paternal transcripts sequences.
-	load_transcript_data(is_prepare);	
+	load_transcript_data(is_prepare);
 	//if (is_prepare) return;
-	
+
 	this->chr = paternal_transcripts[0]->chr;
 	this->ref_id = jeweler_info->get_refID(chr);
 	if (ref_id == NOT_FOUND) {
@@ -24,7 +24,7 @@ Earrings::Earrings(JewelerInfo *jeweler_info,
 
 	for (i=0;i<paternal_transcripts.size();i++) {
 		Transcript *p=paternal_transcripts[i];
-		
+
 		if ( i == 0 ) {
 			left_pos = p->start;
 			right_pos = p->end;
@@ -34,7 +34,7 @@ Earrings::Earrings(JewelerInfo *jeweler_info,
 			right_pos = max(right_pos, p->end);
 		}
 	}
-	
+
 	// load bamalignment by bamtools.
 	load_read_data();
 	if (sm!=NULL) {
@@ -48,10 +48,6 @@ Earrings::Earrings(JewelerInfo *jeweler_info,
 	//test_allele_specific_transcript();
 	// have sewingmachine class, output maltiple aligment info
 }
-
-
-
-
 
 Earrings::~Earrings() {
 	size_t i=0;
@@ -73,7 +69,7 @@ Earrings::~Earrings() {
 }
 
 
-// this function must be called after the align_reads 
+// this function must be called after the align_reads
 // otherwise the statistics may be incorrect.
 void Earrings::count_multiple_alignments(bool is_after_aligned) {
 
@@ -82,7 +78,7 @@ void Earrings::count_multiple_alignments(bool is_after_aligned) {
 	multiple_read_names.clear();
 
 	for (size_t i = 0; i < bam_reads.size(); i ++) {
-		if ( sm->multiple_alignment_set.find (bam_reads[i]->Name) == 
+		if ( sm->multiple_alignment_set.find (bam_reads[i]->Name) ==
 			 sm->multiple_alignment_set.end()) {
 			single_reads++;
 			single_read_names.insert( bam_reads[i]->Name );
@@ -123,7 +119,7 @@ void Earrings::count_multiple_alignments(bool is_after_aligned) {
 }
 
 void Earrings::test_memory_leak() {
-	if (num_total_reads != 
+	if (num_total_reads !=
 		bam_reads.size() + unaligned_reads.size() + noused_reads.size())
 		fprintf (stderr, "WARNING: Memory Leaking: total reads %zu\t record reads%zu\n", num_total_reads,  bam_reads.size() + unaligned_reads.size() + noused_reads.size());
 
@@ -135,7 +131,7 @@ int Earrings::load_read_data() {
 	if (! jeweler_info->bam_reader.SetRegion(ref_id, left_pos, ref_id, right_pos)) {
 		fprintf(stdout, "%s\n", jeweler_info->bam_reader.GetErrorString().c_str());
 	}
-	
+
 	JewelerAlignment *al=new JewelerAlignment();
 
 	while(jeweler_info->bam_reader.GetNextAlignment(*al)) {
@@ -145,7 +141,7 @@ int Earrings::load_read_data() {
 	}
 	delete al; // delete the last unused one
 	fprintf(stdout, "totally %zu bamalignments are loaded\n", num_total_reads);
-	
+
 	return 0;
 }
 
@@ -162,23 +158,23 @@ int Earrings::load_transcript_data(bool is_prepare) {
 					  result_folder + "/paternal.unmapped.bam",
 					  is_prepare);
 	if (is_prepare) {
-		// fprintf(stdout, "%s\n", (string("python pipeline/mergeBam.py ") 
-		// 						 + result_folder + "/maternal.unmapped.bam " + 
-		// 						 result_folder + "/paternal.unmapped.bam "+ 
+		// fprintf(stdout, "%s\n", (string("python pipeline/mergeBam.py ")
+		// 						 + result_folder + "/maternal.unmapped.bam " +
+		// 						 result_folder + "/paternal.unmapped.bam "+
 		// 						 result_folder+" unmapped.bam").c_str());
-		
-		// system((string("python pipeline/mergeBam.py ") 
-		// 		+ result_folder + "/maternal.unmapped.bam " + 
-		// 		result_folder + "/paternal.unmapped.bam " + 
-		// 		result_folder+" unmapped.bam").c_str());
-		system(string("cp "	+ result_folder + "/paternal.unmapped.bam " + 
-					  result_folder+"/unmapped.bam").c_str());
 
-	}
-	if (paternal_transcripts.size()!=maternal_transcripts.size() 
-		|| paternal_transcripts.size()==0) {
-		fprintf(stderr, 
-				"ERROR: number of transcripts does not match or no reads at all for gene %s  at %s:%d\n",
+        // system((string("python pipeline/mergeBam.py ")
+        //      + result_folder + "/maternal.unmapped.bam " +
+        //      result_folder + "/paternal.unmapped.bam " +
+        //      result_folder+" unmapped.bam").c_str());
+        system(string("cp " + result_folder + "/paternal.unmapped.bam " +
+                      result_folder+"/unmapped.bam").c_str());
+
+    }
+    if (paternal_transcripts.size()!=maternal_transcripts.size()
+        || paternal_transcripts.size()==0) {
+        fprintf(stderr,
+                "ERROR: number of transcripts does not match or no reads at all for gene %s  at %s:%d\n",
 				gene_id.c_str(),__FILE__, __LINE__);
 		exit(0);
 	}
@@ -188,9 +184,9 @@ int Earrings::load_transcript_data(bool is_prepare) {
 		Transcript *m=maternal_transcripts[i];
 		p->transcript_file = "paternal."+p->transcript_id+".fasta";
 		m->transcript_file = "maternal."+m->transcript_id+".fasta";
-		
+
 		if (p->seq.size()!=m->seq.size()) {
-			fprintf(stderr, 
+			fprintf(stderr,
 					"ERROR: transcript sequence size does not match at gene %s  at %s:%d\n",
 					p->transcript_id.c_str(),__FILE__, __LINE__);
 			exit(0);
@@ -207,7 +203,7 @@ int Earrings::load_transcript_data(bool is_prepare) {
 				num++;
 			}
 		}
-		
+
 		// transcript initialization
 		p->allele_exon.resize(m->snp_pos.size());
 		m->allele_exon.resize(m->snp_pos.size());
@@ -250,7 +246,7 @@ int Earrings::load_transcript_data(bool is_prepare) {
 	mismatcher->initialize();
 	return 0;
 }
-template<class T> 
+template<class T>
 vector<T *> duplicate_vector(vector<T *> in) {
 	vector<T *> ret(in.size());
 	size_t i;
@@ -260,9 +256,9 @@ vector<T *> duplicate_vector(vector<T *> in) {
 	return ret;
 }
 
-int Earrings::transcript_helper(vector<Transcript *> &transcripts, 
+int Earrings::transcript_helper(vector<Transcript *> &transcripts,
 								FastaReference *fasta_ref,
-								string prefix, 
+								string prefix,
 								string output_bam,
 								bool is_prepare) {
 	//assuming gtf file has the same order of transcripts with the seq files
@@ -270,7 +266,7 @@ int Earrings::transcript_helper(vector<Transcript *> &transcripts,
 
 	transcripts = duplicate_vector(jeweler_info->gene_id2transcripts[gene_id]);
 	// TODO: put these code into gtf.cpp files.
-	// All transcript class operations should be done in transcripts. 
+	// All transcript class operations should be done in transcripts.
 	TranscriptomeAligner ta;
 	vector<string> reference_sequences;
 	vector<string> reference_ids;
@@ -278,10 +274,10 @@ int Earrings::transcript_helper(vector<Transcript *> &transcripts,
 	FILE * file = fopen(merged_fasta_file.c_str(),"w+");;
 	for (j = 0; j < transcripts.size(); j++) {
 		transcripts[j]->load_seq(fasta_ref);
-		
+
 		//check whether seq and genome_pos are the same length or
-		//not, this is the earliest point to do such check. 
-		
+		//not, this is the earliest point to do such check.
+
 		if (transcripts[j]->seq.size() != transcripts[j]->genome_pos.size())
 			{
 				fprintf(stderr, "something wrong in inferring the genome position");
@@ -295,9 +291,9 @@ int Earrings::transcript_helper(vector<Transcript *> &transcripts,
 	}
 	fclose(file);
 	if (is_prepare)
-		ta.align(jeweler_info->left_unmapped_file, jeweler_info->right_unmapped_file, 
+		ta.align(jeweler_info->left_unmapped_file, jeweler_info->right_unmapped_file,
 				 reference_sequences, reference_ids, merged_fasta_file,output_bam);
-	
+
 	return 0;
 }
 
@@ -324,13 +320,13 @@ void Earrings::get_compatible_reads(vector<set<JewelerAlignment *> > &read_lists
 		vector<int> penalties;
 		penalties.resize(maternal_transcripts.size(),100000);
 		is_compatible=false;
-		
+
 		for (j = 0; j < maternal_transcripts.size(); j++) {
 			// the maternal_transcript should be the same with the
 			// paternal_transcript
 
 			if (maternal_transcripts[j]->is_compatible(bam_reads[i], Transcript::tolerate)) {
-				maternal_transcripts[j]->get_overlapped_alignment(bam_reads[i], 
+				maternal_transcripts[j]->get_overlapped_alignment(bam_reads[i],
 																  penalties[j]);
 				is_compatible=true;
 				if (penalties[j] < min_penalty) {
@@ -352,14 +348,14 @@ void Earrings::get_compatible_reads(vector<set<JewelerAlignment *> > &read_lists
 
 					if (min_penalty != 0 && !is_fixed) {
 
-						maternal_transcripts[j]->get_overlapped_alignment(bam_reads[i], 
+						maternal_transcripts[j]->get_overlapped_alignment(bam_reads[i],
 																		  penalties[j],
 																		  true);
 						is_fixed = true;
-						
+
 					}
 					else {
-						maternal_transcripts[j]->get_overlapped_alignment(bam_reads[i], 
+						maternal_transcripts[j]->get_overlapped_alignment(bam_reads[i],
 																		  penalties[j],
 																		  false);
 						// oh shit, the two transcripts are have
@@ -371,10 +367,10 @@ void Earrings::get_compatible_reads(vector<set<JewelerAlignment *> > &read_lists
 					read_lists[j].insert(bam_reads[i]);
 				}
 			}
-		
+
 		}
 	}
-	
+
 	fprintf(stdout, "Tolerate %d\tTotal reads: %zu\t Compatible: %zu\t unaligned: %zu\n",
 			Transcript::tolerate,
 			bam_reads.size(),
@@ -406,7 +402,7 @@ void Earrings::align_reads() {
 	int num_maternal_alleles;
 	int num_paternal_alleles;
 	int total_alleles;
-	bool is_compatible=false;	
+	bool is_compatible=false;
 	set<JewelerAlignment *> cleared;
 	vector<set<JewelerAlignment *> >noninfo;
 	vector<int> paternal_alleles;
@@ -414,7 +410,7 @@ void Earrings::align_reads() {
 
 	vector<JewelerAlignment *> new_bam_reads;
 	vector<set<JewelerAlignment *> > read_lists;
-   
+
 	AlignmentGlue ag;
 	Transcript::tolerate = 0;
 
@@ -428,7 +424,7 @@ void Earrings::align_reads() {
 
 
 	int num_compatible_reads = 0;
-	noninfo.resize(maternal_transcripts.size());	
+	noninfo.resize(maternal_transcripts.size());
 	for (i = 0 ; i < bam_reads.size(); i++) {
 
 		is_compatible = false;
@@ -443,10 +439,10 @@ void Earrings::align_reads() {
 				// TODO: use a class to store the matched information
 				ReadMatcher maternal_matcher;
 				ReadMatcher paternal_matcher;
-				
+
 				maternal_transcripts[j]->register_read(bam_reads[i]);
 				paternal_transcripts[j]->register_read(bam_reads[i]);
-			
+
 				maternal_transcripts[j]->match_alleles(bam_reads[i],
 													   total_alleles,
 													   &maternal_matcher);
@@ -454,7 +450,7 @@ void Earrings::align_reads() {
 				paternal_transcripts[j]->match_alleles(bam_reads[i],
 													   total_alleles,
 													   &paternal_matcher);
-		
+
 				//fprintf(stdout,"%d\n",total_alleles);
 				num_maternal_alleles=maternal_alleles.size();
 				num_paternal_alleles=paternal_alleles.size();
@@ -478,7 +474,7 @@ void Earrings::align_reads() {
 							mismatcher->add_mismatches(paternal_transcripts[j],
 													   bam_reads[i],
 													   &paternal_matcher);
-					
+
 						}
 					}
 				}
@@ -490,25 +486,25 @@ void Earrings::align_reads() {
 				}
 			}
 		}
-		
+
 		if (is_compatible) {
 			num_compatible_reads ++;
 		}
 		else {
-			
+
 			fprintf(stderr, "WARNING: Find an incompatible read.\n");
 			for (k = 0; k < paternal_transcripts.size(); k ++) {
 				paternal_transcripts[k]->output_segments();
-				paternal_transcripts[k]->is_compatible(bam_reads[i], Transcript::tolerate, 
+				paternal_transcripts[k]->is_compatible(bam_reads[i], Transcript::tolerate,
 												   /*debug output*/true);
 			}
 			output_bamalignment(bam_reads[i]);
 		}
 	}
 	FILE * finfo;
-	 
-	fprintf(stdout, "%d compatible reads in %zu reads\n", 
-			num_compatible_reads, 
+
+	fprintf(stdout, "%d compatible reads in %zu reads\n",
+			num_compatible_reads,
 			bam_reads.size()
 			);
 
@@ -521,7 +517,7 @@ void Earrings::align_reads() {
 		FILE *foutput;
 		foutput=fopen(string(result_folder+"/"+maternal_transcripts[i]->transcript_id+".landscape.plot.info").c_str(),"w+");
 		if (foutput == NULL) {
-			fprintf(stderr, "cannot open file at %s\n", 
+			fprintf(stderr, "cannot open file at %s\n",
 					string(result_folder+"/"+maternal_transcripts[i]->transcript_id+".landscape.plot.info").c_str());
 		}
 		string name=maternal_transcripts[i]->transcript_id;
@@ -541,7 +537,7 @@ void Earrings::align_reads() {
 	//fprintf(stdout,"%d\t%d\t%d\t%d\t%d\n",unaligned.size(),
 	//uncleared.size(),
 	//cleared.size(),noninfo.size(),bam_reads.size());
-	
+
 }
 
 int Earrings::test_allele_specific_transcript() {
@@ -559,7 +555,7 @@ int Earrings::test_allele_specific_transcript() {
 			//if (paternal[j]>(maternal[j]+1)*3) {
 			if (paternal[j]>10* maternal[j]) {
 				paternal_dominance=true;
-			} 
+			}
 		}
 
 	}

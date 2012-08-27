@@ -2,8 +2,8 @@ import os, sys, time
 
 import glob
 
-bamfolder = '/nas02/home/z/z/zzj/Research/rna_seq/jeweler/data/cegs_rnaseq_bam_combined/'
-output_folder = '/nas02/home/z/z/zzj/Research/rna_seq/jeweler/data/cegs_rnaseq_bam_merged/'
+bamfolder = '/nas02/home/z/z/zzj/Research/rna_seq/jeweler/data/cegs_rnaseq_bam_new_combined/'
+output_folder = '/nas02/home/z/z/zzj/Research/rna_seq/jeweler/data/cegs_rnaseq_bam_new_merged/'
 
 ref_map={'F':'CAST','G':'PWK','H':'WSB'}
 
@@ -45,6 +45,7 @@ for key, value in table.items():
                 #         print('mv '+ (fastq_left[key][0]) + ' ' + output_folder + '/' + key +".left.unmapped.fastq")
                 #         print('mv '+ (fastq_right[key][0]) + ' ' + output_folder + '/' + key +".right.unmapped.fastq")
         else:
+                continue
                 bn = os.path.basename(value[0])
                 if (bn[0] == bn[1]):
                         print('cp ' + value[0] + ' ' + output_folder +'/')

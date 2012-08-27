@@ -4,7 +4,7 @@
 
 
 #include <iostream>
-#include <string> 
+#include <string>
 #include <api/BamReader.h>
 #include <api/BamWriter.h>
 #include <Fasta.h>
@@ -21,7 +21,7 @@ using namespace BamTools;
 using namespace std;
 
 // The earrings always present as a pair, though sometimes you may
-// only find one. 
+// only find one.
 
 // This class will investigate the possible allele specific pile up graph.
 class JewelerInfo;
@@ -42,7 +42,7 @@ public :
 	vector<JewelerAlignment *> unaligned_reads;
 	vector<JewelerAlignment *> noused_reads;
 	vector<JewelerAlignment *> compatible_reads;
-	
+
 	JewelerInfo *jeweler_info;
 	string result_folder;
 	string gene_id;
@@ -50,7 +50,7 @@ public :
 	int ref_id;
 	int left_pos, right_pos;
 	size_t num_total_reads;
-	
+
 	set<string> single_read_names;
 	set<string> multiple_read_names;
 
@@ -58,21 +58,21 @@ public :
 	void count_multiple_alignments(bool is_after_aligned);
 	// create paternal and maternal transcripts databases
 	// annotate SNPs for paternal  and maternal transcripts' sequence
-	int load_transcript_data(bool is_prepares); // load transcript data 
+	int load_transcript_data(bool is_prepares); // load transcript data
 
-	// load cufflinks' gtf file 
+	// load cufflinks' gtf file
 	int transcript_helper(vector<Transcript *> &new_transcripts,
-						  FastaReference *f, 
+						  FastaReference *f,
 						  string prefix,
-						  string unmapped_bam, 
+						  string unmapped_bam,
 						  bool is_prepare);
 
 	// load JewelerAlignment into bam_reads
 	int load_read_data();
-	
+
 	// dump compatible reads to a file
-	// each line start with read id, 
-	// and followed by the genome locations it covered. 
+	// each line start with read id,
+	// and followed by the genome locations it covered.
 	void dump_compatible_reads(FILE *fd);
 
     // align reads to maternal or paternal transcripts
@@ -83,7 +83,7 @@ public :
 
 	// build graph
 	int build_graph();
-	
+
 	// study compatible reads
 	int study_compatible_reads();
 

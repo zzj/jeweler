@@ -1,0 +1,14 @@
+chr1	Cufflinks	transcript	4766465	4775767	239	-	.	gene_id "CUFF.9"; transcript_id "CUFF.9.1"; FPKM "5.0901313658"; frac "0.129310"; conf_lo "3.251189"; conf_hi "6.929073"; cov "8.745324";
+chr1	Cufflinks	exon	4766465	4766882	239	-	.	gene_id "CUFF.9"; transcript_id "CUFF.9.1"; exon_number "1"; FPKM "5.0901313658"; frac "0.129310"; conf_lo "3.251189"; conf_hi "6.929073"; cov "8.745324";
+chr1	Cufflinks	exon	4767606	4767729	239	-	.	gene_id "CUFF.9"; transcript_id "CUFF.9.1"; exon_number "2"; FPKM "5.0901313658"; frac "0.129310"; conf_lo "3.251189"; conf_hi "6.929073"; cov "8.745324";
+chr1	Cufflinks	exon	4772649	4772814	239	-	.	gene_id "CUFF.9"; transcript_id "CUFF.9.1"; exon_number "3"; FPKM "5.0901313658"; frac "0.129310"; conf_lo "3.251189"; conf_hi "6.929073"; cov "8.745324";
+chr1	Cufflinks	exon	4775654	4775767	239	-	.	gene_id "CUFF.9"; transcript_id "CUFF.9.1"; exon_number "4"; FPKM "5.0901313658"; frac "0.129310"; conf_lo "3.251189"; conf_hi "6.929073"; cov "8.745324";
+chr1	Cufflinks	transcript	4766465	4775780	1000	-	.	gene_id "CUFF.9"; transcript_id "CUFF.9.2"; FPKM "21.2770262239"; frac "0.674789"; conf_lo "17.912045"; conf_hi "24.642007"; cov "36.555929";
+chr1	Cufflinks	exon	4766465	4766882	1000	-	.	gene_id "CUFF.9"; transcript_id "CUFF.9.2"; exon_number "1"; FPKM "21.2770262239"; frac "0.674789"; conf_lo "17.912045"; conf_hi "24.642007"; cov "36.555929";
+chr1	Cufflinks	exon	4767606	4767729	1000	-	.	gene_id "CUFF.9"; transcript_id "CUFF.9.2"; exon_number "2"; FPKM "21.2770262239"; frac "0.674789"; conf_lo "17.912045"; conf_hi "24.642007"; cov "36.555929";
+chr1	Cufflinks	exon	4772649	4772814	1000	-	.	gene_id "CUFF.9"; transcript_id "CUFF.9.2"; exon_number "3"; FPKM "21.2770262239"; frac "0.674789"; conf_lo "17.912045"; conf_hi "24.642007"; cov "36.555929";
+chr1	Cufflinks	exon	4774032	4774186	1000	-	.	gene_id "CUFF.9"; transcript_id "CUFF.9.2"; exon_number "4"; FPKM "21.2770262239"; frac "0.674789"; conf_lo "17.912045"; conf_hi "24.642007"; cov "36.555929";
+chr1	Cufflinks	exon	4775654	4775780	1000	-	.	gene_id "CUFF.9"; transcript_id "CUFF.9.2"; exon_number "5"; FPKM "21.2770262239"; frac "0.674789"; conf_lo "17.912045"; conf_hi "24.642007"; cov "36.555929";
+chr1	Cufflinks	transcript	4770739	4772811	1000	+	.	gene_id "CUFF.10"; transcript_id "CUFF.10.1"; FPKM "3.1393208904"; frac "0.195900"; conf_lo "2.217866"; conf_hi "4.060776"; cov "5.393648";
+chr1	Cufflinks	exon	4770739	4772378	1000	+	.	gene_id "CUFF.10"; transcript_id "CUFF.10.1"; exon_number "1"; FPKM "3.1393208904"; frac "0.195900"; conf_lo "2.217866"; conf_hi "4.060776"; cov "5.393648";
+chr1	Cufflinks	exon	4772645	4772811	1000	+	.	gene_id "CUFF.10"; transcript_id "CUFF.10.1"; exon_number "2"; FPKM "3.1393208904"; frac "0.195900"; conf_lo "2.217866"; conf_hi "4.060776"; cov "5.393648";

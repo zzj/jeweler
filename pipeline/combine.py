@@ -2,8 +2,8 @@ import os, sys, time
 
 import glob
 
-bamfolder = '/nas02/home/z/z/zzj/Research/rna_seq/jeweler/data/cegs_rnaseq_bam/'
-output_folder = '/nas02/home/z/z/zzj/Research/rna_seq/jeweler/data/cegs_rnaseq_bam_combined/'
+bamfolder = '/nas02/home/z/z/zzj/Research/rna_seq/jeweler/data/cegs_rnaseq_bam_new/'
+output_folder = '/nas02/home/z/z/zzj/Research/rna_seq/jeweler/data/cegs_rnaseq_bam_new_combined/'
 
 ref_map={'F':'CAST','G':'PWK','H':'WSB'}
 
@@ -27,6 +27,8 @@ for infile in glob.glob(os.path.join(bamfolder + "*lane*")):
     right_unmapped[key].append(infile+'/unmapped_right.fq')
         
 for key, value in table.items():
+    if len(value) != 4:
+        continue
     print('samtools merge ' + output_folder + '/'+key+'.bam ' + ' '.join(value) + " -f")
         # left_join_command = "cat " + " ".join(left_unmapped[key]) + " > " + output_folder+'/'+key+".left.fastq"
         # right_join_command = "cat " + " ".join(right_unmapped[key]) + " > " + output_folder+'/'+key+".right.fastq"
