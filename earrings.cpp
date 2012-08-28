@@ -34,7 +34,6 @@ Earrings::Earrings(JewelerInfo *jeweler_info,
 			right_pos = max(right_pos, p->end);
 		}
 	}
-
 	// load bamalignment by bamtools.
 	load_read_data();
 	if (sm!=NULL) {
@@ -146,7 +145,7 @@ int Earrings::load_read_data() {
 }
 
 int Earrings::load_transcript_data(bool is_prepare) {
-	size_t i,j,k;
+	size_t i, j;
 
 	transcript_helper( maternal_transcripts ,
 					   jeweler_info->maternal_fasta, "maternal.",
@@ -191,53 +190,20 @@ int Earrings::load_transcript_data(bool is_prepare) {
 					p->transcript_id.c_str(),__FILE__, __LINE__);
 			exit(0);
 		}
-		int num=0;
 
-		// find SNP position by given both paternal and maternal transcripts sequences
+		// find SNP position by given both paternal and maternal
+		// transcripts sequences
+        vector<unsigned int> snp_pos;
+        vector<char> alleles;
 		for (j = 0; j < p->seq.size(); j++) {
 			if (p->seq[j] != m->seq[j]) {
-				p->snp_pos.push_back(j);
-				m->snp_pos.push_back(j);
-				p->alleles.push_back(p->seq[j]);
-				m->alleles.push_back(m->seq[j]);
-				num++;
+				snp_pos.push_back(j);
+				alleles.push_back(p->seq[j]);
 			}
 		}
 
-		// transcript initialization
-		p->allele_exon.resize(m->snp_pos.size());
-		m->allele_exon.resize(m->snp_pos.size());
-		p->num_info_reads_per_exon.resize(p->exon_start.size(),0);
-		m->num_info_reads_per_exon.resize(m->exon_start.size(),0);
-		p->origin=EXON_PATERNAL;
-		m->origin=EXON_MATERNAL;
-		p->num_alleles_per_exon.resize(p->exon_start.size(),0);
-		m->num_alleles_per_exon.resize(p->exon_start.size(),0);
-		p->allele_reads_per_exon.resize(p->exon_start.size());
-		m->allele_reads_per_exon.resize(p->exon_start.size());
-		p->reads_per_exon.resize(p->exon_start.size());
-		m->reads_per_exon.resize(p->exon_start.size());
-
-		for (j=0;j<m->snp_pos.size();j++) {
-			// find the exon
-			int exon_id=-1;
-			for (k=0; k<m->exon_start.size();k++) {
-				if (m->exon_start[k]<=m->genome_pos[m->snp_pos[j]] && m->exon_end[k]>=m->genome_pos[m->snp_pos[j]]) {
-					exon_id=k;
-					break;
-				}
-			}
-			if (exon_id!=-1) {
-				m->allele_exon[j]=exon_id;
-				p->allele_exon[j]=exon_id;
-				m->num_alleles_per_exon[exon_id]++;
-				p->num_alleles_per_exon[exon_id]++;
-			}
-			else {
-				fprintf(stdout,"error\n");
-				exit(0);
-			}
-		}
+        p->load_snps(snp_pos, alleles, EXON_PATERNAL);
+        m->load_snps(snp_pos, alleles, EXON_MATERNAL);
 
 		// mismatcher initialization
 		mismatcher->add_transcript(p, TRANSCRIPT_PATERNAL);
@@ -246,6 +212,7 @@ int Earrings::load_transcript_data(bool is_prepare) {
 	mismatcher->initialize();
 	return 0;
 }
+
 template<class T>
 vector<T *> duplicate_vector(vector<T *> in) {
 	vector<T *> ret(in.size());
@@ -274,15 +241,6 @@ int Earrings::transcript_helper(vector<Transcript *> &transcripts,
 	FILE * file = fopen(merged_fasta_file.c_str(),"w+");;
 	for (j = 0; j < transcripts.size(); j++) {
 		transcripts[j]->load_seq(fasta_ref);
-
-		//check whether seq and genome_pos are the same length or
-		//not, this is the earliest point to do such check.
-
-		if (transcripts[j]->seq.size() != transcripts[j]->genome_pos.size())
-			{
-				fprintf(stderr, "something wrong in inferring the genome position");
-				exit(0);
-			}
 		string filename = string(prefix+transcripts[j]->transcript_id);
 		transcripts[j]->dump_seq(result_folder, filename);
 		write_fasta_file(file, transcripts[j]->transcript_id, transcripts[j]->seq);

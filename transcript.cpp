@@ -6,7 +6,7 @@ Transcript::Transcript() {
 	is_initialized=false;
 }
 
-int Transcript::load_gtf(vector<gtf_info> &gtf_list) {
+void Transcript::load_gtf(vector<gtf_info> &gtf_list) {
     this->start = gtf_list[0].start;
     this->end = gtf_list[0].end;
     this->chr = gtf_list[0].chr;
@@ -27,15 +27,50 @@ int Transcript::load_gtf(vector<gtf_info> &gtf_list) {
 		fprintf(stderr, "The start position of the first exon does not equal to the start position of the transcript \n");
 		exit(0);
 	}
+    this->num_info_reads_per_exon.resize(this->exon_start.size(),0);
+    this->num_alleles_per_exon.resize(this->exon_start.size(),0);
+    this->allele_reads_per_exon.resize(this->exon_start.size());
+    this->reads_per_exon.resize(this->exon_start.size());
 }
 
-int Transcript::load_seq(FastaReference * fr) {
+void Transcript::load_seq(FastaReference * fr) {
 	seq = "";
 	for (size_t i=0; i < exon_start.size(); i++) {
 		seq+=fr->getSubSequence(chr, exon_start[i] - 1, exon_end[i]-exon_start[i]+1);
 	}
+}
 
-	return 0;
+int Transcript::get_exon_by_genome_pos(unsigned int pos) {
+    int exon_id = -1;
+    size_t k;
+    for (k = 0; k < this->exon_start.size(); k++) {
+        if (this->exon_start[k] <= pos && 
+            this->exon_end[k] >= pos) {
+            exon_id=k;
+            break;
+        }
+    }
+    return exon_id;
+}
+
+void Transcript::load_snps(vector<unsigned int> &snp_pos, vector<char> &alleles,
+                           int exon_type) {
+    size_t j, k;
+    this->snp_pos = snp_pos;
+    this->alleles = alleles;
+    this->origin = exon_type;
+    this->allele_exon.resize(this->snp_pos.size());
+    for (j = 0; j < this->snp_pos.size(); j++) {
+        // find the exon
+        int exon_id = get_exon_by_genome_pos(this->genome_pos[this->snp_pos[j]]);
+        if (exon_id!=-1) {
+            this->allele_exon[j]=exon_id;
+            this->num_alleles_per_exon[exon_id]++;
+        }
+        else {
+            throw string("can not find exon!");
+        }
+    }
 }
 
 int Transcript::insert_reads(JewelerAlignment *al ) {
@@ -44,7 +79,7 @@ int Transcript::insert_reads(JewelerAlignment *al ) {
 }
 
 bool Transcript::is_aligned(JewelerAlignment *al ) {
-    return reads.find(al)!=reads.end();
+    return reads.find(al) != reads.end();
 }
 
 int Transcript::get_next_exon(int start_pos, size_t start_seg = 0, int tolerate = 0) {

@@ -46,7 +46,7 @@ public:
 
     // SNP info
     // TODO: snp class
-    vector<int> snp_pos;
+    vector<unsigned int> snp_pos;
     vector<char> alleles;
     vector<int> allele_exon; // the number of exon for the given snp
 
@@ -64,9 +64,14 @@ public:
     vector<set<JewelerAlignment *> > allele_reads_per_exon;
     vector<set<JewelerAlignment *> > reads_per_exon;
 
-    int load_gtf(vector<gtf_info> &);
+    void load_gtf(vector<gtf_info> &);
 
-    int load_seq(FastaReference *fr);
+    void load_seq(FastaReference *fr);
+
+    int get_exon_by_genome_pos(unsigned int pos);
+
+    void load_snps(vector<unsigned int> &snp_pos, vector<char> &alleles,
+                   int exon_type);
 
     int get_overlapped_alignment(JewelerAlignment *, int &penalty, bool is_to_fix = false);
 
