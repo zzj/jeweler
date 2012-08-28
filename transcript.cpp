@@ -6,11 +6,35 @@ Transcript::Transcript() {
 	is_initialized=false;
 }
 
+int Transcript::load_gtf(vector<gtf_info> &gtf_list) {
+    this->start = gtf_list[0].start;
+    this->end = gtf_list[0].end;
+    this->chr = gtf_list[0].chr;
+    this->transcript_id = gtf_list[0].transcript_id;
+    this->gene_id = gtf_list[0].gene_id;
+    for (size_t i = 1; i < gtf_list.size(); i++) {
+        this->exon_start.push_back(gtf_list[i].start);
+        this->exon_end.push_back(gtf_list[i].end);
+        for (size_t j = gtf_list[i].start; j <= gtf_list[i].end; j++) {
+            this->genome_pos.push_back(j);
+        }
+    }
+	// check error
+	if (this->exon_start[0] != this->start)
+	{
+		fprintf(stderr, "%s:%d:%d\n", this->transcript_id.c_str(),
+				this->exon_start[0],this->start);
+		fprintf(stderr, "The start position of the first exon does not equal to the start position of the transcript \n");
+		exit(0);
+	}
+}
+
 int Transcript::load_seq(FastaReference * fr) {
 	seq = "";
 	for (size_t i=0; i < exon_start.size(); i++) {
 		seq+=fr->getSubSequence(chr, exon_start[i] - 1, exon_end[i]-exon_start[i]+1);
 	}
+
 	return 0;
 }
 

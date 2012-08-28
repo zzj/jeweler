@@ -10,6 +10,7 @@
 #include <set>
 #include <api/BamReader.h>
 #include <api/BamWriter.h>
+#include "gtf_info.hpp"
 #include "constants.hpp"
 #include "graph/graph.hpp"
 #include "laboratory/cigar_holder.hpp"
@@ -63,6 +64,8 @@ public:
     vector<set<JewelerAlignment *> > allele_reads_per_exon;
     vector<set<JewelerAlignment *> > reads_per_exon;
 
+    int load_gtf(vector<gtf_info> &);
+
     int load_seq(FastaReference *fr);
 
     int get_overlapped_alignment(JewelerAlignment *, int &penalty, bool is_to_fix = false);
@@ -87,7 +90,6 @@ public:
     // get aligned sequences from the transcript.
     template<typename T, typename get_info>
     T get_transcript_aligned_info(JewelerAlignment *, get_info gi);
-
 
     // get aligned sequences from the query.
     string get_query_aligned_seq(JewelerAlignment *);
