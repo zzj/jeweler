@@ -1,6 +1,5 @@
 #include "alignment_glue.hpp"
 
-
 int output_bamalignment(JewelerAlignment *al) {
 	fprintf(stdout,"%s\n",al->Name.c_str());
 	if (al->IsFirstMate()) {
@@ -17,39 +16,6 @@ int output_bamalignment(JewelerAlignment *al) {
 		fprintf(stdout, "%d\t", al->read_position[i]);
 	}
 	fprintf(stdout, "\n");
-	return 0;
-}
-
-int cigar_trim(JewelerAlignment *al) {
-	
-	vector<CigarOp>& cigar_data = al->CigarData;
-	vector<CigarOp> new_cigar_data;
-	
-	auto i = cigar_data.begin();
-	// trim the beginning 'N'
-	while( i != cigar_data.end() && i->Type == Constants::BAM_CIGAR_REFSKIP_CHAR) {
-		al->Position += i->Length;
-		i ++;
-	}
-
-	while ( i != cigar_data.end() ) {
-		auto j= i;
-		j++;
-		if (j != cigar_data.end() ) {
-			if (i->Type == Constants::BAM_CIGAR_REFSKIP_CHAR) {
-				while( j !=cigar_data.end() &&
-					   j->Type == Constants::BAM_CIGAR_REFSKIP_CHAR 
-					   ) {
-					i->Length += j->Length;
-					j++;
-				}
-			}
-		}
-		if ((i->Type != Constants::BAM_CIGAR_REFSKIP_CHAR || j != cigar_data.end() ))
-			new_cigar_data.push_back(*i);
-		i = j;
-	}
-	al->CigarData = new_cigar_data;
 	return 0;
 }
 
@@ -77,7 +43,7 @@ int AlignmentGlue::get_skipped_region(JewelerAlignment *al, int skipped_alignmen
 		case ( Constants::BAM_CIGAR_SEQMATCH_CHAR ): 
 		case ( Constants::BAM_CIGAR_MISMATCH_CHAR ):
 			// skip the overlapped region
-			skipped_length += min(skipped_alignment_length, ( int ) op.Length);
+			skipped_length += min(skipped_alignment_length, (int) op.Length);
 			// fall through
 		case ( Constants::BAM_CIGAR_REFSKIP_CHAR):
 			skipped_alignment_length = skipped_alignment_length - op.Length;
@@ -176,7 +142,6 @@ void AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlign
 
 		}
 		first->CigarData.resize(i);
-
 	}
 	else {
 		// Good news, first read overlapp second read

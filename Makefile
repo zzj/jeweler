@@ -44,7 +44,8 @@ JEWELER_SOURCES= jeweler.cpp $(JEWELER_LIB_SOURCES)
 
 TEST_JEWELER_SOURCES= test_common.cpp test_jeweler_alignment.cpp test_gtf.cpp \
                       test_jeweler_info.cpp test_transcript.cpp \
-                      laboratory/test_sewing_machine.cpp
+                      laboratory/test_sewing_machine.cpp \
+                      laboratory/test_cigar_holder.cpp
 TEST_JEWELER_OBJECTS=$(TEST_JEWELER_SOURCES:.cpp=.o)
 TEST_JEWELER = test_jeweler
 
