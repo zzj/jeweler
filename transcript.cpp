@@ -239,7 +239,7 @@ int Transcript::get_overlapped_alignment(JewelerAlignment *al,
         al->CigarData = new_cigar_data;
         al->QueryBases = new_querybases;
 
-        cigar_trim(al);
+        cigar_trim(*al);
 
         // fprintf(stdout,"%s\n",get_cigar_string((*al)).c_str());
         // fprintf(stdout,"%s\n",al->QueryBases.c_str());
@@ -257,10 +257,6 @@ bool Transcript::is_compatible(JewelerAlignment *al , int tolerate , bool debug)
     // make it completely compatible
     // check it out with Transcript::tolerate
 
-    if (exon_start.size()!=exon_end.size()) {
-        fprintf(stderr,"the sizes does not match.\n");
-        exit(0);
-    }
     // Get start segments
     int start_seg=0;
     int start_pos=al->Position + 1;
