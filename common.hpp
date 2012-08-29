@@ -18,10 +18,12 @@
 
 #define MAXLINE 10000
 
+using namespace BamTools;
+
 FILE * file_open( const char *name, const char * mode);
 
 char * trim(char *);
 
-
+void open_bam(BamReader &bam_reader, string bam_file);
 
 #endif /* _COMMON_H_ */

@@ -1,0 +1,4 @@
+min_read_len=40
+max_read_len=70
+reads_in =10000
+reads_out=10000

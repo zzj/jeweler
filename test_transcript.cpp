@@ -4,6 +4,7 @@
 #include "jeweler_info.hpp"
 #include "gtest/gtest.h"
 #include "test.hpp"
+#include "laboratory/cigar_holder.hpp"
 #include <boost/assign/std/vector.hpp>
 
 using namespace boost::assign; 
@@ -75,3 +76,27 @@ TEST_F(TranscriptTest, test_get_exon_by_genome_pos) {
     pos = transcripts[0]->genome_pos[319] + 1;
     EXPECT_EQ(-1, transcripts[0]->get_exon_by_genome_pos(pos));
 }
+
+TEST_F(TranscriptTest, test_compatible) {
+    BamReader bam_reader;
+    vector<JewelerAlignment *> compatible_reads;
+    open_bam(bam_reader, "test_data/tophat_out/accepted_hits.bam");
+    JewelerAlignment *al=new JewelerAlignment();
+    while(bam_reader.GetNextAlignment(*al)) {
+        compatible_reads.push_back(al);
+        al=new JewelerAlignment();
+    }
+    return ;
+    for (size_t i = 0; i < compatible_reads.size(); i++) {
+        int32_t ed = 0; // edit distance
+        EXPECT_EQ(true, transcripts[0]->is_compatible(compatible_reads[i]));
+        fprintf(stderr, "%zu\n", i);
+        fprintf(stderr, "%d\n", compatible_reads[i]->Position);
+        fprintf(stderr, "%s\n", get_cigar_string(*compatible_reads[i]).c_str());
+        fprintf(stderr, "%s\n", compatible_reads[i]->QueryBases.c_str());
+    }
+
+    for (size_t i = 0; i < compatible_reads.size(); i++) {
+        delete compatible_reads[i];
+    }
+ }

@@ -1,0 +1,3 @@
+track name=junctions description="TopHat junctions"
+chr1	176	381	JUNC00000001	1503	-	176	381	255,0,0	2	59,66	0,139
+chr1	333	545	JUNC00000002	2287	-	333	545	255,0,0	2	66,66	0,146
