@@ -99,7 +99,6 @@ def initialize_parser():
                             action='store_true',
                             dest='plot_shared_graph')
 
-
         parser.add_argument('--black_list',
                             action='store_true',
                             dest='is_black_list')

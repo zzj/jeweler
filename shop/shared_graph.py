@@ -12,6 +12,7 @@ from subprocess import call
 from gene_meta import GeneMeta
 from gene_relationship import GeneRelationship
 import pickle 
+
 class SharedGraph:
     genes = dict()
     num_genes = 0
@@ -43,6 +44,7 @@ class SharedGraph:
     gene_pattern = dict()
     suspicious_pseudo_genes = set()
     suspicious_unknown_genes = set()
+
     def load_num_reads(self, gene_id):
         ret = 0
         single = 0
@@ -59,9 +61,8 @@ class SharedGraph:
         filename  = self.jeweler_folder + "/"+ gene_id +"/"+gene_id+ ".mamf.single.reads"
         lines = open( filename).readlines()
         ret += len(lines)
-
-
         return ret
+
     def load_cuffcompare_data(self, cuffcompare_file):
         lines = open( cuffcompare_file).readlines()
         result = dict()
@@ -274,7 +275,6 @@ class SharedGraph:
         pickle.dump(self.gene_relationships, fd)
         fd = open(result_folder + "/gene_meta.obj", "wb")
         pickle.dump(self.genes, fd)
-        
 
         fd = open(result_folder +"/" + "shared_graph","w+")
         k=1

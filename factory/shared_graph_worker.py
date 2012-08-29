@@ -64,8 +64,10 @@ def black_list_worker(args):
         sample_id =  os.path.basename(f.strip().replace('.bam',''))
 
         ##stupid python evoke a R program that cannot read a file
-        print('python3.2 shop/black_list.py '+cuffcompare_folder + "/ " +jeweler_folder + "/ "+bracelet_folder + "/ " + mismatch_analyzer_folder + "/ "+
-              shared_graph_folder + "/ " +sample_id  )
+        print('python3.2 shop/black_list.py '+cuffcompare_folder + "/ " +
+              jeweler_folder + "/ "+bracelet_folder + "/ " +
+              mismatch_analyzer_folder + "/ " +
+              shared_graph_folder + "/ " +sample_id)
 
 def classify_gene_worker(args):
     files=open(args.filelist).readlines()

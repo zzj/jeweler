@@ -1,4 +1,4 @@
-CFLAGS= -g -std=gnu++0x -Wall -Wextra
+CFLAGS= -g -O3 -std=gnu++0x -Wall -Wextra
 INC=-Ilib/bamtools/include/ -Ilib/fastahack/ -I$(HOME)/bin/include
 
 # UNIT TEST MAKEFILE
@@ -45,7 +45,8 @@ JEWELER_SOURCES= jeweler.cpp $(JEWELER_LIB_SOURCES)
 TEST_JEWELER_SOURCES= test_common.cpp test_jeweler_alignment.cpp test_gtf.cpp \
                       test_jeweler_info.cpp test_transcript.cpp \
                       laboratory/test_sewing_machine.cpp \
-                      laboratory/test_cigar_holder.cpp
+                      laboratory/test_cigar_holder.cpp test_alignment_glue.cpp
+
 TEST_JEWELER_OBJECTS=$(TEST_JEWELER_SOURCES:.cpp=.o)
 TEST_JEWELER = test_jeweler
 

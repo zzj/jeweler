@@ -20,7 +20,7 @@ public:
 	map<string, vector<JewelerAlignment *> > name2reads;
 	void glue_paired_alignments(JewelerAlignment *first, JewelerAlignment *second);
 	int glue_cigar_data(JewelerAlignment *first, JewelerAlignment *second, int overlapped);	
-	int get_skipped_region(JewelerAlignment *al, int overlapped, 
+	int get_skipped_region(const JewelerAlignment *al, int overlapped, 
 						   vector<CigarOp> &cigar_data, int &skipped_length);
 	
 
@@ -31,5 +31,4 @@ public:
 
 int output_bamalignment(JewelerAlignment *al);
 
-int cigar_trim(JewelerAlignment *al);
 #endif // _ALIGNMENT_GLUE_HPP_

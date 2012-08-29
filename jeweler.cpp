@@ -116,7 +116,6 @@ int jeweler::run() {
 		}
 	}
 	if (!is_prepare) {
-	
 		if (is_bracelet) {
 			fprintf(stdout, "Bracelet analyzing ...\n");
 			Bracelet bracelet(jeweler_info);

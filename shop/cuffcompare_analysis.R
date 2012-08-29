@@ -70,6 +70,7 @@ initialize = function( result.file, jeweler.result.input, is.jeweler.result.file
    }
  }
 )
+
 CuffcomparePlotter$methods(
 get.cuffcompare.info = function ( ) {
   print("Get CuffcompareInfo")

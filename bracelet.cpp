@@ -5,7 +5,6 @@
 using boost::filesystem::path;
 using boost::filesystem::create_directory;
 
-
 Bracelet::Bracelet(JewelerInfo * jeweler_info) {
 	int id = 0;
 	this -> jeweler_info = jeweler_info;
@@ -36,7 +35,6 @@ Bracelet::Bracelet(JewelerInfo * jeweler_info) {
 		fclose(foutput_mamf);
 		sort(reads[id].begin(),reads[id].end());
 		id ++;
-
 	}
 }
 
@@ -53,6 +51,7 @@ int Bracelet::intersect(vector<string> &a, vector<string>&b) {
 	return r;
 }
 
+
 int Bracelet::analyze() {
 	fprintf(stdout, "bracelet analyzing ...\n");
 	for (size_t i=0;i<reads.size(); i++) {
@@ -68,6 +67,7 @@ int Bracelet::analyze() {
 	}
 	return 0;
 }
+
 
 void Bracelet::dump_shared_pileup(FILE * fd,
                                   int original_id,
@@ -111,6 +111,7 @@ void Bracelet::dump_shared_pileup(FILE * fd,
         fprintf(fd,"%d\t%d\n", i->first, i ->second);
     }
 }
+
 
 int Bracelet::dump(FILE * file, string root) {
     fprintf(stdout, "bracelet dumping %s...\n", root.c_str());

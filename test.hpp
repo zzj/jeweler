@@ -51,7 +51,3 @@
         << #ref " has a smaller length than " \
         #target ; \
     }
-
-
-
-

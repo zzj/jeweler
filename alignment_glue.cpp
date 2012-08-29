@@ -19,12 +19,13 @@ int output_bamalignment(JewelerAlignment *al) {
 	return 0;
 }
 
-int AlignmentGlue::get_skipped_region(JewelerAlignment *al, int skipped_alignment_length, 
+int AlignmentGlue::get_skipped_region(const JewelerAlignment *al, int skipped_alignment_length, 
 									  vector<CigarOp> &cigar_data, int &skipped_length) {
 
 	vector<CigarOp>::const_iterator cigar_iter = al->CigarData.begin();
 	vector<CigarOp>::const_iterator cigar_end  = al->CigarData.end();
 	skipped_length = 0;
+    cigar_data.clear();
 
 	for ( ; cigar_iter != cigar_end; ++cigar_iter ) {
 		const CigarOp& op = (*cigar_iter);

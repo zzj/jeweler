@@ -95,9 +95,7 @@ int Transcript::get_next_exon(int start_pos, size_t start_seg = 0, int tolerate 
 int Transcript::get_overlapped_alignment(JewelerAlignment *al,
                                          int &penalty,
                                          bool is_to_fix) {
-
     penalty = 0;
-
     if (exon_start.size()!=exon_end.size()) {
         fprintf(stderr,"the sizes does not match.\n");
         exit(0);
