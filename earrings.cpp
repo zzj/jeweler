@@ -134,11 +134,12 @@ int Earrings::load_read_data() {
 	JewelerAlignment *al=new JewelerAlignment();
 
 	while(jeweler_info->bam_reader.GetNextAlignment(*al)) {
-		num_total_reads ++;
 		bam_reads.push_back(al);
 		al=new JewelerAlignment();
 	}
 	delete al; // delete the last unused one
+    num_total_reads = bam_reads.size();
+
 	fprintf(stdout, "totally %zu bamalignments are loaded\n", num_total_reads);
 
 	return 0;

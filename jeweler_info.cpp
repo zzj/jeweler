@@ -59,22 +59,7 @@ JewelerInfo::JewelerInfo(int argc, char *argv []) {
 	paternal_fasta = new FastaReference();
 	maternal_fasta->open(maternal_strain_ref_file);
 	paternal_fasta->open(paternal_strain_ref_file);
-
-	if (!bam_reader.Open(bam_file)) {
-		fprintf(stderr,"Cannot open bam file %s!\n", bam_file.c_str());
-		exit(1);
-	}
-
-	if (bam_reader.LocateIndex(BamTools::BamIndex::IndexType::STANDARD) ) {
-		fprintf(stdout, "Loaded index for bamfiles ...\n");
-	}
-	else {
-		fprintf(stdout, "Build index for bamfiles ...\n");
-		if (!bam_reader.CreateIndex(BamTools::BamIndex::IndexType::STANDARD)) {
-			fprintf(stderr,"%s!\n", bam_reader.GetErrorString().c_str());
-			exit(1);
-		}
-	}
+    open_bam(this->bam_reader, this->bam_file);
 	references = bam_reader.GetReferenceData();
 }
 

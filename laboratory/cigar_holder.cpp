@@ -10,8 +10,8 @@ int output_cigar_data(FILE * output_file, JewelerAlignment &al) {
 	return 0;
 }
 
-string  get_cigar_string(JewelerAlignment &al) {
-	std::vector< CigarOp > &cigar_data = al.CigarData;
+string  get_cigar_string(const JewelerAlignment &al) {
+	const std::vector< CigarOp > &cigar_data = al.CigarData;
 	ostringstream oss;
 	for (auto i=cigar_data.begin(); i!=cigar_data.end(); i++) {
 		oss << i->Length << i->Type;

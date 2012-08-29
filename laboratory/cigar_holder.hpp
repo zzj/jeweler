@@ -8,4 +8,4 @@ using namespace BamTools;
 using namespace std;
 
 int output_cigar_data(FILE * output_file, JewelerAlignment &al);
-string get_cigar_string(JewelerAlignment &al);
+string get_cigar_string(const JewelerAlignment &al);

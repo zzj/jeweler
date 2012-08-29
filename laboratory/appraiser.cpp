@@ -85,14 +85,14 @@ void Appraiser::run() {
 	sm.initialize(reader);
 	while (reader.GetNextAlignment(al)) {
 		mb.add_alignment(al);
-		sm.add_alignment(al);
+		sm.count_alignment(al);
 		i++;
 		if (test_num>0 && i>test_num) break;
 	}
 	i = 0;
 	reader.Rewind();
 	while (reader.GetNextAlignment(al)) {
-		sm.add_alignment(al, false);
+		sm.add_alignment(al);
 		i++;
 		if (test_num>0 && i>test_num) break;
 	}

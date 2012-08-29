@@ -1,7 +1,7 @@
 
 #include "sewing_machine.hpp"
 
-locator::locator(JewelerAlignment &al) {
+locator::locator(const JewelerAlignment &al) {
 	this->ref_id = al.RefID;
 	this->position = al.Position;
 	this->cigar_string = get_cigar_string(al);
@@ -27,38 +27,44 @@ void SewingMachine::initialize(BamReader &reader) {
 
 string SewingMachine::get_reference_sequence(FastaReference &fr, JewelerAlignment &al) {
 	string ret;
-	// TODO : read from reference genome to get the mismatch position 
-	// or other useful information. 
+	// TODO : read from reference genome to get the mismatch position
+	// or other useful information.
 	return ret;
 }
 
-int SewingMachine::add_alignment(JewelerAlignment &al, bool count_only) {
-	locator *l =new locator(al);
+string SewingMachine::get_full_name(const JewelerAlignment &al) {
 	string is_first;
 	if (al.IsFirstMate()) {
-		is_first="\tT";
+		is_first = "\t1";
 	}
 	else {
-		is_first="\tF";
+		is_first = "\t2";
 	}
-	if (count_only) {
-		if ( multiple_alignment_map.find(al.Name+is_first) == 
-			 multiple_alignment_map.end()) {
-			multiple_alignment_map[al.Name+is_first] = 1;
-		}
-		else {
-			multiple_alignment_map[al.Name+is_first] ++;
-		}
-	}
-	else {
-		if (multiple_alignment_map[al.Name + is_first] > 1) 
-			seqs[al.Name+is_first].push_back(l);
-	}
+    return al.Name + is_first;
+}
+
+int SewingMachine::count_alignment(const JewelerAlignment &al) {
+    string full_name = get_full_name(al);
+    if ( multiple_alignment_map.find(full_name) ==
+         multiple_alignment_map.end()) {
+        multiple_alignment_map[full_name] = 1;
+    }
+    else {
+        multiple_alignment_map[full_name] ++;
+    }
+	return 0;
+}
+
+int SewingMachine::add_alignment(const JewelerAlignment &al) {
+	locator *l =new locator(al);
+    string full_name = get_full_name(al);
+    if (multiple_alignment_map[full_name] > 1)
+        seqs[full_name].push_back(l);
 	return 0;
 }
 
 int SewingMachine::output_alignment_map_core(FILE * file, bool only_mulitple_reads) {
-	auto i=seqs.begin(); 
+	auto i=seqs.begin();
 	size_t j;
 	for (; i!=seqs.end();i++) {
 		if (only_mulitple_reads && i->second.size()<2) continue;
@@ -105,22 +111,22 @@ int SewingMachine::output_multiple_alignment_map(FILE * file) {
 }
 
 int SewingMachine::build_alignment_connection_map_core() {
-	auto i=seqs.begin(); 
+	auto i = seqs.begin();
 	size_t j,k;
 	alignment_connection_map.clear();
-	for ( ; i!=seqs.end();i++) {
-		if (i->second.size()<2) continue;
-		for (j=0;j<i->second.size();j++) {
-			// statistics 
+	for ( ; i != seqs.end(); i++) {
+		if (i->second.size() < 2) continue;
+		for (j = 0; j < i->second.size(); j++) {
+			// statistics
 			num_multiple_reads_per_chr[i->second[j]->ref_id]++;
-			
+
 			// map
-			for (k=0;k<i->second.size();k++) {
-				if (j!=k) 
+			for (k = 0;k < i->second.size(); k++) {
+				if (j != k)
 					alignment_connection_map[i->second[j]].push_back(i->second[k]);
 			}
 		}
-	}	
+	}
 	return 0;
 }
 
@@ -145,4 +151,3 @@ int SewingMachine::output_alignment_connection_map(FILE * file) {
 	output_alignment_connection_map_core(file);
 	return 0;
 }
-
