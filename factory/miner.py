@@ -6,15 +6,18 @@ import argparse
 from subprocess import call
 
 from shared_graph_worker import shared_graph_worker
-
 from shared_graph_worker import classify_gene_worker
 from shared_graph_worker import black_list_worker
-from  miner_parser import initialize_parser
+from miner_parser import initialize_parser
 from cufflinks_worker import cufflinks_worker
 from cuffcompare_worker import cuffcompare_worker
 from jeweler_worker import jeweler_worker
 from appraiser_worker import appraiser_worker
 from transcriptome_alignment_worker import transcriptome_alignment_worker
+
+def config(queue, memory, process):
+    print("config " + queue + " " + memory + " " + process)
+
 
 def main():
     try:
@@ -33,12 +36,12 @@ def main():
 
         else :
             print('No reftable supplied')
-            return 
+            return
 
         if (args.filelist != None and os.path.exists(args.filelist)):
             # if (args.reftable == None):
             # 	print('Error: no reftable supplied (--reftable)')
-            # 	return 
+            # 	return
             if (args.is_new_cufflinks):
                 args.cufflinks_folder="/new_cufflinks/"
                 args.cuffcompare_folder="/new_cuffcompare/"
@@ -51,29 +54,33 @@ def main():
                 args.cuffcompare_folder="/cuffcompare/"
                 args.bracelet_folder="/bracelet/"
                 args.shared_graph_folder="/shared_graph/"
-                
+
             if (args.is_cufflinks):
+                config("day", "8", "1")
                 cufflinks_worker(args)
             elif (args.is_cuffcompare):
+                config("day", "8", "1")
                 cuffcompare_worker(args)
             elif (args.is_jeweler):
+                config("day", "32", "1")
                 jeweler_worker(args, refidtable, reffiletable)
             elif (args.is_transcriptome_alignment):
                 transcriptome_alignment_worker(args, refidtable, reffiletable)
-            elif (args.is_appraiser) :
+            elif (args.is_appraiser):
+                config("bigmem", "32", "1")
                 appraiser_worker(args)
             elif (args.plot_shared_graph):
+                config("day", "4", "1")
                 shared_graph_worker(args)
             elif (args.is_black_list):
                 black_list_worker(args)
             elif (args.classify_gene):
                 classify_gene_worker(args)
 
-    except: 
+    except:
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         print("*** print_exc:")
         traceback.print_exc()
 
 if __name__ == "__main__":
 	main()
-		
