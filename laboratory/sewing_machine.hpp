@@ -66,6 +66,9 @@ public:
 	int output_multiple_alignment_map(FILE *);
 	int output_alignment_connection_map(FILE *);
 	string get_reference_sequence(FastaReference &fr, JewelerAlignment &al);
+    bool is_multiple_alignment(const string &name);
+
+private:
 	// storage
 	map<string,locator_pvector> seqs;
 

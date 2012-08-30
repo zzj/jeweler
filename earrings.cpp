@@ -77,15 +77,15 @@ void Earrings::count_multiple_alignments(bool is_after_aligned) {
     multiple_read_names.clear();
 
     for (size_t i = 0; i < bam_reads.size(); i ++) {
-        if ( sm->multiple_alignment_set.find (bam_reads[i]->Name) ==
-             sm->multiple_alignment_set.end()) {
-            single_reads++;
-            single_read_names.insert( bam_reads[i]->Name );
+        if (sm->is_multiple_alignment(bam_reads[i]->Name)){
+            multiple_read_names.insert(bam_reads[i]->Name);
         }
         else {
-            multiple_read_names.insert( bam_reads[i]->Name );
+            single_reads++;
+            single_read_names.insert(bam_reads[i]->Name);
         }
     }
+
     FILE *foutput_mamf = fopen(string(result_folder+"/"+gene_id+".mamf.meta").c_str(),"w+");
     fprintf(foutput_mamf, "%d\t%zu\n", single_reads, bam_reads.size());
     fprintf(stdout, "%d\t%zu\n", single_reads, bam_reads.size());

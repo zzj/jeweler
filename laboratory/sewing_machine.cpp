@@ -151,3 +151,8 @@ int SewingMachine::output_alignment_connection_map(FILE * file) {
 	output_alignment_connection_map_core(file);
 	return 0;
 }
+
+bool SewingMachine::is_multiple_alignment(const string &name) {
+    return this->multiple_alignment_set.find(name) !=
+        this->multiple_alignment_set.end();
+}
