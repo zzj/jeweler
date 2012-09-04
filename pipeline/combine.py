@@ -1,9 +1,10 @@
 import os, sys, time
 
 import glob
+import config
 
-bamfolder = '/nas02/home/z/z/zzj/Research/rna_seq/jeweler/data/cegs_rnaseq_bam_new/'
-output_folder = '/nas02/home/z/z/zzj/Research/rna_seq/jeweler/data/cegs_rnaseq_bam_new_combined/'
+bamfolder = '/nas02/home/z/z/zzj/Research/rna_seq/jeweler/data/cegs_rnaseq_bam' + config.tail + '/'
+output_folder = '/nas02/home/z/z/zzj/Research/rna_seq/jeweler/data/cegs_rnaseq_bam_' + config.tail + '_combined/'
 
 ref_map={'F':'CAST','G':'PWK','H':'WSB'}
 

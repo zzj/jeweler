@@ -1,4 +1,5 @@
 import os, sys, socket, time
+import config
 
 def run_command(fd, comm):
     print(comm)
@@ -10,7 +11,7 @@ def main():
     tophat_log_file = 'log_tophat'+str(job_id)
 
     playpen_index = '/lustre/scr/z/z/zzj/jeweler/data/index/'
-    playpen_root = '/nas02/home/z/z/zzj/Research/rna_seq/jeweler/data/cegs_rnaseq_bam_new/'
+    playpen_root = '/nas02/home/z/z/zzj/Research/rna_seq/jeweler/data/cegs_rnaseq_bam' + config.tail + '/'
     fastq_root = '/lustre/scr/k/e/kemal/RNAseq/data/'
     ##run_command(log_file_fd,'mkdir '+playpen_root)
 
