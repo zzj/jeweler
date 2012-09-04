@@ -5,7 +5,7 @@ import json
 import sys
 import traceback
 import argparse
-import  pydot
+import pydot
 import math
 from subprocess import Popen
 from subprocess import call
@@ -199,14 +199,14 @@ class SharedGraph:
         graphs = list()
         idx = 0
         for line in lines:
-            data = (line.strip().split('\t'))
-            if (len(data)==2):
+            data = line.strip().split('\t')
+            if len(data)==2:
                 continue
             graph = None
             idx += 1
 
             for i in range(int(len(data)/2)):
-                if (data[i*2]  in result):
+                if data[i*2] in result:
                     graph = result[data[i*2]]
             if (data[0] not in cuffcompare):
                 cuffcompare[data[0]] = data[0]

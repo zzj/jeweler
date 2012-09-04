@@ -1,0 +1,17 @@
+GG = "GG"
+GP = "GP"
+GU = "GU"
+PG = "PG"
+PP = "PP"
+PU = "PU"
+UG = "UG"
+UP = "UP"
+UU = "UU"
+
+GENE = 0
+PSEUDO = 1
+UNKNOWN = 2
+
+NOT_SURE = -1
+EXPRESSED = 0
+UNEXPRESSED = 1
