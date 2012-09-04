@@ -1,4 +1,5 @@
 #include "earrings.hpp"
+#include "proto/jeweler.pb.h"
 
 Earrings::Earrings(JewelerInfo *jeweler_info,
 				   string gene_id,
@@ -72,23 +73,21 @@ Earrings::~Earrings() {
 // otherwise the statistics may be incorrect.
 void Earrings::count_multiple_alignments(bool is_after_aligned) {
 
-    int single_reads = 0;
-    single_read_names.clear();
-    multiple_read_names.clear();
+    single_reads.clear();
+    multiple_reads.clear();
 
     for (size_t i = 0; i < bam_reads.size(); i ++) {
         if (sm->is_multiple_alignment(bam_reads[i]->Name)){
-            multiple_read_names.insert(bam_reads[i]->Name);
+            multiple_reads.insert(bam_reads[i]);
         }
         else {
-            single_reads++;
-            single_read_names.insert(bam_reads[i]->Name);
+            single_reads.insert(bam_reads[i]);
         }
     }
 
     FILE *foutput_mamf = fopen(string(result_folder+"/"+gene_id+".mamf.meta").c_str(),"w+");
-    fprintf(foutput_mamf, "%d\t%zu\n", single_reads, bam_reads.size());
-    fprintf(stdout, "%d\t%zu\n", single_reads, bam_reads.size());
+    fprintf(foutput_mamf, "%zu\t%zu\n", single_reads.size(), bam_reads.size());
+    fprintf(stdout, "%zu\t%zu\n", single_reads.size(), bam_reads.size());
     fclose(foutput_mamf);
     if (is_after_aligned) {
         foutput_mamf=fopen(string(result_folder+"/"+gene_id+".mamf.multiple.reads").c_str(),"w+");
@@ -96,8 +95,8 @@ void Earrings::count_multiple_alignments(bool is_after_aligned) {
     else {
         foutput_mamf=fopen(string(result_folder+"/"+gene_id+".mamf.before.multiple.reads").c_str(),"w+");
     }
-    for (auto i = multiple_read_names.begin(); i != multiple_read_names.end(); i++) {
-        fprintf(foutput_mamf, "%s\n", i->c_str());
+    for (auto i = multiple_reads.begin(); i != multiple_reads.end(); i++) {
+        fprintf(foutput_mamf, "%s\t%s\n", (*i)->Name.c_str(), (*i)->QueryBases.c_str());
     }
     fclose(foutput_mamf);
     if (is_after_aligned) {
@@ -106,8 +105,8 @@ void Earrings::count_multiple_alignments(bool is_after_aligned) {
     else {
         foutput_mamf=fopen(string(result_folder+"/"+gene_id+".mamf.before.single.reads").c_str(),"w+");
     }
-    for (auto i = single_read_names.begin(); i != single_read_names.end(); i++) {
-        fprintf(foutput_mamf, "%s\n", i->c_str());
+    for (auto i = single_reads.begin(); i != single_reads.end(); i++) {
+        fprintf(foutput_mamf, "%s\t%s\n", (*i)->Name.c_str(), (*i)->QueryBases.c_str());
     }
     fclose(foutput_mamf);
     FILE *finfo;
@@ -337,8 +336,8 @@ void Earrings::get_compatible_reads(vector<set<JewelerAlignment *> > &read_lists
 void Earrings::dump_compatible_reads(FILE * fd) {
     size_t i;
     for (i = 0; i < compatible_reads.size(); i ++) {
-        if (multiple_read_names.find(compatible_reads[i]->Name) ==
-            multiple_read_names.end())
+        if (multiple_reads.find(compatible_reads[i]) ==
+            multiple_reads.end())
             continue;
         fprintf(fd, "%s\t%zu", compatible_reads[i]->Name.c_str(),
                 compatible_reads[i]->genome_position.size());
@@ -475,7 +474,7 @@ void Earrings::align_reads() {
 					string(result_folder+"/"+maternal_transcripts[i]->transcript_id+".landscape.plot.info").c_str());
 		}
 		string name=maternal_transcripts[i]->transcript_id;
-		PileupPlot lp(maternal_transcripts[i],paternal_transcripts[i],noninfo[i], multiple_read_names);
+		PileupPlot lp(maternal_transcripts[i],paternal_transcripts[i],noninfo[i], multiple_reads);
 		lp.generate_pileup_plot(finfo, foutput);
 		fclose(foutput);
 	}

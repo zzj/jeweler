@@ -5,7 +5,7 @@
 PileupPlot::PileupPlot(Transcript * maternal_transcript,
 					   Transcript * paternal_transcript,
 					   set<JewelerAlignment *> & unknown_reads,
-					   set<string > & multiple_reads) {
+					   set<JewelerAlignment *> & multiple_reads) {
 
 	size_t i, j;
 
@@ -63,8 +63,8 @@ PileupPlot::PileupPlot(Transcript * maternal_transcript,
 }
 
 int PileupPlot::add_transcript_to_pileup(Transcript * transcript,
-										  set<JewelerAlignment *> &reads,
-										  vector<int> & coverage) {
+                                         set<JewelerAlignment *> &reads,
+                                         vector<int> & coverage) {
 	for (auto iter = reads.begin();
 		 iter != reads.end();
 		 iter++) {
@@ -75,11 +75,11 @@ int PileupPlot::add_transcript_to_pileup(Transcript * transcript,
 int PileupPlot::add_transcript_to_pileup_filter(Transcript * transcript,
 												set<JewelerAlignment *> &reads,
 												vector<int> & coverage,
-												set<string> &multiple_names) {
+												set<JewelerAlignment *> &multiple_reads) {
 	for (auto iter = reads.begin();
 		 iter != reads.end();
 		 iter++) {
-		if (multiple_names.find((*iter)->Name) != multiple_names.end()) {
+		if (multiple_reads.find((*iter)) != multiple_reads.end()) {
 			add_coverage(transcript,  *iter,  coverage);
 		}
 	}

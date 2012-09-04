@@ -30,16 +30,16 @@ public:
 
 	PileupPlot(Transcript * maternal, 
 			   Transcript * paternal, 
-			   set<JewelerAlignment* > &unknown,
-			   set<string> &multiple);
+			   set<JewelerAlignment *> &unknown,
+			   set<JewelerAlignment *> &multiple);
 	int add_transcript_to_pileup_filter(Transcript * transcript, 
 										set<JewelerAlignment *> &reads, 
 										vector<int> & coverage,
-										set<string> &multiple);
+										set<JewelerAlignment *> &multiple);
 
 	int add_transcript_to_pileup(Transcript *,
-									set<JewelerAlignment *> &reads,
-									vector<int> & coverage);
+                                 set<JewelerAlignment *> &reads,
+                                 vector<int> & coverage);
 								
 	void generate_pileup_plot(FILE * info, FILE * output);
 

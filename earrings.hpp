@@ -1,8 +1,6 @@
 #ifndef _EARRINGS_H_
 #define _EARRINGS_H_
 
-
-
 #include <iostream>
 #include <string>
 #include <api/BamReader.h>
@@ -51,8 +49,8 @@ public :
 	int left_pos, right_pos;
 	size_t num_total_reads;
 
-	set<string> single_read_names;
-	set<string> multiple_read_names;
+	set<JewelerAlignment *> single_reads;
+	set<JewelerAlignment *> multiple_reads;
 
 	// find the reads that are mulitple aligned to other places
 	void count_multiple_alignments(bool is_after_aligned);
