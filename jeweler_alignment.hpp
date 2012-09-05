@@ -3,6 +3,9 @@
 #include <api/BamReader.h>
 #include <api/BamWriter.h>
 #include <vector>
+#include "proto/jeweler.pb.h"
+#include "laboratory/cigar_holder.hpp"
+
 using namespace std;
 using namespace BamTools;
 class JewelerAlignment : public BamAlignment {
@@ -10,6 +13,7 @@ public:
 	// if two reads are merged, record the read position
 	vector<int> read_position;
 	vector<int> genome_position;
+    void dump_data(Jeweler::EarringsData::Read *read);
 };
 
 int get_read_position(JewelerAlignment *al, int i);

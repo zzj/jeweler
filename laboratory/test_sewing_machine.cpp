@@ -75,13 +75,11 @@ TEST_F(SewingMachineTest, test_add_alignment) {
 TEST_F(SewingMachineTest, test_output_and_load) {
     count();
     add();
-    FILE *fd = fopen("test_data/sm.test_output_and_load", "w+");
+    string fd = "test_data/sm.test_output_and_load";
     sm.output_multiple_alignment_map(fd);
-    fclose(fd);
 
-    fd = fopen("test_data/sm.test_output_and_load", "r+");
+    fd = "test_data/sm.test_output_and_load";
     sm.load_multiple_alignments_set(fd);
-    fclose(fd);
 
     ASSERT_EQ(true, sm.is_multiple_alignment("al2"));
     ASSERT_EQ(false, sm.is_multiple_alignment("al1"));

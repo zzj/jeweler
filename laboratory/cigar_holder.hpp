@@ -6,6 +6,7 @@
 
 using namespace BamTools;
 using namespace std;
+class JewelerAlignment;
 
 int output_cigar_data(FILE * output_file, JewelerAlignment &al);
 string get_cigar_string(const JewelerAlignment &al);

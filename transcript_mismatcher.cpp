@@ -33,11 +33,11 @@ int TranscriptMismatcher::add_transcript(Transcript *t, int origin) {
 		 i != t->genome_pos.end();
 		 i++) {
 		genome_pos2idx[(*i)]=0;
-		if (origin==TRANSCRIPT_PATERNAL) {
-			genome_pos2paternal[(*i)]=t->seq[(i-t->genome_pos.begin())];
+		if (origin == TRANSCRIPT_PATERNAL) {
+			genome_pos2paternal[(*i)] = t->seq[(i-t->genome_pos.begin())];
 		}
-		if (origin==TRANSCRIPT_MATERNAL) {
-			genome_pos2maternal[(*i)]=t->seq[i-t->genome_pos.begin()];
+		if (origin == TRANSCRIPT_MATERNAL) {
+			genome_pos2maternal[(*i)] = t->seq[i-t->genome_pos.begin()];
 		}
 	}
 	return 0;
@@ -117,7 +117,6 @@ int TranscriptMismatcher::dump(FILE *file) {
 
 void TranscriptMismatcher::dump(Jeweler::EarringsData::Mismatcher *data) {
 	size_t i,k;
-    FILE * file;
 	auto j=genome_pos2idx.begin();
 	auto m=genome_pos2maternal.begin();
 	auto p=genome_pos2paternal.begin();
@@ -238,7 +237,6 @@ void TranscriptMismatcherAnalyzer::append(FILE * file, string gene_id) {
 			read_qualities.push_back(tempv_quality);
 		}
 		gene_ids.push_back(gene_id);
-
 	}
 
 }

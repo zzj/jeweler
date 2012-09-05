@@ -1,6 +1,7 @@
 #include "earrings.hpp"
 #include "proto/jeweler.pb.h"
-
+#include <fstream>
+using namespace std;
 
 Earrings::Earrings(JewelerInfo *jeweler_info,
 				   string gene_id,
@@ -12,7 +13,7 @@ Earrings::Earrings(JewelerInfo *jeweler_info,
 	this->mismatcher = new TranscriptMismatcher();
 	this->jeweler_info = jeweler_info;
 	this->gene_id = gene_id;
-	this->result_folder = jeweler_info->result_folder + "/" + gene_id;
+	this->result_folder = jeweler_info->result_folder + "/" + gene_id + "/";
 
 	// load maternal and paternal transcripts sequences.
 	load_transcript_data(is_prepare);
@@ -377,7 +378,6 @@ void Earrings::align_reads() {
 
 	bam_reads=compatible_reads;
 
-
 	int num_compatible_reads = 0;
 	noninfo.resize(maternal_transcripts.size());
 	for (i = 0 ; i < bam_reads.size(); i++) {
@@ -580,6 +580,7 @@ int Earrings::build_graph() {
 }
 
 void Earrings::dump_data() {
+
     Jeweler::EarringsData *ed = new Jeweler::EarringsData();
     ed->set_gene_id(this->gene_id);
     ed->set_chr(this->chr);
@@ -588,5 +589,35 @@ void Earrings::dump_data() {
     ed->set_num_single_reads(this->single_reads.size());
     ed->set_num_multiple_reads(this->multiple_reads.size());
     this->mismatcher->dump(ed->mutable_mismatcher());
+    dump_protobuf_data(this->result_folder + "/" + this->gene_id + ".pb", ed);
+    delete ed;
+    return ;
+}
+
+void Earrings::classify_reads() {
+
+    single_reads.clear();
+    multiple_reads.clear();
+
+    for (size_t i = 0; i < bam_reads.size(); i ++) {
+        if (sm->is_multiple_alignment(bam_reads[i]->Name)){
+            multiple_reads.insert(bam_reads[i]);
+        }
+        else {
+            single_reads.insert(bam_reads[i]);
+        }
+    }
+
+    return ;
+}
+
+void Earrings::dump_reads(Jeweler::EarringsData *ed) {
+    classify_reads();
+    for (auto i = multiple_reads.begin(); i != multiple_reads.end(); i++) {
+        (*i)->dump_data(ed->add_multiple_read());
+    }
+    for (auto i = single_reads.begin(); i != single_reads.end(); i++) {
+        (*i)->dump_data(ed->add_single_read());
+    }
     return ;
 }

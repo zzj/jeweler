@@ -18,8 +18,8 @@ public:
 	string bamfile;
 	string fastafile; 
 	FILE *log_file; // log file
-	FILE *mam_table_file; // multiple alignment file
-	FILE *mam_map_file; // multiple alignment file
+	string mam_table_file; // multiple alignment file
+	string mam_map_file; // multiple alignment file
 	FILE *quality_file; //quality file
 	int test_num;
 

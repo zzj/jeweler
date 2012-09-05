@@ -43,7 +43,7 @@ JEWELER_LIB_SOURCES =  jeweler_info.cpp jeweler_alignment.cpp read_matcher.cpp \
 JEWELER_SOURCES= jeweler.cpp $(JEWELER_LIB_SOURCES)
 
 TEST_JEWELER_SOURCES= test_common.cpp test_jeweler_alignment.cpp test_gtf.cpp \
-                      test_jeweler_info.cpp test_transcript.cpp \
+                      test_jeweler_info.cpp test_transcript.cpp test_bracelet.cpp\
                       laboratory/test_sewing_machine.cpp \
                       laboratory/test_cigar_holder.cpp test_alignment_glue.cpp
 
@@ -57,6 +57,7 @@ JEWELER_LIB_OBJECTS=$(JEWELER_LIB_SOURCES:.cpp=.o)
 APPRAISER_SOURCES= $(APPRAISER_CPP_SOURCES) $(APPRAISER_C_SOURCES)
 APPRAISER_CPP_SOURCES=laboratory/appraiser.cpp  common.cpp  laboratory/metabam.cpp \
                       laboratory/bam_info.cpp  laboratory/sewing_machine.cpp \
+                      proto/jeweler.pb.cpp \
                       laboratory/cigar_holder.cpp  lib/fastahack/Fasta.cpp \
                       lib/fastahack/split.cpp
 

@@ -90,6 +90,10 @@ public :
 
 	void test_memory_leak();
 
+    void classify_reads();
+
+    void dump_reads(Jeweler::EarringsData *ed);
+
     void dump_data();
 };
 

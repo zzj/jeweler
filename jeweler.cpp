@@ -83,10 +83,8 @@ jeweler::jeweler(int argc, char * argv[]) {
 void jeweler::load_mamf_file() {
 	if (mamf_filename != "none") {
 		fprintf(stdout,"loading mamf files ...\n");
-		FILE * fd = fopen(mamf_filename.c_str(), "r");
 		sm =new SewingMachine();
-		sm->load_multiple_alignments_set(fd);
-		fclose(fd);
+		sm->load_multiple_alignments_set(mamf_filename);
 	}
 }
 

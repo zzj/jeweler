@@ -5,11 +5,8 @@ Appraiser::Appraiser(int argc, char* argv[]) {
 	int i;
 	bool has_info=false;
 	log_file=stdout;
-	mam_table_file=stdout;
-	mam_map_file=stdout;
 	quality_file=stdout;
 	test_num=-1;
-	
 
 	for (i=1; i<argc; i++) {
 
@@ -42,8 +39,8 @@ Appraiser::Appraiser(int argc, char* argv[]) {
 			i++;
 			fprintf(stdout, "here\n");
 			if (i<argc) {
-				mam_table_file=file_open((string(argv[i])+"_table").c_str(),"w+");
-				mam_map_file=file_open((string(argv[i])+"_map").c_str(),"w+");
+				mam_table_file = string(argv[i]) + "_table";
+				mam_map_file = string(argv[i]) + "_map";
 			}
 		}
 		//quality file

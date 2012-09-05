@@ -1,5 +1,7 @@
 
 #include "sewing_machine.hpp"
+#include "../proto/jeweler.pb.h"
+#include <memory>
 
 locator::locator(const JewelerAlignment &al) {
 	this->ref_id = al.RefID;
@@ -63,50 +65,51 @@ int SewingMachine::add_alignment(const JewelerAlignment &al) {
 	return 0;
 }
 
-int SewingMachine::output_alignment_map_core(FILE * file, bool only_mulitple_reads) {
-	auto i=seqs.begin();
+int SewingMachine::output_alignment_map_core(string &file_name,
+                                             bool only_mulitple_reads) {
+	auto i = seqs.begin();
 	size_t j;
-	for (; i!=seqs.end();i++) {
-		if (only_mulitple_reads && i->second.size()<2) continue;
-		fprintf(file,"%s\t%zd\t",i->first.c_str(),i->second.size());
-		for (j=0;j<i->second.size();j++) {
-			fprintf(file,"%s\t%d\t%s\t%d\t",
-					references[i->second[j]->ref_id].RefName.c_str(),
-					i->second[j]->position,
-					i->second[j]->cigar_string.c_str(),
-					i->second[j]->edit_distance);
+    unique_ptr<Jeweler::SewingMachineData> data(new Jeweler::SewingMachineData());
+
+	for (; i != seqs.end(); i++) {
+		if (only_mulitple_reads && i->second.size() < 2) continue;
+        Jeweler::SewingMachineData::Alignment *al = data->add_alignment();
+        al->set_name(i->first.substr(0, i->first.size() - 2));
+        if (i->first[i->first.size() - 1] == '1') {
+            al->set_is_first(true);
+        }
+        else {
+            al->set_is_first(false);
+        }
+        al->set_num_hits(i->second.size());
+		for (j = 0; j < i->second.size(); j++) {
+            Jeweler::SewingMachineData::Alignment::Hit *hit = al->add_hit();
+            hit->set_chr(references[i->second[j]->ref_id].RefName);
+            hit->set_cigar_string(i->second[j]->cigar_string);
+            hit->set_position(i->second[j]->position);
+            hit->set_distance(i->second[j]->edit_distance);
 		}
-		fprintf(file,"\n");
 	}
+    dump_protobuf_data(file_name, data.get());
 	return 0;
 }
 
-void SewingMachine::load_multiple_alignments_set(FILE *file ) {
-	char refname[1000], cigar[1000];
-	char read_id[1000];
-	char is_first[100];
-	int pos, distance, size;
-
-	int i;
-	int last;
-	while((last = fscanf(file, "%s%s%d", read_id, is_first, &size)) == 3) {
-		// ignored
-		for (i = 0; i < size; i++) {
-			fscanf(file, "%s%d%s%d", refname, &pos, cigar, &distance);
-		}
-
-		// only record the multiple alignment
-		if (size >= 2) {
-			multiple_alignment_set.insert(read_id);
-		}
-	}
+void SewingMachine::load_multiple_alignments_set(string file_name ) {
+    unique_ptr<Jeweler::SewingMachineData> data(new Jeweler::SewingMachineData());
+    load_protobuf_data(file_name, data.get());
+    for (size_t i = 0; i < data->alignment_size(); i++) {
+        const Jeweler::SewingMachineData::Alignment& al = data->alignment(i);
+        if (al.num_hits() >= 2) {
+            multiple_alignment_set.insert(al.name());
+        }
+    }
 }
 
-int SewingMachine::output_alignment_map(FILE * file) {
+int SewingMachine::output_alignment_map(string &file) {
 	return output_alignment_map_core(file, /*only output multiple reads?*/ false);
 }
 
-int SewingMachine::output_multiple_alignment_map(FILE * file) {
+int SewingMachine::output_multiple_alignment_map(string &file) {
 	return output_alignment_map_core(file, /*only output multiple reads?*/ true);
 }
 

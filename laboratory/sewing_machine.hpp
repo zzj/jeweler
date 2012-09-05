@@ -47,7 +47,7 @@ private:
     FRIEND_TEST(SewingMachineTest, test_count_alignment);
     FRIEND_TEST(SewingMachineTest, test_add_alignment);
 
-	int output_alignment_map_core(FILE *, bool only_multiple_reads);
+	int output_alignment_map_core(string &filename, bool only_multiple_reads);
 	int output_alignment_connection_map_core(FILE *);
 	int build_alignment_connection_map_core();
     string get_full_name(const JewelerAlignment &al);
@@ -56,14 +56,14 @@ public:
 	SewingMachine();
 	SewingMachine(BamReader &reader);
 	void initialize(BamReader &reader);
-	void load_multiple_alignments_set(FILE *);
+	void load_multiple_alignments_set(string);
 	// functions
 	// first time count_alignment
 	// second time add_alignment
 	int count_alignment(const JewelerAlignment &al);
     int add_alignment(const JewelerAlignment &al);
-	int output_alignment_map(FILE *);
-	int output_multiple_alignment_map(FILE *);
+	int output_alignment_map(string &filename);
+	int output_multiple_alignment_map(string &filename);
 	int output_alignment_connection_map(FILE *);
 	string get_reference_sequence(FastaReference &fr, JewelerAlignment &al);
     bool is_multiple_alignment(const string &name);
