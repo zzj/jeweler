@@ -1,6 +1,7 @@
 #include "earrings.hpp"
 #include "proto/jeweler.pb.h"
 
+
 Earrings::Earrings(JewelerInfo *jeweler_info,
 				   string gene_id,
 				   SewingMachine *sm,
@@ -26,7 +27,7 @@ Earrings::Earrings(JewelerInfo *jeweler_info,
 	for (i=0;i<paternal_transcripts.size();i++) {
 		Transcript *p=paternal_transcripts[i];
 
-		if ( i == 0 ) {
+		if (i == 0) {
 			left_pos = p->start;
 			right_pos = p->end;
 		}
@@ -47,6 +48,7 @@ Earrings::Earrings(JewelerInfo *jeweler_info,
 	//build_graph();
 	//test_allele_specific_transcript();
 	// have sewingmachine class, output maltiple aligment info
+    dump_data();
 }
 
 Earrings::~Earrings() {
@@ -113,7 +115,6 @@ void Earrings::count_multiple_alignments(bool is_after_aligned) {
     finfo=fopen(string(result_folder +"/" + gene_id +".compatible.reads").c_str(), "w+");
     dump_compatible_reads(finfo);
     fclose(finfo);
-
 }
 
 void Earrings::test_memory_leak() {
@@ -147,7 +148,7 @@ int Earrings::load_read_data() {
 int Earrings::load_transcript_data(bool is_prepare) {
     size_t i, j;
 
-    transcript_helper( maternal_transcripts ,
+    transcript_helper(maternal_transcripts ,
                        jeweler_info->maternal_fasta, "maternal.",
                        result_folder + "/maternal.unmapped.bam",
                        is_prepare);
@@ -217,7 +218,7 @@ template<class T>
 vector<T *> duplicate_vector(vector<T *> in) {
     vector<T *> ret(in.size());
     size_t i;
-    for ( i = 0; i < in.size(); i ++) {
+    for (i = 0; i < in.size(); i ++) {
         ret[i] = new T(*in[i]);
     }
     return ret;
@@ -294,7 +295,7 @@ void Earrings::get_compatible_reads(vector<set<JewelerAlignment *> > &read_lists
         }
         is_fixed=false;
 
-        if ( !is_compatible  || min_penalty > Transcript::tolerate) {
+        if (!is_compatible  || min_penalty > Transcript::tolerate) {
             unaligned_reads.push_back(bam_reads[i]);
             num_unaligned_reads ++;
         }
@@ -408,7 +409,7 @@ void Earrings::align_reads() {
 				//fprintf(stdout,"%d\n",total_alleles);
 				num_maternal_alleles=maternal_alleles.size();
 				num_paternal_alleles=paternal_alleles.size();
-				if ( total_alleles>0) {
+				if (total_alleles>0) {
 					if (num_paternal_alleles == num_maternal_alleles) {
 						noninfo[j].insert(bam_reads[i]);
 						mismatcher->add_mismatches(maternal_transcripts[j],
@@ -533,9 +534,9 @@ int Earrings::build_graph() {
 	vector<Path> records;
 	graph.get_all_paths(records);
 	// get allele specific isoforms
-	for ( i = 0; i < records.size(); i++) {
+	for (i = 0; i < records.size(); i++) {
 		bool is_mirrored=false;
-		for ( j = 0; j < records.size(); j++) {
+		for (j = 0; j < records.size(); j++) {
 			if (records[i].is_mirrored(records[j])) {
 				is_mirrored=true;
 				break;
@@ -576,4 +577,16 @@ int Earrings::build_graph() {
 	}
 	fclose(foutput_info);
 	return 0;
+}
+
+void Earrings::dump_data() {
+    Jeweler::EarringsData *ed = new Jeweler::EarringsData();
+    ed->set_gene_id(this->gene_id);
+    ed->set_chr(this->chr);
+    ed->set_start_position(this->left_pos);
+    ed->set_end_position(this->right_pos);
+    ed->set_num_single_reads(this->single_reads.size());
+    ed->set_num_multiple_reads(this->multiple_reads.size());
+    this->mismatcher->dump(ed->mutable_mismatcher());
+    return ;
 }

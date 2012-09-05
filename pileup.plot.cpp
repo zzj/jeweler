@@ -102,10 +102,10 @@ int PileupPlot::add_coverage(Transcript * transcript,  JewelerAlignment *al,  ve
 	vector<CigarOp>::const_iterator cigar_iter  =  cigar_data.begin();
 	vector<CigarOp>::const_iterator cigar_end   =  cigar_data.end();
 	size_t i;
-	for ( ; cigar_iter != cigar_end; ++cigar_iter ) {
+	for (; cigar_iter != cigar_end; ++cigar_iter) {
 		const CigarOp& op = (*cigar_iter);
 
-		switch ( op.Type ) {
+		switch (op.Type) {
 
 			// for 'M',  '=',  'X' - write bases
 		case (Constants::BAM_CIGAR_MATCH_CHAR)    :

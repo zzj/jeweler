@@ -73,12 +73,12 @@ void Transcript::load_snps(vector<unsigned int> &snp_pos, vector<char> &alleles,
     }
 }
 
-int Transcript::insert_reads(JewelerAlignment *al ) {
+int Transcript::insert_reads(JewelerAlignment *al) {
     reads.insert(al);
     return 0;
 }
 
-bool Transcript::is_aligned(JewelerAlignment *al ) {
+bool Transcript::is_aligned(JewelerAlignment *al) {
     return reads.find(al) != reads.end();
 }
 
@@ -115,17 +115,17 @@ int Transcript::get_overlapped_alignment(JewelerAlignment *al,
     vector<CigarOp>::const_iterator cigar_iter = cigar_data.begin();
     vector<CigarOp>::const_iterator cigar_end  = cigar_data.end();
 
-    for ( ; cigar_iter != cigar_end; ++cigar_iter ) {
+    for (; cigar_iter != cigar_end; ++cigar_iter) {
         const CigarOp& op = (*cigar_iter);
 
-        switch ( op.Type ) {
+        switch (op.Type) {
 
             // for 'M', '=', 'X' - ;
             // check wether the matched string belong to the same exon
 
-        case ( Constants::BAM_CIGAR_MATCH_CHAR )    :
-        case ( Constants::BAM_CIGAR_SEQMATCH_CHAR ) :
-        case ( Constants::BAM_CIGAR_MISMATCH_CHAR ) :
+        case (Constants::BAM_CIGAR_MATCH_CHAR)    :
+        case (Constants::BAM_CIGAR_SEQMATCH_CHAR) :
+        case (Constants::BAM_CIGAR_MISMATCH_CHAR) :
             // the beginning and end of the matched sequence must
             // be belong to the same sequences.
 
@@ -139,7 +139,7 @@ int Transcript::get_overlapped_alignment(JewelerAlignment *al,
             end_seg = get_next_exon(start_pos + op.Length -1);
 
             // testing
-            // if ( al->Name == "UNC12-SN629_0154:8:2304:17730:106338#GGCTAC") {
+            // if (al->Name == "UNC12-SN629_0154:8:2304:17730:106338#GGCTAC") {
             //  fprintf(stdout, "%s\t%s\t%d\t%d\t%d\t%d\t%d\n", al->Name.c_str(),
             //          get_cigar_string(*al).c_str(), al->Position + 1,
             //          start_pos, begin_seg, end_seg,start_pos + op.Length -1);
@@ -147,9 +147,9 @@ int Transcript::get_overlapped_alignment(JewelerAlignment *al,
             //  fprintf(stdout, "%d\t%d\n",exon_start[end_seg],exon_end[end_seg]);
             // }
 
-            if  (( begin_seg == NOT_FOUND && begin_seg == end_seg)
-                 ||( begin_seg != NOT_FOUND && end_seg != NOT_FOUND &&
-                     begin_seg != end_seg) ) {
+            if  ((begin_seg == NOT_FOUND && begin_seg == end_seg)
+                 ||(begin_seg != NOT_FOUND && end_seg != NOT_FOUND &&
+                     begin_seg != end_seg)) {
 
                 // TODO:
                 // An anti-example the matched region can be covered
@@ -162,13 +162,13 @@ int Transcript::get_overlapped_alignment(JewelerAlignment *al,
             else {
                 begin_err = 0; end_err = 0;
 
-                if ( begin_seg == NOT_FOUND && end_seg != NOT_FOUND ) {
+                if (begin_seg == NOT_FOUND && end_seg != NOT_FOUND) {
                     // the begin of the read exceeds the exon region
                     begin_err = exon_start[end_seg] - start_pos;
                     new_cigar_data.push_back(CigarOp(Constants::BAM_CIGAR_REFSKIP_CHAR,
                                                      begin_err));
                 }
-                if ( begin_seg != NOT_FOUND && end_seg == NOT_FOUND ) {
+                if (begin_seg != NOT_FOUND && end_seg == NOT_FOUND) {
                     // the end of the read exceeds the exon region
                     end_err =  start_pos + op.Length -1 - exon_end[ begin_seg ];
                 }
@@ -182,7 +182,7 @@ int Transcript::get_overlapped_alignment(JewelerAlignment *al,
                                                         temp_length);
                 new_length += temp_length;
                 alignment_start += op.Length;
-                if (end_err > 0 ) {
+                if (end_err > 0) {
                     new_cigar_data.push_back(CigarOp(Constants::BAM_CIGAR_REFSKIP_CHAR,
                                                      end_err));
                 }
@@ -260,7 +260,7 @@ bool Transcript::is_compatible(JewelerAlignment *al , int tolerate , bool debug)
     int start_pos=al->Position + 1;
 
     int err;
-    if ( (start_seg = get_next_exon (  start_pos, start_seg) ) == NOT_FOUND ) {
+    if ((start_seg = get_next_exon ( start_pos, start_seg)) == NOT_FOUND) {
         return false;
     }
 
@@ -270,23 +270,23 @@ bool Transcript::is_compatible(JewelerAlignment *al , int tolerate , bool debug)
     vector<CigarOp>::const_iterator cigar_iter = cigar_data.begin();
     vector<CigarOp>::const_iterator cigar_end  = cigar_data.end();
 
-    for ( ; cigar_iter != cigar_end; ++cigar_iter ) {
+    for (; cigar_iter != cigar_end; ++cigar_iter) {
         const CigarOp& op = (*cigar_iter);
 
-        switch ( op.Type ) {
+        switch (op.Type) {
 
             // for 'M', '=', 'X' - ;
             // check wether the matched string belong to the same exon
 
-        case ( Constants::BAM_CIGAR_MATCH_CHAR )    :
-        case ( Constants::BAM_CIGAR_SEQMATCH_CHAR ) :
-        case ( Constants::BAM_CIGAR_MISMATCH_CHAR ) :
+        case (Constants::BAM_CIGAR_MATCH_CHAR)    :
+        case (Constants::BAM_CIGAR_SEQMATCH_CHAR) :
+        case (Constants::BAM_CIGAR_MISMATCH_CHAR) :
             // the beginning and end of the matched sequence must
             // be belong to the same sequences.
             start_pos += op.Length;
-            if ( !( exon_start[start_seg] - tolerate <= start_pos &&
-                    exon_end[start_seg] + tolerate >= start_pos -1 )
-                 ) {// the end of last alignment
+            if (!(exon_start[start_seg] - tolerate <= start_pos &&
+                    exon_end[start_seg] + tolerate >= start_pos -1)
+                ) {// the end of last alignment
                 if (debug) {
                     fprintf(stdout, "not at the same exon for matching region, current position = %d\n",
                             start_pos);
@@ -306,12 +306,12 @@ bool Transcript::is_compatible(JewelerAlignment *al , int tolerate , bool debug)
         // Only 'N' should be presented as an intron, because 'D' and 'P' are not
         // defined in RNA-seq data based on the Samtools document.
             err = (start_pos - 1 - exon_end[ start_seg ]);
-            if (  abs(err) <= tolerate) {
+            if ( abs(err) <= tolerate) {
                 // start postion at the end of current exon
                 start_pos += op.Length;
                 start_seg ++;
                 err = start_pos - exon_start[ start_seg ];
-                if ( abs(err) > tolerate) {
+                if (abs(err) > tolerate) {
                     // not at the beginning of the exon
                 if (debug) {
                     fprintf(stdout, "not at start of next exon, current position = %d\n",
@@ -337,7 +337,7 @@ bool Transcript::is_compatible(JewelerAlignment *al , int tolerate , bool debug)
         case (Constants::BAM_CIGAR_PAD_CHAR) :
         case ('J') :
             start_pos += op.Length;
-            if ( (start_seg = get_next_exon (  start_pos, start_seg) ) == NOT_FOUND ) {
+            if ((start_seg = get_next_exon ( start_pos, start_seg)) == NOT_FOUND) {
                 if (debug) {
                     fprintf(stdout, "did not find next exon, current position = %d\n",
                             start_pos);
@@ -380,10 +380,10 @@ string Transcript::get_query_aligned_seq(JewelerAlignment * al) {
     vector<CigarOp>::const_iterator cigar_iter = cigar_data.begin();
     vector<CigarOp>::const_iterator cigar_end  = cigar_data.end();
 
-    for ( ; cigar_iter != cigar_end; ++cigar_iter ) {
+    for (; cigar_iter != cigar_end; ++cigar_iter) {
         const CigarOp& op = (*cigar_iter);
 
-        switch ( op.Type ) {
+        switch (op.Type) {
 
             // for 'M', '=', 'X' - write bases
         case (Constants::BAM_CIGAR_MATCH_CHAR)    :
@@ -427,7 +427,7 @@ string Transcript::get_query_aligned_seq(JewelerAlignment * al) {
 
 int Transcript::match_alleles(JewelerAlignment *al, int &total_alleles,
                               ReadMatcher * rm
-                              ) {
+                             ) {
     size_t i;
     string transcript_seq = get_transcript_aligned_info<string>(al, get_seq_info);
     rm->transcript_aligned_locations =
@@ -633,9 +633,9 @@ int insert_mismatch_info(Transcript *ti,  JewelerAlignment * al,
     }
     string genome_seq    = ti->seq.substr(transcript_start, length);
     string alignment_seq = al->QueryBases.substr(alignment_start, length);
-    for ( i = 0; i < genome_seq.size(); i++) {
+    for (i = 0; i < genome_seq.size(); i++) {
         if (genome_seq[i] != alignment_seq[i]) {
-            mismatches.push_back( genome_start + i );
+            mismatches.push_back(genome_start + i);
         }
     }
     return 0;

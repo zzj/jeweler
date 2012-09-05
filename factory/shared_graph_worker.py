@@ -77,5 +77,5 @@ def classify_gene_worker(args):
         sample_id =  os.path.basename(f.strip().replace('.bam',''))
 
         ##stupid python evoke a R program that cannot read a file
-        ##print('python3.2 shop/classify_genes.py ' + shared_graph_folder + "/ " +sample_id +" " + cufflinks_folder )
-        print ("~/bin/bin/R CMD BATCH --no-save --no-restore '--args name=\""+sample_id+"\"' shop/shared_graph.R temp/"+sample_id)
+        print('python3.2 shop/classify_genes.py ' + shared_graph_folder + "/ " +sample_id +" " + cufflinks_folder )
+        ##print ("~/bin/bin/R CMD BATCH --no-save --no-restore '--args name=\""+sample_id+"\"' shop/shared_graph.R temp/"+sample_id)

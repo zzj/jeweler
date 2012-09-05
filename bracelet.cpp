@@ -10,10 +10,10 @@ Bracelet::Bracelet(JewelerInfo * jeweler_info) {
 	this -> jeweler_info = jeweler_info;
 	fprintf(stdout, "bracelet initializing ...\n");
 
-	reads.resize(jeweler_info->gene_id2transcripts.size() );
-	reads_index.resize(jeweler_info->gene_id2transcripts.size() );
-	results.resize(jeweler_info->gene_id2transcripts.size() );
-	related_transcripts.resize(jeweler_info->gene_id2transcripts.size() );
+	reads.resize(jeweler_info->gene_id2transcripts.size());
+	reads_index.resize(jeweler_info->gene_id2transcripts.size());
+	results.resize(jeweler_info->gene_id2transcripts.size());
+	related_transcripts.resize(jeweler_info->gene_id2transcripts.size());
 	for (auto i = jeweler_info->gene_id2transcripts.begin();
 		 i != jeweler_info->gene_id2transcripts.end();
 		 i++) {

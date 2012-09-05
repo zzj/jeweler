@@ -86,9 +86,11 @@ public :
 	int study_compatible_reads();
 
 	// get compatible reads
-	void get_compatible_reads(vector<set<JewelerAlignment*> >& read_lists );
+	void get_compatible_reads(vector<set<JewelerAlignment*> >& read_lists);
 
 	void test_memory_leak();
+
+    void dump_data();
 };
 
 

@@ -9,13 +9,13 @@ int jeweler::annotate_mismatch_pos(Transcript *t, rna_read_query * rrq)
 {
 	int num_mismatches = 0;
 	int i,j;
-	for( i = 0; i < rrq->query_start.size(); ++i)
+	for(i = 0; i < rrq->query_start.size(); ++i)
 	{
 		int qstr = rrq->query_start[i];
 		int tstr = rrq->target_start[i];
 		int len  = rrq->block_size[i];
 		
-		for( j = 0; j < len; ++j)
+		for(j = 0; j < len; ++j)
 		{
 
 			if(t->seq[tstr+j]!=rrq->seq[qstr+j]) // find a mismatch or an allele
@@ -92,7 +92,7 @@ int jeweler::generate_landscape(TranscriptInfo * ti,
 	int i,j,k,m;
 	string filename=string(ti->folder+ti->gene_id+"landscape.plot.info");
 	FILE *fd=file_open(filename.c_str(),"w+");
-	for ( i=0;i<ref.size();i++) {
+	for (i=0;i<ref.size();i++) {
 		int size=ref[i]->seq.size();
 		int num_unknown=0,num_paternal=0,num_maternal=0;
 
@@ -418,8 +418,8 @@ int jeweler::add_queries(vector<Transcript *> &ref,
 
 		if(bam_result[i]->mismatch>threshold
 		   ||bam_result[i]->target_gap_num>gap_threshold
-		   || bam_result[i]->matches<(bam_result[i]->size-threshold )
-		   ) {
+		   || bam_result[i]->matches<(bam_result[i]->size-threshold)
+		  ) {
 			//fprintf(stderr,"%d\t%d\t%d\n",bam_result[i]->mismatch,bam_result[i]->matches,bam_result[i]->size-threshold);
 			bam_result[i]->is_ignored=true;
 			bam_result[i]->is_initialized=false;
@@ -542,7 +542,7 @@ bool test_match_snp(Transcript * t, Transcript* t2, rna_read_query* rrq) {
 				shift=t->snp_pos[j]-rrq->target_start[i];
 				query_allele_pos=rrq->query_start[i]+shift;
 				if (t->seq[t->snp_pos[j]]!=rrq->seq[query_allele_pos] && 
-					t2->seq[t->snp_pos[j]]!=rrq->seq[query_allele_pos]  ) {
+					t2->seq[t->snp_pos[j]]!=rrq->seq[query_allele_pos] ) {
 					printf("%s\t%s\n",rrq->name.c_str(),rrq->seq.c_str());
 					printf("%d\t%d\n",rrq->target_start[i],rrq->mismatch);
 					printf("%s\t%s\n",t->name.c_str(),t->seq.substr(rrq->target_start[i],rrq->block_size[i]).c_str());

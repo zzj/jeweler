@@ -20,7 +20,7 @@
 
 using namespace BamTools;
 
-FILE * file_open( const char *name, const char * mode);
+FILE * file_open(const char *name, const char * mode);
 
 char * trim(char *);
 

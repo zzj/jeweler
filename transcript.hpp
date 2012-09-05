@@ -178,10 +178,10 @@ T Transcript::get_transcript_aligned_info(JewelerAlignment * al, get_info gi) {
     vector<CigarOp>::const_iterator cigar_iter = cigar_data.begin();
     vector<CigarOp>::const_iterator cigar_end  = cigar_data.end();
 
-    for ( ; cigar_iter != cigar_end; ++cigar_iter ) {
+    for (; cigar_iter != cigar_end; ++cigar_iter) {
         const CigarOp& op = (*cigar_iter);
 
-        switch ( op.Type ) {
+        switch (op.Type) {
 
             // for 'M', '=', 'X' - aligned string
         case (Constants::BAM_CIGAR_MATCH_CHAR)    :

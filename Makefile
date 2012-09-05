@@ -92,6 +92,12 @@ $(APPRAISER_EXECUTABLE): $(APPRAISER_OBJECTS)
 $(TEST_BAM_EXECUTABLE): $(TEST_BAM_OBJECTS)
 	$(CC) $(LIB) $^ $(LDFLAGS) -o $@
 
+proto/jeweler.pb.cc: proto/jeweler.proto
+	cd proto &&	protoc --cpp_out=. jeweler.proto
+
+proto/jeweler.pb.cpp: proto/jeweler.pb.cc proto/jeweler.pb.h
+	cp proto/jeweler.pb.cc proto/jeweler.pb.cpp
+
 .cpp.o:
 	$(CC) $(CPPFLAGS) $(CXXFLAGS) -MD -c -o $@ $<
 	cp $*.d $*.P; \

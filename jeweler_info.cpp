@@ -25,7 +25,7 @@ int JewelerInfo::build_gene_id2transcripts() {
 }
 
 int JewelerInfo::get_refID(string chr) {
-	for ( size_t i = 0; i < references.size(); i++) {
+	for (size_t i = 0; i < references.size(); i++) {
 		if (references[i].RefName == chr) {
 			return i;
 		}
@@ -35,7 +35,7 @@ int JewelerInfo::get_refID(string chr) {
 
 JewelerInfo::JewelerInfo(int argc, char *argv []) {
 	int i;
-	for ( i = 1; i < argc; i ++) {
+	for (i = 1; i < argc; i ++) {
 		i = check_args(i, argv, "-maternal_strain_ref_file", maternal_strain_ref_file);
 		i = check_args(i, argv, "-paternal_strain_ref_file", paternal_strain_ref_file);
 		i = check_args(i, argv, "-maternal_strain_id", maternal_strain_id);

@@ -75,8 +75,3 @@ class GeneRelationship:
         self.target_num_isoforms = shared_graph.genes[target].num_isoforms
         self.origin_num_exons = shared_graph.genes[origin].num_exons
         self.target_num_exons = shared_graph.genes[target].num_exons
-
-        
-        
-        
-        

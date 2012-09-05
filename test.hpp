@@ -3,7 +3,7 @@
 // http://reference-man.blogspot.com/2009/07/checking-vectors-of-doubles-with-google.html
 // EXPECT_ITERABLE_DOUBLE_EQ(std::vector, expectedTemp, radTemperature);
 
-#define EXPECT_ITERABLE_DOUBLE_EQ( TYPE, ref, target) \
+#define EXPECT_ITERABLE_DOUBLE_EQ(TYPE, ref, target) \
     { \
     const TYPE& _ref(ref); \
     const TYPE& _target(target); \
@@ -11,7 +11,7 @@
     TYPE::const_iterator refIter = _ref.begin(); \
     unsigned int i = 0; \
     while(refIter != _ref.end()) { \
-    if ( tarIter == _target.end() ) { \
+    if (tarIter == _target.end()) { \
     ADD_FAILURE() << #target \
     " has a smaller length than " #ref ; \
     break; \
@@ -22,13 +22,13 @@
             "differ at index " << i; \
             ++refIter; ++tarIter; ++i; \
     } \
-    EXPECT_TRUE( tarIter == _target.end() ) \
+    EXPECT_TRUE(tarIter == _target.end()) \
         << #ref " has a smaller length than " \
         #target ; \
     }
 
 
-#define EXPECT_ITERABLE_EQ( TYPE, ref, target) \
+#define EXPECT_ITERABLE_EQ(TYPE, ref, target) \
     { \
     const TYPE& _ref(ref); \
     const TYPE& _target(target); \
@@ -36,7 +36,7 @@
     TYPE::const_iterator refIter = _ref.begin(); \
     unsigned int i = 0; \
     while(refIter != _ref.end()) { \
-    if ( tarIter == _target.end() ) { \
+    if (tarIter == _target.end()) { \
     ADD_FAILURE() << #target \
     " has a smaller length than " #ref ; \
     break; \
@@ -47,7 +47,7 @@
             "differ at index " << i; \
             ++refIter; ++tarIter; ++i; \
     } \
-    EXPECT_TRUE( tarIter == _target.end() ) \
+    EXPECT_TRUE(tarIter == _target.end()) \
         << #ref " has a smaller length than " \
         #target ; \
     }

@@ -5,7 +5,7 @@ import json
 import sys
 import traceback
 import argparse
-import  pydot
+import pydot
 import math
 from subprocess import Popen
 from subprocess import call

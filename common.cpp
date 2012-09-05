@@ -22,7 +22,7 @@ char *trim(char *str)
 	return str;
 }
 
-FILE * file_open( const char *name, const char * mode) {
+FILE * file_open(const char *name, const char * mode) {
      FILE * ret=NULL;
      ret=fopen(name, mode);
      if (ret==NULL)  {
@@ -39,7 +39,7 @@ void open_bam(BamReader &bam_reader, string bam_file){
 		exit(1);
 	}
 
-	if (bam_reader.LocateIndex(BamTools::BamIndex::IndexType::STANDARD) ) {
+	if (bam_reader.LocateIndex(BamTools::BamIndex::IndexType::STANDARD)) {
 		fprintf(stdout, "Loaded index for bamfiles ...\n");
 	}
 	else {

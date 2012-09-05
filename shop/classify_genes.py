@@ -5,7 +5,7 @@ import json
 import sys
 import traceback
 import argparse
-import  pydot
+import pydot
 import math
 from subprocess import Popen
 from subprocess import call
@@ -32,7 +32,7 @@ class Classifier:
         fd = open(sys.argv[1] + "/" + "gene_meta.obj", "rb")
         self.genes = pickle.load( fd)
         fd = open(sys.argv[1] + "/" + "blacklist.obj", "rb")
-        self.blacklist = pickle.load( fd)
+        self.blacklist = pickle.load(fd)
         self.correct_set = self.get_correct_data("data/simulation_bam_new_merge/"+self.sample_id[0:9]+".abundance")
         self.num_not_sure = self.count_num_not_sure()
         print(str(self.num_not_sure))
@@ -74,7 +74,7 @@ class Classifier:
         if (gene_relationship.origin_shared_coverage < 
             gene_relationship.target_shared_coverage - 0.2):
             return True
-        return False
+        return Falsex
         
     def relationship_rule_unexpressed_cannot_beat_a_good_gene(self, gene_relationship):
         if (self.genes[gene_relationship.origin].num_exons > 1 and 
@@ -193,13 +193,16 @@ class Classifier:
     def dump_gtf_file(self):
         gene_names = pickle.load(open(self.root+"/filtered_gene.obj", "rb"))
         lines = open(self.cufflinks_path+"/"+"transcripts.gtf").readlines()
+
         def is_filtered(line):
             start = line.find("gene_id \"")
             end = line.find("\";", start)
             return line[(start+9):end] in gene_names
+
         def is_transcript(line):
             start = line.find("exon")
             return start < 0
+
         def is_not_filtered(line):
             return not is_filtered(line)
 

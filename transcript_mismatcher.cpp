@@ -13,24 +13,24 @@ int TranscriptMismatcher::initialize() {
 		i->second=idx;
 		idx++;
 	}
-	coverage.resize( size, 0);
-	mismatches.resize( size, 0);
+	coverage.resize(size, 0);
+	mismatches.resize(size, 0);
 	mismatched_reads.resize(size);
 	read_mismatch_qualities.resize(size);
 	read_call_qualities.resize(size);
 	read_mismatch_locations.resize(size);
 	read_call_locations.resize(size);
-	A_mismatches.resize( size, 0);
-	C_mismatches.resize( size, 0);
-	G_mismatches.resize( size, 0);
-	T_mismatches.resize( size, 0);
-	N_mismatches.resize( size, 0);
+	A_mismatches.resize(size, 0);
+	C_mismatches.resize(size, 0);
+	G_mismatches.resize(size, 0);
+	T_mismatches.resize(size, 0);
+	N_mismatches.resize(size, 0);
 	return 0;
 }
 
 int TranscriptMismatcher::add_transcript(Transcript *t, int origin) {
 	for (auto i=t->genome_pos.begin();
-		 i != t->genome_pos.end(); 
+		 i != t->genome_pos.end();
 		 i++) {
 		genome_pos2idx[(*i)]=0;
 		if (origin==TRANSCRIPT_PATERNAL) {
@@ -43,11 +43,11 @@ int TranscriptMismatcher::add_transcript(Transcript *t, int origin) {
 	return 0;
 }
 
-int TranscriptMismatcher::add_mismatches(Transcript *transcript, JewelerAlignment *al, 
+int TranscriptMismatcher::add_mismatches(Transcript *transcript, JewelerAlignment *al,
 										 ReadMatcher *rm) {
 	if (rm->mismatchars.size()> 10) {
 		// TODO study why there are so many mismatches for the
-		// alignment 
+		// alignment
 		return 0;
 	}
 
@@ -59,36 +59,36 @@ int TranscriptMismatcher::add_mismatches(Transcript *transcript, JewelerAlignmen
 			read_call_qualities[idx].push_back(al->Qualities[rm->read_aligned_locations[i]]);
 			read_call_locations[idx].push_back(al->read_position[rm->read_aligned_locations[i]]);
 		}
-		reads.insert(al);
-	}
-	for (size_t i = 0; i < rm->mismatch_transcript_locations.size(); i++) {
-		int idx = genome_pos2idx[transcript->genome_pos[rm->mismatch_transcript_locations[i]]];
-		if (mismatched_reads[idx].find( al ) !=	mismatched_reads[idx].end()) {
-			// have inserted before
-			continue;
-		}
-		mismatched_reads[ idx ].insert( al );
+        reads.insert(al);
+    }
+    for (size_t i = 0; i < rm->mismatch_transcript_locations.size(); i++) {
+        int idx = genome_pos2idx[transcript->genome_pos[rm->mismatch_transcript_locations[i]]];
+        if (mismatched_reads[idx].find(al) != mismatched_reads[idx].end()) {
+            // have inserted before
+            continue;
+        }
+        mismatched_reads[ idx ].insert(al);
 
-		read_mismatch_qualities[ idx ].push_back( rm->mismatch_qualities[ i ] );
-		read_mismatch_locations[ idx ].push_back( al->read_position[rm->mismatch_read_locations[ i ]] );
+        read_mismatch_qualities[ idx ].push_back(rm->mismatch_qualities[ i ]);
+        read_mismatch_locations[ idx ].push_back(al->read_position[rm->mismatch_read_locations[ i ]]);
 
-		char mismatchar = rm->mismatchars[i];
-		mismatches[idx]++;
+        char mismatchar = rm->mismatchars[i];
+        mismatches[idx]++;
 
-		switch (mismatchar) {
-		case 'A': 
-			A_mismatches[idx]++;
-			break;
-		case 'T': 
+        switch (mismatchar) {
+        case 'A':
+            A_mismatches[idx]++;
+            break;
+        case 'T':
 			T_mismatches[idx]++;
 			break;
-		case 'C': 
+		case 'C':
 			C_mismatches[idx]++;
 			break;
-		case 'G': 
+		case 'G':
 			G_mismatches[idx]++;
 			break;
-		case 'N': 
+		case 'N':
 			N_mismatches[idx]++;
 			break;
 		default:
@@ -115,6 +115,40 @@ int TranscriptMismatcher::dump(FILE *file) {
 	return 0;
 }
 
+void TranscriptMismatcher::dump(Jeweler::EarringsData::Mismatcher *data) {
+	size_t i,k;
+    FILE * file;
+	auto j=genome_pos2idx.begin();
+	auto m=genome_pos2maternal.begin();
+	auto p=genome_pos2paternal.begin();
+	for (i = 0 ; i < mismatches.size() ; i++) {
+        data->set_genome_position(j->first);
+        data->set_coverage(coverage[i]);
+        data->set_paternal_char(string(1, p->second));
+        data->set_maternal_char(string(1,m->second));
+        data->set_num_mismatches(mismatches[i]);
+        data->set_num_a(A_mismatches[i]);
+        data->set_num_t(T_mismatches[i]);
+        data->set_num_c(C_mismatches[i]);
+        data->set_num_g(G_mismatches[i]);
+		for (k = 0; k < read_mismatch_qualities[i].size(); k ++) {
+
+            Jeweler::EarringsData::Mismatcher::Call *call = data->add_call();
+            call->set_quality(string(1,read_mismatch_qualities[i][k]));
+            call->set_read_position(read_mismatch_locations[i][k]);
+            call->set_is_mismatch(true);
+		}
+		for (k = 0; k < read_call_qualities[i].size(); k ++) {
+            Jeweler::EarringsData::Mismatcher::Call *call = data->add_call();
+            call->set_quality(string(1,read_call_qualities[i][k]));
+            call->set_read_position(read_call_locations[i][k]);
+            call->set_is_mismatch(false);
+		}
+		j++; m++; p++;
+	}
+	return ;
+}
+
 int TranscriptMismatcher::write(FILE *file) {
 	size_t i,k;
 	auto j=genome_pos2idx.begin();
@@ -126,11 +160,11 @@ int TranscriptMismatcher::write(FILE *file) {
 				A_mismatches[i],T_mismatches[i], C_mismatches[i], G_mismatches[i],
 				N_mismatches[i],
 				m->second, p->second);
-		for ( k = 0; k < read_mismatch_qualities[i].size(); k ++) {
+		for (k = 0; k < read_mismatch_qualities[i].size(); k ++) {
 			fprintf(file,"\t%c\t%d", read_mismatch_qualities[i][k],
 					                 read_mismatch_locations[i][k]);
 		}
-		for ( k = 0; k < read_call_qualities[i].size(); k ++) {
+		for (k = 0; k < read_call_qualities[i].size(); k ++) {
 			fprintf(file,"\t%c\t%d", read_call_qualities[i][k],
                                      read_call_locations[i][k]);
 		}
@@ -140,10 +174,10 @@ int TranscriptMismatcher::write(FILE *file) {
 	return 0;
 }
 
-int TranscriptMismatcherAnalyzer::add_calls_by_quality(FILE * file, int num, 
+int TranscriptMismatcherAnalyzer::add_calls_by_quality(FILE * file, int num,
 													   map<char, int> & target_quality) {
 	char tempc; int tempn;
-	for (int i = 0; i < num; i ++ ) {
+	for (int i = 0; i < num; i ++) {
 		fscanf(file, "\t%c\t%d", &tempc, &tempn);
 		if (tempn<10) continue;
 		if (target_quality.find(tempc) != target_quality.end()) {
@@ -170,22 +204,22 @@ void TranscriptMismatcherAnalyzer::append(FILE * file, string gene_id) {
 	int ret = 0;
 	while((ret = fscanf(file,"%d%d%d%d%d%d%d%d\t%c\t%c",
 						&genome_location, &coverage, &miss,
-						&a,&t, &c, &g, &n, 
-						&maternal_char, &paternal_char) )== 10) {
+						&a,&t, &c, &g, &n,
+						&maternal_char, &paternal_char))== 10) {
 
 
-		genome_locations.push_back( genome_location );
-		coverages.push_back( coverage );
-		mismatches.push_back( miss );
-		if ( num_mismatches_histogram.find(miss) == num_mismatches_histogram.end() ) {
+		genome_locations.push_back(genome_location);
+		coverages.push_back(coverage);
+		mismatches.push_back(miss);
+		if (num_mismatches_histogram.find(miss) == num_mismatches_histogram.end()) {
 			num_mismatches_histogram[miss] = 0;
 		}
 		else {
 			num_mismatches_histogram[miss] ++;
 		}
-		maternal_seq.push_back( maternal_char );
-		paternal_seq.push_back( paternal_char );
-		
+		maternal_seq.push_back(maternal_char);
+		paternal_seq.push_back(paternal_char);
+
 		if (miss >= coverage * 0.02) {
 			tempv_quality.clear();
 			add_calls_by_quality(file, miss, tempv_quality);
@@ -211,12 +245,12 @@ void TranscriptMismatcherAnalyzer::append(FILE * file, string gene_id) {
 
 TranscriptMismatcherAnalyzer::TranscriptMismatcherAnalyzer(string filename) {
 	this -> filename = filename;
-	
+
 	is_initialized = false;
 }
-TranscriptMismatcherAnalyzer::TranscriptMismatcherAnalyzer(string filename, 
+TranscriptMismatcherAnalyzer::TranscriptMismatcherAnalyzer(string filename,
 														   JewelerInfo *jeweler_info) {
-	
+
 	is_initialized = false;
 	this -> filename = filename;
 	for (size_t i=0; i < jeweler_info->gene_id.size(); i++) {
@@ -229,7 +263,7 @@ TranscriptMismatcherAnalyzer::TranscriptMismatcherAnalyzer(string filename,
 		}
 		append(finfo, jeweler_info->gene_id[i]);
 		fclose(finfo);
-		if ( i % 1 == 0) {
+		if (i % 1 == 0) {
 			fprintf(stdout, "%zu/%zu\n", i, jeweler_info->gene_id.size());
 	 	}
 	}
@@ -257,17 +291,17 @@ void TranscriptMismatcherAnalyzer::end_loading() {
 int TranscriptMismatcherAnalyzer::mark_consistent_mismatch() {
 	int ret = 0;
 	int i;
-	for ( i = 0; i < num_locations; i ++) {
+	for (i = 0; i < num_locations; i ++) {
 		if (is_skipped_locations.test(i)) {
 			continue;
 		}
 
-		if (is_consistent_mismatches.test( i ) ) {
+		if (is_consistent_mismatches.test(i)) {
 			continue;
 		}
-		
+
 		if (p_values[i] < 0.00001) {
-			is_consistent_mismatches.set( i );
+			is_consistent_mismatches.set(i);
 			ret ++;
 		}
 	}
@@ -276,22 +310,22 @@ int TranscriptMismatcherAnalyzer::mark_consistent_mismatch() {
 
 void TranscriptMismatcherAnalyzer::analyze() {
 	int total = 0, ret;
-	calculate_error<char>(read_qualities, read_mismatch_qualities, 
-						  num_calls_by_quality, num_calls_by_quality_baseline, 
+	calculate_error<char>(read_qualities, read_mismatch_qualities,
+						  num_calls_by_quality, num_calls_by_quality_baseline,
 						  num_mismatches_by_quality, num_mismatches_by_quality_baseline,
 						  error_rate_by_quality
-						  );
+						 );
 
 	FILE * fd = fopen((filename+".quality.error.first").c_str(), "w+");
 	dump_error_rate_by_quality (fd);
 	fclose(fd);
 	do {
-		calculate_error<char>(read_qualities, read_mismatch_qualities, 
-							  num_calls_by_quality, num_calls_by_quality_baseline, 
+		calculate_error<char>(read_qualities, read_mismatch_qualities,
+							  num_calls_by_quality, num_calls_by_quality_baseline,
 							  num_mismatches_by_quality, num_mismatches_by_quality_baseline,
 							  error_rate_by_quality
-							  );
-		
+							 );
+
 
 		FILE * fd = fopen((filename+".quality.error.last").c_str(), "w+");
 		dump_error_rate_by_quality(fd);
@@ -301,7 +335,7 @@ void TranscriptMismatcherAnalyzer::analyze() {
 		ret = mark_consistent_mismatch() ;
 		total += ret;
 		fprintf(stdout, "there are %d of %d locations consistent mismatches\n", total, num_locations);
-	} while ( ret >  0 );
+	} while (ret >  0);
 	fd = fopen((filename+".locations").c_str(), "w+");
 	dump_location_results (fd);
 	fclose(fd);
@@ -316,11 +350,11 @@ void TranscriptMismatcherAnalyzer::analyze() {
 
 void TranscriptMismatcherAnalyzer::dump_error_rate_by_quality(FILE * fd) {
 	fprintf(fd, "phred\tnum.quality\tnum.mismatches\tnum.error\n");
-	for ( auto i = num_calls_by_quality.begin(); 
-		  i !=  num_calls_by_quality.end(); 
+	for (auto i = num_calls_by_quality.begin();
+		  i !=  num_calls_by_quality.end();
 		  i ++) {
-		fprintf(fd, "%c\t%d\t%d\t%e\n", 
-				i->first, i->second, num_mismatches_by_quality[i->first], 
+		fprintf(fd, "%c\t%d\t%d\t%e\n",
+				i->first, i->second, num_mismatches_by_quality[i->first],
 				error_rate_by_quality[ i->first]);
 	}
 }
@@ -328,12 +362,12 @@ void TranscriptMismatcherAnalyzer::dump_error_rate_by_quality(FILE * fd) {
 void TranscriptMismatcherAnalyzer::dump_location_results(FILE *fd, bool only_yes) {
 	int i;
 	fprintf(fd, "location\tpvalue\tconsistent\n");
-	for ( i = 0; i < num_locations; i ++) {
+	for (i = 0; i < num_locations; i ++) {
 		if (only_yes && !is_consistent_mismatches.test(i)) continue;
-		fprintf(fd, "%s\t%d\t%e\t%s\t%d\t%d\n", 
+		fprintf(fd, "%s\t%d\t%e\t%s\t%d\t%d\n",
 				gene_ids[i].c_str(),
-				genome_locations[i], p_values[i], 
-				is_consistent_mismatches.test(i) ? "Yes": "No", 
+				genome_locations[i], p_values[i],
+				is_consistent_mismatches.test(i) ? "Yes": "No",
 				coverages[i], mismatches[i]);
 
 	}

@@ -27,7 +27,7 @@ int AlignmentGlue::get_skipped_region(const JewelerAlignment *al, int skipped_al
 	skipped_length = 0;
     cigar_data.clear();
 
-	for ( ; cigar_iter != cigar_end; ++cigar_iter ) {
+	for (; cigar_iter != cigar_end; ++cigar_iter) {
 		const CigarOp& op = (*cigar_iter);
 
 		if (skipped_alignment_length <= 0) {
@@ -38,31 +38,31 @@ int AlignmentGlue::get_skipped_region(const JewelerAlignment *al, int skipped_al
 		}
 		CigarOp new_op = (op);
 
-		switch ( op.Type ) {
+		switch (op.Type) {
 
-		case ( Constants::BAM_CIGAR_MATCH_CHAR ):
-		case ( Constants::BAM_CIGAR_SEQMATCH_CHAR ):
-		case ( Constants::BAM_CIGAR_MISMATCH_CHAR ):
+		case (Constants::BAM_CIGAR_MATCH_CHAR):
+		case (Constants::BAM_CIGAR_SEQMATCH_CHAR):
+		case (Constants::BAM_CIGAR_MISMATCH_CHAR):
 			// skip the overlapped region
 			skipped_length += min(skipped_alignment_length, (int) op.Length);
 			// fall through
-		case ( Constants::BAM_CIGAR_REFSKIP_CHAR):
+		case (Constants::BAM_CIGAR_REFSKIP_CHAR):
 			skipped_alignment_length = skipped_alignment_length - op.Length;
 			new_op.Length = - skipped_alignment_length;
 			//fall trough
 
-		case ( Constants::BAM_CIGAR_DEL_CHAR):
-		case ( Constants::BAM_CIGAR_PAD_CHAR):
+		case (Constants::BAM_CIGAR_DEL_CHAR):
+		case (Constants::BAM_CIGAR_PAD_CHAR):
 			// not completely skipped, go to next opk
-			if (skipped_alignment_length >= 0 ) {
+			if (skipped_alignment_length >= 0) {
 				continue;
 			}
 			cigar_data.push_back(new_op);
 			break;
 
-		case ( Constants::BAM_CIGAR_INS_CHAR ):
-		case ( Constants::BAM_CIGAR_SOFTCLIP_CHAR ):
-		case ( Constants::BAM_CIGAR_HARDCLIP_CHAR) :
+		case (Constants::BAM_CIGAR_INS_CHAR):
+		case (Constants::BAM_CIGAR_SOFTCLIP_CHAR):
+		case (Constants::BAM_CIGAR_HARDCLIP_CHAR) :
 			// simply do nothing, because these chars are from the
 			// read, not the genome, so won't affect the skipped
 			// region;
@@ -121,13 +121,13 @@ void AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlign
         first->QueryBases += second->QueryBases.substr(skipped_read_length);
         first->Qualities +=second->Qualities.substr(skipped_read_length);
         for (j = skipped_read_length; j < second->QueryBases.size(); j ++) {
-            first->read_position.push_back(get_read_position(second,j) );
+            first->read_position.push_back(get_read_position(second,j));
         }
 
         first->CigarData.insert(first->CigarData.end(),
                                 new_cigar_data.begin(), new_cigar_data.end());
         // merge consective ops
-        for (i = 0, j = 0; j< first->CigarData.size(); ) {
+        for (i = 0, j = 0; j< first->CigarData.size();) {
             j ++;
             while(j != first->CigarData.size()) {
                 if (first->CigarData[i].Type == first->CigarData[j].Type) {
@@ -167,16 +167,16 @@ int AlignmentGlue::glue(vector<JewelerAlignment *> &in_reads,
 
     name2reads.clear();
 
-    for ( i = 0; i < in_reads.size(); i++) {
+    for (i = 0; i < in_reads.size(); i++) {
         name2reads[ in_reads[i]->Name ].push_back(in_reads[ i ]);
     }
 
-    for ( i = 0; i < in_reads.size(); i++) {
-        if ( in_reads[i]->IsFirstMate() ) {
+    for (i = 0; i < in_reads.size(); i++) {
+        if (in_reads[i]->IsFirstMate()) {
             num_first_mate ++;
-            if ( name2reads.find(in_reads[i]->Name) != name2reads.end()) {
+            if (name2reads.find(in_reads[i]->Name) != name2reads.end()) {
                 vector<JewelerAlignment *> alignments = name2reads[in_reads[i]->Name];
-                if ( alignments.size() == 1 ) {
+                if (alignments.size() == 1) {
                     // TODO:
                     // not paired, but still counted as a valid
                     // alignment.
@@ -213,7 +213,7 @@ int AlignmentGlue::glue(vector<JewelerAlignment *> &in_reads,
 		}
 	}
 	//fprintf(stdout, " %d unpaired and %d not propered and %d of first paried\n", ignore_unpaired_read, ignore_unproper_read, num_first_mate);
-	for ( i = 0; i < in_reads.size(); i++) {
+	for (i = 0; i < in_reads.size(); i++) {
 		if (checklist.find(in_reads[i]) == checklist.end()) {
 			noused_reads.push_back(in_reads[i]);
 			continue;

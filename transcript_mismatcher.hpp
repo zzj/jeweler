@@ -12,6 +12,7 @@
 #include <functional>
 #include <numeric>
 #include <cmath>
+#include "proto/jeweler.pb.h"
 
 using namespace std;
 class JewelerInfo;
@@ -31,6 +32,7 @@ public:
 
 	int dump(FILE *);
 	int write(FILE *);
+    void dump(Jeweler::EarringsData::Mismatcher *data);
 
 	map<int, int> genome_pos2idx;
 	map<int, char> genome_pos2paternal;
@@ -115,7 +117,7 @@ public:
 	TranscriptMismatcherAnalyzer(string filename);
 	TranscriptMismatcherAnalyzer(string filename, JewelerInfo *jeweler_info);
 
-	void append(FILE *, string gene_id );
+	void append(FILE *, string gene_id);
 
 	void end_loading();
 
@@ -127,14 +129,14 @@ public:
                         map<T, int> &num_mismatches,
                         map<T, int> &num_mismatches_baseline,
                         map<T,double> &error_rate
-                        );
+                       );
     int add_calls_by_quality(FILE * file, int num,
                              map<char, int> & target_quality);
 
     template<class T>
     void calculate_p_value(const vector<map<T, int> > &read_calls,
                           map<T,double> &error_rate
-                          );
+                         );
 
     int mark_consistent_mismatch();
 
@@ -153,9 +155,9 @@ void TranscriptMismatcherAnalyzer::calculate_p_value(const vector<map<T, int> > 
 	double mean;
 	vector<double> prob;
 
-	for ( i = 0; i < num_locations; i ++) {
+	for (i = 0; i < num_locations; i ++) {
 		prob.clear();
-		if ( is_consistent_mismatches.test( i ) ) {
+		if (is_consistent_mismatches.test(i)) {
 			continue;
 		}
 		le_cam_upper_bound = 0;
@@ -165,7 +167,7 @@ void TranscriptMismatcherAnalyzer::calculate_p_value(const vector<map<T, int> > 
 			 j ++) {
 			le_cam_upper_bound = pow(error_rate[ j->first ],2);
 			mean += error_rate[j->first ];
-			for ( int k = 0; k < j->second; k++) {
+			for (int k = 0; k < j->second; k++) {
 				prob.push_back(error_rate[ j->first ]);
 			}
 		}
@@ -193,7 +195,7 @@ void TranscriptMismatcherAnalyzer::calculate_p_value(const vector<map<T, int> > 
 			p_values[i] = exp(log_prod_prob(prob));
 		}
 		else if (mismatches[i] == coverages[i] - 1) {
-			p_values[i] = exp(log_prod_prob(prob) )
+			p_values[i] = exp(log_prod_prob(prob))
 				+ exp(log_prod_prob_with_one_flipped(prob));
 		}
 		else {
@@ -220,18 +222,18 @@ void TranscriptMismatcherAnalyzer::calculate_error(const vector<map<T, int> > &r
 												  map<T, int> &num_mismatches,
 												  map<T, int> &num_mismatches_baseline,
 												  map<T,double> &error_rate
-												  ) {
+												 ) {
 	int i;
 	// num of mismatches by quality in read
 	num_mismatches = num_mismatches_baseline;
 	num_calls = num_calls_baseline;
 	error_rate.clear();
 
-	for ( i = 0; i < num_locations; i ++) {
+	for (i = 0; i < num_locations; i ++) {
 		// Right now, just remove locations
 		// TODO: remove the whole transcript if it contains consistent
 		// mismatches
-		if ( is_consistent_mismatches.test( i ) ) {
+		if (is_consistent_mismatches.test(i)) {
 			continue;
 		}
 		if (is_skipped_locations.test(i)) {
@@ -261,7 +263,7 @@ void TranscriptMismatcherAnalyzer::calculate_error(const vector<map<T, int> > &r
 		}
  	}
 
-	for ( auto i = num_calls.begin(); i !=  num_calls.end(); i ++) {
+	for (auto i = num_calls.begin(); i !=  num_calls.end(); i ++) {
 		if (num_mismatches.find(i->first) == num_mismatches.end()) {
 			num_mismatches[ i->first ] = 0;
 		}
