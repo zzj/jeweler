@@ -41,7 +41,7 @@ SewingMachine::SewingMachine(BamReader &reader, string &db_folder) {
 void SewingMachine::initialize(BamReader &reader, string &db_folder) {
 	BamInfo::initialize(reader);
     this->load_zdb(db_folder);
-    this->zdb->clear(db_folder);
+    this->zdb->clear();
 	//this->num_multiple_reads_per_chr.resize(references.size(),0);
 }
 
@@ -65,9 +65,12 @@ string SewingMachine::get_reference_sequence(FastaReference &fr, JewelerAlignmen
 
 
 int SewingMachine::add_alignment(const JewelerAlignment &al) {
-	locator *l =new locator(al, this->references);
+    unique_ptr<locator>l(new locator(al, this->references));
     shared_ptr<Jeweler::SewingMachineData> smd = \
         this->zdb->get<Jeweler::SewingMachineData>(al.Name);
+    if (smd.get() == NULL) {
+        smd = shared_ptr<Jeweler::SewingMachineData>(new Jeweler::SewingMachineData);
+    }
     l->dump(smd->add_locator());
     this->zdb->set<Jeweler::SewingMachineData>(al.Name, smd.get());
 	return 0;
