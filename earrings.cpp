@@ -1,5 +1,7 @@
 #include "earrings.hpp"
+#include "jeweler_info.hpp"
 #include "proto/jeweler.pb.h"
+#include "laboratory/sewing_machine.hpp"
 #include <fstream>
 using namespace std;
 
@@ -581,7 +583,7 @@ int Earrings::build_graph() {
 
 void Earrings::dump_data() {
 
-    Jeweler::EarringsData *ed = new Jeweler::EarringsData();
+    unique_ptr<Jeweler::EarringsData> ed(new Jeweler::EarringsData());
     ed->set_gene_id(this->gene_id);
     ed->set_chr(this->chr);
     ed->set_start_position(this->left_pos);
@@ -589,8 +591,7 @@ void Earrings::dump_data() {
     ed->set_num_single_reads(this->single_reads.size());
     ed->set_num_multiple_reads(this->multiple_reads.size());
     this->mismatcher->dump(ed->mutable_mismatcher());
-    dump_protobuf_data(this->result_folder + "/" + this->gene_id + ".pb", ed);
-    delete ed;
+    dump_protobuf_data(this->result_folder + "/" + this->gene_id + ".pb", ed.get());
     return ;
 }
 

@@ -3,6 +3,12 @@
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
 #include "proto/jeweler.pb.h"
+#include "earrings.hpp"
+#include "bracelet.hpp"
+#include "transcript_mismatcher.hpp"
+#include "gtf.hpp"
+#include "laboratory/sewing_machine.hpp"
+#include "jeweler_info.hpp"
 
 using namespace std;
 
@@ -84,7 +90,7 @@ void jeweler::load_mamf_file() {
 	if (mamf_filename != "none") {
 		fprintf(stdout,"loading mamf files ...\n");
 		sm =new SewingMachine();
-		sm->load_multiple_alignments_set(mamf_filename);
+		sm->load_zdb(mamf_filename);
 	}
 }
 
@@ -119,13 +125,10 @@ int jeweler::run() {
 			fprintf(stdout, "Bracelet analyzing ...\n");
 			Bracelet bracelet(jeweler_info);
 			bracelet.analyze();
-			FILE * output = fopen((bracelet_filename+"/result.bracelet").c_str(), "w+");
-			if (output == NULL) {
-				fprintf(stdout, "cannot open file %s\n", (bracelet_filename+"/result.bracelet").c_str());
-				exit(0);
-			}
-			bracelet.dump(output, bracelet_filename);
-			fclose(output);
+			fstream out(bracelet_filename+"/result.bracelet",
+                ios::out | ios::binary | ios::trunc);
+			bracelet.dump(&out, bracelet_filename);
+            out.close();
 		}
 	
 		if (is_mismatch_analyzer) {

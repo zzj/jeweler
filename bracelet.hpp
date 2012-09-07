@@ -1,10 +1,12 @@
 #ifndef _BRACELET_HPP_
 #define _BRACELET_HPP_
-#include "jeweler.hpp"
 #include <vector> 
 #include <cstdio>
 #include <algorithm>
 #include <set>
+#include <fstream>
+#include "proto/jeweler.pb.h"
+
 using namespace std;
 class JewelerInfo;
 class Bracelet{
@@ -19,12 +21,13 @@ public:
 	Bracelet(JewelerInfo *jeweler_info);
 	int intersect(vector<string> &a, vector<string> &b);
 	int analyze();
-	int dump(FILE *file);
-    void dump_shared_pileup(FILE * fd,
+    void dump_shared_pileup(Jeweler::BraceletData::RelatedTranscript *fd,
                            int original_id,
                            int target_id);
 
-	int dump(FILE * file, string root);
-
+	int dump(fstream *, string root);
+    int dump_all();
+private:
+    Jeweler::BraceletData *data;
 };
 #endif

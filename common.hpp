@@ -49,4 +49,28 @@ void load_protobuf_data(string file_name, T *data) {
     input.close();
 }
 
+template<class T>
+int load_protobuf_data(fstream *file, T *data) {
+    int m;
+    file->read(reinterpret_cast < char * > (&m), sizeof(m));
+    if (file->eof()) return -1;
+    char * buffer = new char[m];
+    file->read(buffer, m);
+    if (!data->ParseFromString(buffer)) {
+        fprintf(stderr, "Failed to parse address book.\n");
+        return -1;
+    }
+    return 0;
+}
+
+template<class T>
+int write_protobuf_data(fstream *file, T *data) {
+    string seq;
+    data->SerializeToString(&seq);
+    int m = seq.size();
+    file->write(reinterpret_cast<char *> (&m), sizeof(m));
+    file->write(seq.c_str(), seq.size());
+    return 0;
+}
+
 #endif /* _COMMON_H_ */

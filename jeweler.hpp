@@ -10,14 +10,6 @@
 #include <vector> 
 #include "fasta.hpp"
 #include "common.hpp"
-#include "jeweler_info.hpp"
-#include "gtf.hpp"
-#include "rna_read.hpp"
-#include "transcript.hpp"
-#include "earrings.hpp"
-#include "bracelet.hpp"
-#include "transcript_mismatcher.hpp"
-#include "laboratory/sewing_machine.hpp"
 
 #include <api/BamReader.h>
 #include <api/BamWriter.h>
@@ -32,6 +24,8 @@ using namespace BamTools;
 using boost::filesystem::path;
 using boost::filesystem::create_directory;
 
+class SewingMachine;
+class JewelerInfo;
 class jeweler{
 public:
 	

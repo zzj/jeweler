@@ -79,23 +79,15 @@ void Appraiser::run() {
 	}
 	
 	mb.initialize(reader);
-	sm.initialize(reader);
+	sm.initialize(reader, this->mam_map_file);
 	while (reader.GetNextAlignment(al)) {
 		mb.add_alignment(al);
-		sm.count_alignment(al);
-		i++;
-		if (test_num>0 && i>test_num) break;
-	}
-	i = 0;
-	reader.Rewind();
-	while (reader.GetNextAlignment(al)) {
 		sm.add_alignment(al);
 		i++;
 		if (test_num>0 && i>test_num) break;
 	}
 	mb.dump_meta_data(log_file);
 	mb.dump_mapquality_list(quality_file);
-	sm.output_multiple_alignment_map(mam_table_file);
 	//sm.output_alignment_connection_map(mam_map_file);
 }
 

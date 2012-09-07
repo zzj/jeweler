@@ -4,83 +4,59 @@
 #include "sewing_machine.hpp"
 #include <api/BamReader.h>
 
+static void create_alignment(const string &name, const int position,
+                             const string &cigar_string,
+                             JewelerAlignment &al) {
+    al.Position = position;
+    al.Name = name;
+    get_cigarop(cigar_string, al.CigarData);
+    al.RefID = 0;
+    al.AddTag("NM", "I", 1);
+}
+
 class SewingMachineTest : public ::testing::Test {
 protected:
     virtual void SetUp() {
-        al1.Name = "al1";
-        al1.RefID = 0;
-        al1.Position = 1;
-        get_cigarop("10M", al1.CigarData);
-        al1.AddTag("NM", "I", 1);
-        al2.Name = "al2";
-        al2.RefID = 0;
-        al2.Position = 2;
-        get_cigarop("20M", al2.CigarData);
-        al2.AddTag("NM", "I", 2);
+        RefVector rv;
+        rv.resize(10);
+        create_alignment("al1", 10, "10M", al1);
+        create_alignment("al2", 20, "10M", al2);
+        create_alignment("al3", 30, "10M", al3);
+        create_alignment("al4", 40, "10M", al4);
         BamTools::RefData rf("chr1", 10);
-        sm.references.push_back(rf);
+        system("rm test_data/test_sm -rf");
+        string fd = "test_data/test_sm";
+        sm.load_zdb(fd);
+        sm.references = rv;
+        add();
     }
 
     virtual void TearDown() {
-    }
-
-    void count() {
-        sm.count_alignment(al1);
-        sm.count_alignment(al2);
-        sm.count_alignment(al2);
     }
 
     void add() {
         sm.add_alignment(al1);
         sm.add_alignment(al2);
         sm.add_alignment(al2);
+        sm.add_alignment(al3);
+        al3.SetIsFirstMate(true);
+        sm.add_alignment(al3);
+        sm.add_alignment(al4);
+        al3.SetIsFirstMate(true);
+        sm.add_alignment(al4);
+        sm.add_alignment(al4);
     }
     SewingMachine sm;
     JewelerAlignment al1;
     JewelerAlignment al2;
+    JewelerAlignment al3;
+    JewelerAlignment al4;
 };
 
-TEST_F(SewingMachineTest, test_get_full_name) {
-    JewelerAlignment al;
-    al.Name = "test";
-    al.SetIsFirstMate(true);
-    EXPECT_STREQ("test\t1", sm.get_full_name(al).c_str());
-    al.SetIsFirstMate(false);
-    EXPECT_STREQ("test\t2", sm.get_full_name(al).c_str());
-}
-
-
-TEST_F(SewingMachineTest, test_count_alignment) {
-    count();
-    EXPECT_EQ(2, sm.multiple_alignment_map.size());
-    ASSERT_NE(sm.multiple_alignment_map.end(),
-              sm.multiple_alignment_map.find(sm.get_full_name(al1)));
-    ASSERT_NE(sm.multiple_alignment_map.end(),
-              sm.multiple_alignment_map.find(sm.get_full_name(al2)));
-    EXPECT_EQ(1, sm.multiple_alignment_map[sm.get_full_name(al1)]);
-    EXPECT_EQ(2, sm.multiple_alignment_map[sm.get_full_name(al2)]);
-}
-
-TEST_F(SewingMachineTest, test_add_alignment) {
-    count();
-    add();
-    EXPECT_EQ(1, sm.seqs.size());
-    ASSERT_EQ(sm.seqs.end(),
-              sm.seqs.find(sm.get_full_name(al1)));
-    ASSERT_NE(sm.seqs.end(),
-              sm.seqs.find(sm.get_full_name(al2)));
-    EXPECT_EQ(2, sm.seqs[sm.get_full_name(al2)].size());
-}
 
 TEST_F(SewingMachineTest, test_output_and_load) {
-    count();
-    add();
-    string fd = "test_data/sm.test_output_and_load";
-    sm.output_multiple_alignment_map(fd);
-
-    fd = "test_data/sm.test_output_and_load";
-    sm.load_multiple_alignments_set(fd);
-
-    ASSERT_EQ(true, sm.is_multiple_alignment("al2"));
     ASSERT_EQ(false, sm.is_multiple_alignment("al1"));
+    ASSERT_EQ(true, sm.is_multiple_alignment("al2"));
+    ASSERT_EQ(false, sm.is_multiple_alignment("al3"));
+    ASSERT_EQ(true, sm.is_multiple_alignment("al4"));
 }

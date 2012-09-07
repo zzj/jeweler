@@ -16,8 +16,6 @@
 #include "earrings.hpp"
 #include "bracelet.hpp"
 #include "transcript_mismatcher.hpp"
-#include "laboratory/sewing_machine.hpp"
-
 #include <api/BamReader.h>
 #include <api/BamWriter.h>
 

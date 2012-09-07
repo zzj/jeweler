@@ -3,7 +3,6 @@
 
 #include "transcript.hpp"
 #include "constants.hpp"
-#include "jeweler.hpp"
 #include <boost/dynamic_bitset.hpp>
 #include <boost/math/distributions/poisson.hpp>
 
@@ -16,7 +15,6 @@
 
 using namespace std;
 class JewelerInfo;
-
 class TranscriptMismatcher{
 
 public:

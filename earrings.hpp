@@ -6,12 +6,10 @@
 #include <api/BamReader.h>
 #include <api/BamWriter.h>
 #include <Fasta.h>
-#include "jeweler.hpp"
 #include "read_matcher.hpp"
 #include "transcript.hpp"
 #include "transcript_mismatcher.hpp"
 #include "laboratory/cigar_holder.hpp"
-#include "laboratory/sewing_machine.hpp"
 #include "pileup.plot.hpp"
 #include "alignment_glue.hpp"
 #include "aligner.hpp"
@@ -24,6 +22,7 @@ using namespace std;
 // This class will investigate the possible allele specific pile up graph.
 class JewelerInfo;
 class TranscriptMismatcher;
+class SewingMachine;
 
 class Earrings{
 public :

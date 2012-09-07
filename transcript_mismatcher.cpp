@@ -1,5 +1,5 @@
 #include "transcript_mismatcher.hpp"
-
+#include "jeweler_info.hpp"
 TranscriptMismatcher::TranscriptMismatcher() {
 
 }
