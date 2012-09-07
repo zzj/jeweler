@@ -1,4 +1,17 @@
 #include "transcript.hpp"
+#include "read_matcher.hpp"
+#include "transcript.hpp"
+#include "transcript_mismatcher.hpp"
+#include "pileup.plot.hpp"
+#include "alignment_glue.hpp"
+#include "aligner.hpp"
+#include "constants.hpp"
+#include "graph/graph.hpp"
+#include "laboratory/cigar_holder.hpp"
+#include "alignment_glue.hpp"
+#include "read_matcher.hpp"
+#include "fasta.hpp"
+#include "common.hpp"
 
 int Transcript::tolerate=0;
 

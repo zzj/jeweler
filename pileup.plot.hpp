@@ -18,16 +18,6 @@ using namespace std;
 
 class PileupPlot{
 public:
-	vector<int> unknown;
-	vector<int> paternal;
-	vector<int> maternal;
-	vector<int> multiple;
-	vector<int> is_snp;
-	vector<int> exon_jump;
-	vector<int> genome_pos;
-	int num_maternal, num_paternal, num_unknown, num_exons;
-	string transcript_id;
-
 	PileupPlot(Transcript * maternal, 
 			   Transcript * paternal, 
 			   set<JewelerAlignment *> &unknown,
@@ -44,6 +34,17 @@ public:
 	void generate_pileup_plot(FILE * info, FILE * output);
 
 	int add_coverage(Transcript * transcript, JewelerAlignment *, vector<int>& coverage);
+
+private:
+	vector<int> unknown;
+	vector<int> paternal;
+	vector<int> maternal;
+	vector<int> multiple;
+	vector<int> is_snp;
+	vector<int> exon_jump;
+	vector<int> genome_pos;
+	int num_maternal, num_paternal, num_unknown, num_exons;
+	string transcript_id;
 };
 
 

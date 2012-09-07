@@ -1,4 +1,6 @@
 #include "jeweler_info.hpp"
+#include "transcript.hpp"
+#include "constants.hpp"
 
 int JewelerInfo::check_args(const int i, char *argv[], const char * name, string &a) {
 	if (strcmp(argv[i], name) == 0) {

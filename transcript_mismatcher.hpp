@@ -1,8 +1,6 @@
 #ifndef _TRANSCRIPT_MISMATCHER_H_
 #define _TRANSCRIPT_MISMATCHER_H_
 
-#include "transcript.hpp"
-#include "constants.hpp"
 #include <boost/dynamic_bitset.hpp>
 #include <boost/math/distributions/poisson.hpp>
 
@@ -11,10 +9,14 @@
 #include <functional>
 #include <numeric>
 #include <cmath>
+#include <set>
 #include "proto/jeweler.pb.h"
+#include "read_matcher.hpp"
 
 using namespace std;
 class JewelerInfo;
+class Transcript;
+
 class TranscriptMismatcher{
 
 public:
@@ -31,7 +33,7 @@ public:
 	int dump(FILE *);
 	int write(FILE *);
     void dump(Jeweler::EarringsData::Mismatcher *data);
-
+private:
 	map<int, int> genome_pos2idx;
 	map<int, char> genome_pos2paternal;
 	map<int, char> genome_pos2maternal;
@@ -65,52 +67,6 @@ public:
 
 class TranscriptMismatcherAnalyzer{
 public:
-	vector<int> genome_locations;
-	vector<int> coverages;
-	vector<int> mismatches;
-	vector<char> maternal_seq, paternal_seq;
-	vector<map<char, int> > read_mismatch_qualities;
-	vector<map<char, int> > read_qualities;
-	vector<string> gene_ids;
-	map<char, double> error_rate_by_quality;
-	// the list of mismatching locations
-	//vector<vector<int > > read_mismatch_locations;
-	//vector<vector<int > > read_locations;
-	//// map<int, double> error_rate_by_location;
-	// // // number of non informative mismatches equaling to A per base
-	// // vector<int> A_mismatches;
-	// // // number of non informative mismatches equaling to C per base
-	// // vector<int> C_mismatches;
-	// // // number of non informative mismatches equaling to G per base
-	// // vector<int> G_mismatches;
-	// // // number of non informative mismatches equaling to T per base
-	// // vector<int> T_mismatches;
-	// // // number of non informative mismatches equaling to N per base
-	// // vector<int> N_mismatches;
-
-
-	// // prefix of output files
-	string filename;
-	int num_reads;
-	int num_locations;
-	boost::dynamic_bitset<> is_consistent_mismatches;
-
-	// if the location has less than 1% mismatches. put the count into
-	// the baseline, and skip the current location.
-	boost::dynamic_bitset<> is_skipped_locations;
-	vector<int> skipped_locations;
-	map<char, int> num_mismatches_by_quality;
-	map<char, int> num_calls_by_quality;
-
-	map<char, int> num_mismatches_by_quality_baseline;
-	map<char, int> num_calls_by_quality_baseline;
-
-	map<int, int> num_mismatches_by_location;
-	map<int, int> num_calls_by_location;
-	map<int, int> num_mismatches_histogram;
-	vector<double> p_values;
-
-	bool is_initialized;
 
 	TranscriptMismatcherAnalyzer(string filename);
 	TranscriptMismatcherAnalyzer(string filename, JewelerInfo *jeweler_info);
@@ -142,6 +98,39 @@ public:
     void dump_location_results(FILE *, bool only_yes = false);
 
     void analyze();
+private:
+	vector<int> genome_locations;
+	vector<int> coverages;
+	vector<int> mismatches;
+	vector<char> maternal_seq, paternal_seq;
+	vector<map<char, int> > read_mismatch_qualities;
+	vector<map<char, int> > read_qualities;
+	vector<string> gene_ids;
+	map<char, double> error_rate_by_quality;
+
+	// // prefix of output files
+	string filename;
+	int num_reads;
+	int num_locations;
+	boost::dynamic_bitset<> is_consistent_mismatches;
+
+	// if the location has less than 1% mismatches. put the count into
+	// the baseline, and skip the current location.
+	boost::dynamic_bitset<> is_skipped_locations;
+	vector<int> skipped_locations;
+	map<char, int> num_mismatches_by_quality;
+	map<char, int> num_calls_by_quality;
+
+	map<char, int> num_mismatches_by_quality_baseline;
+	map<char, int> num_calls_by_quality_baseline;
+
+	map<int, int> num_mismatches_by_location;
+	map<int, int> num_calls_by_location;
+	map<int, int> num_mismatches_histogram;
+	vector<double> p_values;
+
+	bool is_initialized;
+
 };
 
 template<class T>

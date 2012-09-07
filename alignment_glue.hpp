@@ -16,8 +16,6 @@ using namespace std;
 
 class AlignmentGlue{
 public:
-	map<int, vector<JewelerAlignment *> > refid2reads;
-	map<string, vector<JewelerAlignment *> > name2reads;
 	void glue_paired_alignments(JewelerAlignment *first, JewelerAlignment *second);
 	int glue_cigar_data(JewelerAlignment *first, JewelerAlignment *second, int overlapped);	
 	int get_skipped_region(const JewelerAlignment *al, int overlapped, 
@@ -27,6 +25,11 @@ public:
 	int glue(vector<JewelerAlignment *> &in_reads, 
 			 vector<JewelerAlignment *> &new_reads,
 			 vector<JewelerAlignment *> &noused);
+
+private:
+	map<int, vector<JewelerAlignment *> > refid2reads;
+	map<string, vector<JewelerAlignment *> > name2reads;
+
 };
 
 int output_bamalignment(JewelerAlignment *al);

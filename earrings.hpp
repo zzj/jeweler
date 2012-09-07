@@ -6,13 +6,9 @@
 #include <api/BamReader.h>
 #include <api/BamWriter.h>
 #include <Fasta.h>
-#include "read_matcher.hpp"
-#include "transcript.hpp"
-#include "transcript_mismatcher.hpp"
+#include <set>
 #include "laboratory/cigar_holder.hpp"
-#include "pileup.plot.hpp"
-#include "alignment_glue.hpp"
-#include "aligner.hpp"
+#include "proto/jeweler.pb.h"
 using namespace BamTools;
 using namespace std;
 
@@ -23,6 +19,9 @@ using namespace std;
 class JewelerInfo;
 class TranscriptMismatcher;
 class SewingMachine;
+class Transcript;
+class JewelerAlignment;
+class TranscriptomeAligner;
 
 class Earrings{
 public :

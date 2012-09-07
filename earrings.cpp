@@ -2,6 +2,11 @@
 #include "jeweler_info.hpp"
 #include "proto/jeweler.pb.h"
 #include "laboratory/sewing_machine.hpp"
+#include "aligner.hpp"
+#include "transcript_mismatcher.hpp"
+#include "pileup.plot.hpp"
+#include "alignment_glue.hpp"
+#include "graph/graph.hpp"
 #include <fstream>
 using namespace std;
 

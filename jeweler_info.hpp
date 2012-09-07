@@ -11,11 +11,6 @@
 #include "fasta.hpp"
 #include "common.hpp"
 #include "gtf.hpp"
-#include "rna_read.hpp"
-#include "transcript.hpp"
-#include "earrings.hpp"
-#include "bracelet.hpp"
-#include "transcript_mismatcher.hpp"
 #include <api/BamReader.h>
 #include <api/BamWriter.h>
 
@@ -28,7 +23,7 @@ using namespace BamTools;
 
 using boost::filesystem::path;
 using boost::filesystem::create_directory;
-
+class Transcript;
 
 class JewelerInfo{
 public:

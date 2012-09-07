@@ -10,17 +10,16 @@
 #include <set>
 #include <api/BamReader.h>
 #include <api/BamWriter.h>
+#include <Fasta.h>
 #include "gtf_info.hpp"
-#include "constants.hpp"
-#include "graph/graph.hpp"
-#include "laboratory/cigar_holder.hpp"
-#include "alignment_glue.hpp"
-#include "read_matcher.hpp"
-#include "fasta.hpp"
-#include "common.hpp"
+#include "jeweler_alignment.hpp"
 
 using namespace std;
 using namespace BamTools;
+class ReadMatcher;
+class JewelerAlignment;
+class Graph;
+class Path;
 
 class Transcript{
 
