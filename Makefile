@@ -1,5 +1,8 @@
+CC=g++
+LIB=-Llib/bamtools/lib/ -L$(HOME)/bin/lib -Llib/leveldb-1.5.0/
+LDFLAGS= -lz lib/bamtools/lib/libbamtools.a -lboost_filesystem -lprotobuf lib/leveldb-1.5.0/libleveldb.a
 CFLAGS= -g -O3 -std=gnu++0x -Wall -Wextra
-INC=-Ilib/bamtools/include/ -Ilib/fastahack/ -I$(HOME)/bin/include
+INC=-Ilib/bamtools/include/ -Ilib/fastahack/ -I$(HOME)/bin/include -Ilib/leveldb-1.5.0/include
 
 # UNIT TEST MAKEFILE
 
@@ -26,9 +29,6 @@ GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 # implementation details, the dependencies specified below are
 # conservative and not optimized.  This is fine as Google Test
 # compiles fast and for ordinary users its source rarely changes.
-CC=g++
-LIB=-Llib/bamtools/lib/ -L$(HOME)/bin/lib
-LDFLAGS= -lz lib/bamtools/lib/libbamtools.a -lboost_filesystem -lprotobuf
 
 JEWELER_LIB_SOURCES =  jeweler_info.cpp jeweler_alignment.cpp read_matcher.cpp \
                  pileup.plot.cpp alignment_glue.cpp aligner.cpp transcript.cpp \
