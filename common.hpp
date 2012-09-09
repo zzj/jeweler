@@ -43,7 +43,7 @@ void load_protobuf_data(string file_name, T *data) {
     fstream input(file_name,
                 ios::in | ios::binary);
     if (!data->ParseFromIstream(&input)) {
-        fprintf(stderr, "Failed to parse address book.\n");
+        fprintf(stderr, "Failed to parse the buffer. [string version]\n");
         exit(1);
     }
     input.close();
@@ -54,12 +54,14 @@ int load_protobuf_data(fstream *file, T *data) {
     int m;
     file->read(reinterpret_cast < char * > (&m), sizeof(m));
     if (file->eof()) return -1;
-    char * buffer = new char[m];
+    char * buffer = new char[m + 1];
     file->read(buffer, m);
+    buffer[m] = '\0';
     if (!data->ParseFromString(buffer)) {
-        fprintf(stderr, "Failed to parse address book.\n");
+        fprintf(stderr, "Failed to parse the buffer. [fstream version]");
         return -1;
     }
+    delete buffer;
     return 0;
 }
 

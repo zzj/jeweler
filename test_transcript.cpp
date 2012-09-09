@@ -5,6 +5,7 @@
 #include "gtest/gtest.h"
 #include "test.hpp"
 #include "laboratory/cigar_holder.hpp"
+#include "constants.hpp"
 #include <boost/assign/std/vector.hpp>
 
 using namespace boost::assign; 
