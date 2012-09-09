@@ -5,8 +5,17 @@
 #include "leveldb/cache.h"
 #include "common.hpp"
 #include "proto/jeweler.pb.h"
+#include "gtest/gtest.h"
+#include <stdio.h>
 #include <string>
 #include <memory>
+
+#include <boost/filesystem.hpp>
+
+using boost::filesystem::path;
+using boost::filesystem::create_directory;
+using boost::filesystem::remove_all;
+
 using namespace std;
 
 class ZLevelDB {
@@ -18,7 +27,7 @@ public:
 
     void clear() {
         delete this->db;
-        system((string("rm -rf ") + db_folder).c_str());
+        remove_all(db_folder + "/");
         system((string("mkdir -p ") + db_folder).c_str());
         // initialize again
         initializ(this->db_folder);
@@ -75,16 +84,26 @@ int ZLevelDB::set(const string &key, T *data) {
 class ZMegaFile {
 public:
     ZMegaFile(string &db_folder) : file_meta_db(db_folder) {
-        this->file_name = db_folder + "/data.megafile";
-        stream.open(file_name, ios::out | ios::binary | ios::in);
+        this->db_folder = db_folder;
+        this->initialize();
     }
 
+    void initialize() {
+        this->file_name = this->db_folder + "/data.megafile";
+        system((string("touch ") + this->file_name).c_str());
+        stream.open(file_name, ios::out | ios::binary | ios::in);
+        if (stream.fail()) {
+            fprintf(stderr, "cannot open file %s\n", this->file_name.c_str());
+            exit(0);
+        }
+    }
     void clear() {
         stream.close();
         this->file_meta_db.clear();
         // make sure this function is called after db clear,
         // because db clear will clear all files under the folder.
-        stream.open(file_name, ios::out | ios::binary | ios::in | ios::trunc);
+        remove(this->file_name.c_str());
+        this->initialize();
     }
 
     template<typename T>
@@ -115,6 +134,8 @@ private:
     ZLevelDB file_meta_db;
     fstream stream;
     string file_name;
+    string db_folder;
+    FRIEND_TEST(ZMegaFileTest, test_clear);
 };
 
 #endif

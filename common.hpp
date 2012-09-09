@@ -43,7 +43,8 @@ void load_protobuf_data(string file_name, T *data) {
     fstream input(file_name,
                 ios::in | ios::binary);
     if (!data->ParseFromIstream(&input)) {
-        fprintf(stderr, "Failed to parse the buffer. [string version]\n");
+        fprintf(stderr, "Failed to parse the buffer. [string version]. FILE %s\n",
+                file_name.c_str());
         exit(1);
     }
     input.close();
@@ -57,7 +58,11 @@ int load_protobuf_data(fstream *file, T *data) {
     char * buffer = new char[m + 1];
     file->read(buffer, m);
     buffer[m] = '\0';
-    if (!data->ParseFromString(buffer)) {
+    // must use assign because '\0' might be part of the message.
+    // TODO: add unit test.
+    string raw; 
+    raw.assign(buffer, m);
+    if (!data->ParseFromString(raw)) {
         fprintf(stderr, "Failed to parse the buffer. [fstream version]");
         return -1;
     }
@@ -72,6 +77,7 @@ int write_protobuf_data(fstream *file, T *data) {
     int m = seq.size();
     file->write(reinterpret_cast<char *> (&m), sizeof(m));
     file->write(seq.c_str(), seq.size());
+    T *newdata = new T();
     return 0;
 }
 
