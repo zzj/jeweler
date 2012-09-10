@@ -45,9 +45,16 @@ void SewingMachine::initialize(BamReader &reader, string &db_folder) {
 	//this->num_multiple_reads_per_chr.resize(references.size(),0);
 }
 
+void SewingMachine::add_read(string &name,
+                             shared_ptr<Jeweler::SewingMachineData> smd) {
+    if (this->is_multiple_alignment(smd)) {
+        this->multiple_alignment_names.insert(name);
+    }
+}
 
 void SewingMachine::load_zdb(string &db_file){
     this->zdb = new ZLevelDB(db_file);
+    this->zdb->foreach<Jeweler::SewingMachineData, SewingMachine >(this, &SewingMachine::add_read);
 }
 
 
@@ -73,6 +80,9 @@ int SewingMachine::add_alignment(const JewelerAlignment &al) {
     }
     l->dump(smd->add_locator());
     this->zdb->set<Jeweler::SewingMachineData>(al.Name, smd.get());
+    if (is_multiple_alignment(smd)) {
+        this->multiple_alignment_names.insert(al.Name);
+    }
 	return 0;
 }
 
@@ -122,8 +132,10 @@ int SewingMachine::output_alignment_connection_map(FILE * file) {
 
 
 bool SewingMachine::is_multiple_alignment(const string &name) {
-    shared_ptr<Jeweler::SewingMachineData> smd;
-    smd = this->zdb->get<Jeweler::SewingMachineData>(name);
+    return multiple_alignment_names.find(name) != multiple_alignment_names.end();
+}
+
+bool SewingMachine::is_multiple_alignment(const shared_ptr<Jeweler::SewingMachineData> smd) {
     bool has_first = false, has_second = false;
     for (int i = 0; i < smd->locator_size(); i++) {
         if (smd->locator(i).is_first()) has_first = true;

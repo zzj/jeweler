@@ -49,9 +49,6 @@ Earrings::Earrings(JewelerInfo *jeweler_info,
 	}
 	// load bamalignment by bamtools.
 	load_read_data();
-	if (sm!=NULL) {
-		count_multiple_alignments(/* is after alignment*/ false);
-	}
 
 	// align reads back to the transcripts
 	align_reads();
@@ -146,6 +143,12 @@ int Earrings::load_read_data() {
 
     while(jeweler_info->bam_reader.GetNextAlignment(*al)) {
         bam_reads.push_back(al);
+        if (sm->is_multiple_alignment(al->Name)) {
+            al->set_is_multiple_alignment(true);
+        }
+        else {
+            al->set_is_multiple_alignment(false);
+        }
         al=new JewelerAlignment();
     }
     delete al; // delete the last unused one
@@ -590,11 +593,12 @@ void Earrings::dump_data() {
     ed->set_num_multiple_reads(this->multiple_reads.size());
     this->mismatcher->dump(ed->mutable_mismatcher());
     this->zmf->append(this->gene_id, ed.get());
+    this->dump_reads(ed.get());
     return ;
 }
 
 void Earrings::classify_reads() {
-
+    // delete this function ...
     single_reads.clear();
     multiple_reads.clear();
 
@@ -611,12 +615,8 @@ void Earrings::classify_reads() {
 }
 
 void Earrings::dump_reads(Jeweler::EarringsData *ed) {
-    classify_reads();
-    for (auto i = multiple_reads.begin(); i != multiple_reads.end(); i++) {
-        (*i)->dump_data(ed->add_multiple_read());
-    }
-    for (auto i = single_reads.begin(); i != single_reads.end(); i++) {
-        (*i)->dump_data(ed->add_single_read());
+    for (auto i = compatible_reads.begin(); i != compatible_reads.end(); i++) {
+        (*i)->dump_data(ed->add_read());
     }
     return ;
 }

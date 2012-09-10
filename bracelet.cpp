@@ -25,9 +25,11 @@ Bracelet::Bracelet(JewelerInfo * jeweler_info) :
         shared_ptr<Jeweler::EarringsData> ed = 
             this->zmf->get<Jeweler::EarringsData>(gene_id);
         if (ed.get() == NULL) continue;
-        for (int j = 0; j < ed->multiple_read_size(); j++) {
-            reads[id].push_back(ed->multiple_read(j).name());
-            reads_index[id].insert(ed->multiple_read(j).name());
+        for (int j = 0; j < ed->read_size(); j++) {
+            if (ed->read(j).is_multiple_alignment()) {
+                reads[id].push_back(ed->read(j).name());
+                reads_index[id].insert(ed->read(j).name());
+            }
         }
         sort(reads[id].begin(),reads[id].end());
         id ++;
@@ -70,39 +72,29 @@ void Bracelet::dump_shared_pileup(Jeweler::BraceletData::RelatedTranscript * rt,
                                   int target_id) {
 
     map<int, int> coverage;
-    char name [1000];
-    string fileinput = string(jeweler_info->result_folder + "/" +
-                              jeweler_info->gene_id[original_id] +"/" +
-                              jeweler_info->gene_id[original_id] +".compatible.reads");
-    FILE * finput = fopen(fileinput.c_str(), "r");
-    if (finput ==NULL) {
-        fprintf(stderr, "No compatible reads file supplied : %s\n", fileinput.c_str());
-        return ;
-    }
-    while(fscanf(finput,"%s", name)==1) {
-        size_t size,t;
-        vector<int> temp;
+    shared_ptr<Jeweler::EarringsData> ed = 
+        this->zmf->get<Jeweler::EarringsData>(jeweler_info->gene_id[original_id]);
 
-        fscanf(finput, "%zu", &size);
-        for(size_t i = 0; i < size; i ++) {
-            fscanf(finput,"%zu", &t);
-            temp.push_back(t);
-        }
+    if (ed.get() == NULL)
+        return ;
+
+    for (size_t i = 0; i < ed->read_size(); i++) {
+        string name = ed->read(i).name();
         if (reads_index[original_id].find(name)==reads_index[original_id].end() ||
             reads_index[target_id].find(name)==reads_index[target_id].end()) {
             continue;
         }
 
-        for (size_t i = 0 ; i < temp.size(); i ++) {
-            if(coverage.find(temp[i])!=coverage.end()) {
-                coverage[temp[i]]++;
+        for (size_t j = 0 ; j < ed->read(i).genome_position_size(); i ++) {
+            int pos = ed->read(i).genome_position(j);
+            if(coverage.find(pos) != coverage.end()) {
+                coverage[pos]++;
             }
             else{
-                coverage[temp[i]]=1;
+                coverage[pos] = 1;
             }
         }
     }
-    fclose(finput);
     for (auto i = coverage.begin(); i != coverage.end(); i ++) {
         Jeweler::BraceletData::RelatedTranscript::Coverage *c = rt->add_coverage();
         c->set_position(i->first);

@@ -2,10 +2,19 @@
 
 void JewelerAlignment::dump_data(Jeweler::EarringsData::Read *read) {
     read->set_name(this->Name);
-    read->set_genome_position(this->Position);
+    for (size_t i = 0; i < genome_position.size(); i++) {
+        read->add_genome_position(genome_position[i]);
+    }
+    read->set_is_multiple_alignment(this->is_multiple_alignment);
     read->set_cigar_string(get_cigar_string(this->CigarData));
     return ;
 }
+
+
+void JewelerAlignment::set_is_multiple_alignment(bool a) {
+    this->is_multiple_alignment = a;
+}
+
 
 int get_read_position(JewelerAlignment *al, int i) {
 	if (al->IsReverseStrand()) {

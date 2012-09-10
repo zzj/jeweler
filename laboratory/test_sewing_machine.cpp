@@ -17,36 +17,41 @@ static void create_alignment(const string &name, const int position,
 class SewingMachineTest : public ::testing::Test {
 protected:
     virtual void SetUp() {
-        RefVector rv;
-        rv.resize(10);
         create_alignment("al1", 10, "10M", al1);
         create_alignment("al2", 20, "10M", al2);
         create_alignment("al3", 30, "10M", al3);
         create_alignment("al4", 40, "10M", al4);
         BamTools::RefData rf("chr1", 10);
-        system("rm test_data/test_sm -rf");
-        string fd = "test_data/test_sm";
-        sm.load_zdb(fd);
-        sm.references = rv;
+        system("rm -rf test_data/test_sm");
+        this->initialize();
         add();
     }
 
     virtual void TearDown() {
     }
 
-    void add() {
-        sm.add_alignment(al1);
-        sm.add_alignment(al2);
-        sm.add_alignment(al2);
-        sm.add_alignment(al3);
-        al3.SetIsFirstMate(true);
-        sm.add_alignment(al3);
-        sm.add_alignment(al4);
-        al3.SetIsFirstMate(true);
-        sm.add_alignment(al4);
-        sm.add_alignment(al4);
+    void initialize() {
+        RefVector rv;
+        rv.resize(10);
+        string fd = "test_data/test_sm";
+        sm = new SewingMachine;
+        sm->load_zdb(fd);
+        sm->references = rv;
     }
-    SewingMachine sm;
+
+    void add() {
+        sm->add_alignment(al1);
+        sm->add_alignment(al2);
+        sm->add_alignment(al2);
+        sm->add_alignment(al3);
+        al3.SetIsFirstMate(true);
+        sm->add_alignment(al3);
+        sm->add_alignment(al4);
+        al3.SetIsFirstMate(true);
+        sm->add_alignment(al4);
+        sm->add_alignment(al4);
+    }
+    SewingMachine* sm;
     JewelerAlignment al1;
     JewelerAlignment al2;
     JewelerAlignment al3;
@@ -55,8 +60,18 @@ protected:
 
 
 TEST_F(SewingMachineTest, test_output_and_load) {
-    ASSERT_EQ(false, sm.is_multiple_alignment("al1"));
-    ASSERT_EQ(true, sm.is_multiple_alignment("al2"));
-    ASSERT_EQ(false, sm.is_multiple_alignment("al3"));
-    ASSERT_EQ(true, sm.is_multiple_alignment("al4"));
+    ASSERT_EQ(false, sm->is_multiple_alignment("al1"));
+    ASSERT_EQ(true, sm->is_multiple_alignment("al2"));
+    ASSERT_EQ(false, sm->is_multiple_alignment("al3"));
+    ASSERT_EQ(true, sm->is_multiple_alignment("al4"));
+}
+
+
+TEST_F(SewingMachineTest, test_output_save_and_load) {
+    delete sm;
+    this->initialize();
+    ASSERT_EQ(false, sm->is_multiple_alignment("al1"));
+    ASSERT_EQ(true, sm->is_multiple_alignment("al2"));
+    ASSERT_EQ(false, sm->is_multiple_alignment("al3"));
+    ASSERT_EQ(true, sm->is_multiple_alignment("al4"));
 }

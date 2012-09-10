@@ -9,6 +9,7 @@
 #include <map>
 #include <set>
 #include <Fasta.h>
+#include <memory>
 using namespace BamTools;
 using namespace std;
 
@@ -48,16 +49,19 @@ public:
 	SewingMachine(BamReader &reader, string &db_file);
 	void initialize(BamReader &reader, string &db_file);
     int add_alignment(const JewelerAlignment &al);
+    void add_read(string &name,
+                  shared_ptr<Jeweler::SewingMachineData> smd);
     void load_zdb(string &db_file);
 	string get_reference_sequence(FastaReference &fr, JewelerAlignment &al);
+    bool is_multiple_alignment(const shared_ptr<Jeweler::SewingMachineData> smd);
     bool is_multiple_alignment(const string &name);
     int build_alignment_connection_map_core();
     int output_alignment_connection_map_core(FILE * file);
     int output_alignment_connection_map(FILE * file);
+    set<string> multiple_alignment_names;
 private:
 	// storage
     ZLevelDB *zdb;
-
 	// statistics
 	//vector<int> num_multiple_reads_per_chr;
 

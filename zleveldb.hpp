@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string>
 #include <memory>
+#include <functional>
 
 #include <boost/filesystem.hpp>
 
@@ -46,6 +47,27 @@ public:
     void del(string &key) {
         this->db->Delete(leveldb::WriteOptions(), key);
     }
+
+    template<typename T, typename U>
+    void foreach(U* const sm, void (U::*func)(string&, shared_ptr<T>)) {
+        shared_ptr<T> smd(new T);
+        leveldb::Iterator* it = this->db->NewIterator(leveldb::ReadOptions());
+        int idx = 0;
+        for (it->SeekToFirst(); it->Valid(); it->Next()) {
+            string name = it->key().ToString();
+            if (!smd->ParseFromString(it->value().ToString())) {
+                fprintf(stderr, "The alignment %s is corrupted", name.c_str()); 
+                continue;
+            }
+            else {
+                idx ++;
+                if (idx % 1000000 == 0) fprintf(stdout, "%d\n", idx);
+                (sm->*func)(name, smd);
+            }
+
+        }
+    }
+
 private:
     leveldb::DB *db;
     string db_folder;

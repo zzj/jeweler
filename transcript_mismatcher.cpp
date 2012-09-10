@@ -117,31 +117,35 @@ int TranscriptMismatcher::dump(FILE *file) {
 	return 0;
 }
 
-void TranscriptMismatcher::dump(Jeweler::EarringsData::Mismatcher *data) {
+void TranscriptMismatcher::dump(Jeweler::EarringsData::Mismatcher *mismatcher) {
 	size_t i,k;
+    string paternal_chars;
+    string maternal_chars;
 	auto j=genome_pos2idx.begin();
 	auto m=genome_pos2maternal.begin();
 	auto p=genome_pos2paternal.begin();
 	for (i = 0 ; i < mismatches.size() ; i++) {
+        Jeweler::EarringsData::Mismatcher::Mismatch *data = 
+            mismatcher->add_mismatch();
         data->set_genome_position(j->first);
         data->set_coverage(coverage[i]);
-        data->set_paternal_char(string(1, p->second));
-        data->set_maternal_char(string(1,m->second));
         data->set_num_mismatches(mismatches[i]);
         data->set_num_a(A_mismatches[i]);
         data->set_num_t(T_mismatches[i]);
         data->set_num_c(C_mismatches[i]);
         data->set_num_g(G_mismatches[i]);
+        data->set_paternal_char(string(1,m->second));
+        data->set_maternal_char(string(1,m->second));
         string quality_string;
         for (k = 0; k < read_mismatch_qualities[i].size(); k ++) {
 
-            Jeweler::EarringsData::Mismatcher::Call *call = data->add_call();
+            Jeweler::EarringsData::Mismatcher::Mismatch::Call *call = data->add_call();
             quality_string += read_mismatch_qualities[i][k];
             call->set_read_position(read_mismatch_locations[i][k]);
             call->set_is_mismatch(true);
 		}
         for (k = 0; k < read_call_qualities[i].size(); k ++) {
-            Jeweler::EarringsData::Mismatcher::Call *call = data->add_call();
+            Jeweler::EarringsData::Mismatcher::Mismatch::Call *call = data->add_call();
             quality_string += read_call_qualities[i][k];
             call->set_read_position(read_call_locations[i][k]);
             call->set_is_mismatch(false);
@@ -149,6 +153,9 @@ void TranscriptMismatcher::dump(Jeweler::EarringsData::Mismatcher *data) {
         data->set_quality_string(quality_string);
 		j++; m++; p++;
 	}
+
+
+
 	return ;
 }
 
