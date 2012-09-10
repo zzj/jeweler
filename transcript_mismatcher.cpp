@@ -2,6 +2,9 @@
 #include "jeweler_info.hpp"
 #include "transcript.hpp"
 #include "constants.hpp"
+#include "common.hpp"
+#include "zleveldb.hpp"
+
 TranscriptMismatcher::TranscriptMismatcher() {
 
 }
@@ -184,41 +187,41 @@ int TranscriptMismatcher::write(FILE *file) {
 	return 0;
 }
 
-int TranscriptMismatcherAnalyzer::add_calls_by_quality(FILE * file, int num,
-													   map<char, int> & target_quality) {
-	char tempc; int tempn;
-	for (int i = 0; i < num; i ++) {
-		fscanf(file, "\t%c\t%d", &tempc, &tempn);
-		if (tempn<10) continue;
-		if (target_quality.find(tempc) != target_quality.end()) {
-			target_quality[tempc] ++;
-		}
-		else {
-			target_quality[tempc] = 0 ;
-		}
+int TranscriptMismatcherAnalyzer::add_calls_by_quality(
+                   const Jeweler::EarringsData::Mismatcher::Mismatch &data,
+                   map<char, int> & target_mismatch_quality,
+                   map<char, int> & target_match_quality) {
+
+    assert(data.call_size() == data.quality_string().size());
+
+	for (int i = 0; i < data.call_size(); i ++) {
+        // ignore the first 10 characters.
+		if (data.call(i).read_position() < 10) continue;
+        if (data.call(i).is_mismatch()) {
+            map_add_count<char>(target_mismatch_quality, data.quality_string()[i]);
+        }
+        else {
+            map_add_count<char>(target_match_quality, data.quality_string()[i]);
+        }
 	}
 	return 0;
 }
 
-void TranscriptMismatcherAnalyzer::append(FILE * file, string gene_id) {
+void TranscriptMismatcherAnalyzer::append(const Jeweler::EarringsData::Mismatcher &data,
+                                          string gene_id) {
 	if (is_initialized) {
 		fprintf(stdout, "TranscriptMismatcherAnalyzer: cannot load any new files\n");
 		exit(0);
 	}
-	char maternal_char, paternal_char;
-	int a,c,g,t,n;
-	int coverage, genome_location, miss;
-	map<char, int> tempv_quality;
 
-
-	int ret = 0;
-	while((ret = fscanf(file,"%d%d%d%d%d%d%d%d\t%c\t%c",
-						&genome_location, &coverage, &miss,
-						&a,&t, &c, &g, &n,
-						&maternal_char, &paternal_char))== 10) {
-
-
-		genome_locations.push_back(genome_location);
+    for (int i = 0; i < data.mismatch_size(); i++) {
+        map<char, int> tempv_mis_quality;
+        map<char, int> tempv_match_quality;
+        const Jeweler::EarringsData::Mismatcher::Mismatch &mismatch = 
+            data.mismatch(i);
+        int miss = mismatch.num_mismatches();
+        int coverage = mismatch.coverage();
+		genome_locations.push_back(mismatch.genome_position());
 		coverages.push_back(coverage);
 		mismatches.push_back(miss);
 		if (num_mismatches_histogram.find(miss) == num_mismatches_histogram.end()) {
@@ -227,25 +230,24 @@ void TranscriptMismatcherAnalyzer::append(FILE * file, string gene_id) {
 		else {
 			num_mismatches_histogram[miss] ++;
 		}
-		maternal_seq.push_back(maternal_char);
-		paternal_seq.push_back(paternal_char);
+		maternal_seq.push_back(mismatch.maternal_char()[0]);
+		paternal_seq.push_back(mismatch.paternal_char()[0]);
+
+        add_calls_by_quality(mismatch, tempv_mis_quality, tempv_match_quality);
 
 		if (miss >= coverage * 0.02) {
-			tempv_quality.clear();
-			add_calls_by_quality(file, miss, tempv_quality);
-			read_mismatch_qualities.push_back(tempv_quality);
-			tempv_quality.clear();
-			add_calls_by_quality(file, coverage, tempv_quality);
-			read_qualities.push_back(tempv_quality);
+			read_mismatch_qualities.push_back(tempv_mis_quality);
+			read_qualities.push_back(tempv_match_quality);
 		}
 		else {
 			skipped_locations.push_back(coverages.size()-1);
-			add_calls_by_quality(file, miss, num_mismatches_by_quality_baseline);
-			add_calls_by_quality(file, coverage, num_calls_by_quality_baseline);
-			tempv_quality.clear();
-			read_mismatch_qualities.push_back(tempv_quality);
-			tempv_quality.clear();
-			read_qualities.push_back(tempv_quality);
+			add_calls_by_quality(mismatch,
+                                 num_mismatches_by_quality_baseline,
+                                 num_calls_by_quality_baseline);
+			tempv_mis_quality.clear();
+			read_mismatch_qualities.push_back(tempv_mis_quality);
+			tempv_match_quality.clear();
+			read_qualities.push_back(tempv_match_quality);
 		}
 		gene_ids.push_back(gene_id);
 	}
@@ -254,25 +256,23 @@ void TranscriptMismatcherAnalyzer::append(FILE * file, string gene_id) {
 
 TranscriptMismatcherAnalyzer::TranscriptMismatcherAnalyzer(string filename) {
 	this -> filename = filename;
-
 	is_initialized = false;
 }
+
 TranscriptMismatcherAnalyzer::TranscriptMismatcherAnalyzer(string filename,
 														   JewelerInfo *jeweler_info) {
-
+    shared_ptr<ZMegaFile> zmf (new ZMegaFile(jeweler_info->result_folder));
 	is_initialized = false;
 	this -> filename = filename;
 	for (size_t i=0; i < jeweler_info->gene_id.size(); i++) {
-		string filename = string(jeweler_info->result_folder+"/"+jeweler_info->gene_id[i] +"/"+jeweler_info->gene_id[i]+".mismatcher.extra");
-		FILE * finfo=fopen(filename.c_str(),"r");
-
-		if (finfo == NULL) {
-			fprintf (stdout, "cannot open file name %s\n", filename.c_str());
-			continue;
-		}
-		append(finfo, jeweler_info->gene_id[i]);
-		fclose(finfo);
-		if (i % 1 == 0) {
+        shared_ptr<Jeweler::EarringsData> ed = 
+            zmf->get<Jeweler::EarringsData>(jeweler_info->gene_id[i]);
+        if (ed.get() == NULL) {
+            fprintf(stderr, "The data is corrupted");
+            continue;
+        }
+		append(ed->mismatcher(), jeweler_info->gene_id[i]);
+		if (i % 100 == 0) {
 			fprintf(stdout, "%zu/%zu\n", i, jeweler_info->gene_id.size());
 	 	}
 	}

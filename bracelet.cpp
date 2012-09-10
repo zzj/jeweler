@@ -8,8 +8,7 @@ using boost::filesystem::path;
 using boost::filesystem::create_directory;
 
 Bracelet::Bracelet(JewelerInfo * jeweler_info) :
-    zmf(new ZMegaFile(jeweler_info->result_folder))
-{
+    zmf(new ZMegaFile(jeweler_info->result_folder)) {
 	int id = 0;
 	this->jeweler_info = jeweler_info;
 	fprintf(stdout, "bracelet initializing ...\n");

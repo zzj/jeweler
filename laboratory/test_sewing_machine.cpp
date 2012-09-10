@@ -3,6 +3,10 @@
 #include "../common.hpp"
 #include "sewing_machine.hpp"
 #include <api/BamReader.h>
+#include <boost/filesystem.hpp>
+
+using boost::filesystem::remove_all;
+using boost::filesystem::exists;
 
 static void create_alignment(const string &name, const int position,
                              const string &cigar_string,
@@ -22,12 +26,13 @@ protected:
         create_alignment("al3", 30, "10M", al3);
         create_alignment("al4", 40, "10M", al4);
         BamTools::RefData rf("chr1", 10);
-        system("rm -rf test_data/test_sm");
+        system(" rm -rf test_data/test_sm/");
         this->initialize();
         add();
     }
 
     virtual void TearDown() {
+        delete sm;
     }
 
     void initialize() {

@@ -71,7 +71,7 @@ public:
 	TranscriptMismatcherAnalyzer(string filename);
 	TranscriptMismatcherAnalyzer(string filename, JewelerInfo *jeweler_info);
 
-	void append(FILE *, string gene_id);
+	void append(const Jeweler::EarringsData::Mismatcher& , string gene_id);
 
 	void end_loading();
 
@@ -84,8 +84,9 @@ public:
                         map<T, int> &num_mismatches_baseline,
                         map<T,double> &error_rate
                        );
-    int add_calls_by_quality(FILE * file, int num,
-                             map<char, int> & target_quality);
+    int add_calls_by_quality(const Jeweler::EarringsData::Mismatcher::Mismatch&,
+                             map<char, int> & target_mismatch_quality,
+                             map<char, int> & target_match_quality);
 
     template<class T>
     void calculate_p_value(const vector<map<T, int> > &read_calls,

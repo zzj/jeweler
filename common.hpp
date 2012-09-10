@@ -17,6 +17,7 @@
 #include "jeweler_alignment.hpp"
 
 using std::string;
+using std::map;
 using std::fstream;
 using std::ios;
 
@@ -79,6 +80,17 @@ int write_protobuf_data(fstream *file, T *data) {
     file->write(seq.c_str(), seq.size());
     T *newdata = new T();
     return 0;
+}
+
+template<class T>
+int map_add_count(map<T, int> &m, const T& key) {
+    if (m.find(key) != m.end()) {
+        m[key] ++;
+    }
+    else {
+        m[key] = 0;
+    }
+    return m[key];
 }
 
 #endif /* _COMMON_H_ */
