@@ -89,3 +89,9 @@ TEST_F(ZMegaFileTest, test_append_save_and_get) {
     this->SetUp();
     this->check();
 }
+
+TEST_F(ZMegaFileTest, test_clear) {
+    this->zmf->clear();
+    this->zmf->stream.seekg(0, ios_base::end);
+    ASSERT_EQ(0, this->zmf->stream.tellg());
+}

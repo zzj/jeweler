@@ -5,10 +5,13 @@
 #include <algorithm>
 #include <set>
 #include <fstream>
+#include <memory>
 #include "proto/jeweler.pb.h"
 
 using namespace std;
 class JewelerInfo;
+class ZMegaFile;
+
 class Bracelet{
 public:
 	Bracelet(JewelerInfo *jeweler_info);
@@ -29,5 +32,6 @@ private:
 	JewelerInfo *jeweler_info;
 	string gene_id;
 	string result_folder;
+    shared_ptr<ZMegaFile> zmf;
 };
 #endif

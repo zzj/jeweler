@@ -22,63 +22,65 @@ class SewingMachine;
 class Transcript;
 class JewelerAlignment;
 class TranscriptomeAligner;
+class ZMegaFile;
 
 class Earrings{
 public :
 	Earrings(JewelerInfo *, string gene_id,
-			 SewingMachine * sm, bool is_prepare);
+             SewingMachine * sm, ZMegaFile * file, bool is_prepare);
 
-	~Earrings();
+    ~Earrings();
 
-	TranscriptMismatcher *mismatcher;
-	SewingMachine *sm;
-	vector<Transcript *> maternal_transcripts;
-	vector<Transcript *> paternal_transcripts;
-	vector<JewelerAlignment *> bam_reads;
-	vector<JewelerAlignment *> unaligned_reads;
-	vector<JewelerAlignment *> noused_reads;
-	vector<JewelerAlignment *> compatible_reads;
+    TranscriptMismatcher *mismatcher;
+    ZMegaFile *zmf;
+    SewingMachine *sm;
+    vector<Transcript *> maternal_transcripts;
+    vector<Transcript *> paternal_transcripts;
+    vector<JewelerAlignment *> bam_reads;
+    vector<JewelerAlignment *> unaligned_reads;
+    vector<JewelerAlignment *> noused_reads;
+    vector<JewelerAlignment *> compatible_reads;
 
-	JewelerInfo *jeweler_info;
-	string result_folder;
-	string gene_id;
-	string chr;
-	int ref_id;
-	int left_pos, right_pos;
-	size_t num_total_reads;
+    JewelerInfo *jeweler_info;
+    string result_folder;
+    string gene_id;
+    string chr;
+    int ref_id;
+    int left_pos, right_pos;
+    size_t num_total_reads;
 
-	set<JewelerAlignment *> single_reads;
-	set<JewelerAlignment *> multiple_reads;
+    set<JewelerAlignment *> single_reads;
+    set<JewelerAlignment *> multiple_reads;
 
-	// find the reads that are mulitple aligned to other places
-	void count_multiple_alignments(bool is_after_aligned);
-	// create paternal and maternal transcripts databases
-	// annotate SNPs for paternal  and maternal transcripts' sequence
-	int load_transcript_data(bool is_prepares); // load transcript data
+    // find the reads that are mulitple aligned to other places
+    void count_multiple_alignments(bool is_after_aligned);
+    // create paternal and maternal transcripts databases
+    // annotate SNPs for paternal  and maternal transcripts' sequence
+    int load_transcript_data(bool is_prepares); // load transcript data
 
-	// load cufflinks' gtf file
-	int transcript_helper(vector<Transcript *> &new_transcripts,
-						  FastaReference *f,
-						  string prefix,
-						  string unmapped_bam,
-						  bool is_prepare);
+    // load cufflinks' gtf file
+    int transcript_helper(vector<Transcript *> &new_transcripts,
+                          FastaReference *f,
+                          string prefix,
+                          string unmapped_bam,
+                          bool is_prepare);
 
-	// load JewelerAlignment into bam_reads
-	int load_read_data();
+    // load JewelerAlignment into bam_reads
+    int load_read_data();
 
-	// dump compatible reads to a file
-	// each line start with read id,
-	// and followed by the genome locations it covered.
-	void dump_compatible_reads(FILE *fd);
+    // dump compatible reads to a file
+    // each line start with read id,
+    // and followed by the genome locations it covered.
+    void dump_compatible_reads(FILE *fd);
 
     // align reads to maternal or paternal transcripts
     void align_reads();
 
-	// test allele specific transcript
-	int test_allele_specific_transcript();
+    // test allele specific transcript
+    int test_allele_specific_transcript();
 
-	// build graph
-	int build_graph();
+    // build graph
+    int build_graph();
 
 	// study compatible reads
 	int study_compatible_reads();

@@ -132,19 +132,21 @@ void TranscriptMismatcher::dump(Jeweler::EarringsData::Mismatcher *data) {
         data->set_num_t(T_mismatches[i]);
         data->set_num_c(C_mismatches[i]);
         data->set_num_g(G_mismatches[i]);
-		for (k = 0; k < read_mismatch_qualities[i].size(); k ++) {
+        string quality_string;
+        for (k = 0; k < read_mismatch_qualities[i].size(); k ++) {
 
             Jeweler::EarringsData::Mismatcher::Call *call = data->add_call();
-            call->set_quality(string(1,read_mismatch_qualities[i][k]));
+            quality_string += read_mismatch_qualities[i][k];
             call->set_read_position(read_mismatch_locations[i][k]);
             call->set_is_mismatch(true);
 		}
-		for (k = 0; k < read_call_qualities[i].size(); k ++) {
+        for (k = 0; k < read_call_qualities[i].size(); k ++) {
             Jeweler::EarringsData::Mismatcher::Call *call = data->add_call();
-            call->set_quality(string(1,read_call_qualities[i][k]));
+            quality_string += read_call_qualities[i][k];
             call->set_read_position(read_call_locations[i][k]);
             call->set_is_mismatch(false);
 		}
+        data->set_quality_string(quality_string);
 		j++; m++; p++;
 	}
 	return ;

@@ -2,11 +2,14 @@
 #include "common.hpp"
 #include "jeweler_info.hpp"
 #include <boost/filesystem.hpp>
+#include "zleveldb.hpp"
 
 using boost::filesystem::path;
 using boost::filesystem::create_directory;
 
-Bracelet::Bracelet(JewelerInfo * jeweler_info) {
+Bracelet::Bracelet(JewelerInfo * jeweler_info) :
+    zmf(new ZMegaFile(jeweler_info->result_folder))
+{
 	int id = 0;
 	this->jeweler_info = jeweler_info;
 	fprintf(stdout, "bracelet initializing ...\n");
@@ -19,9 +22,9 @@ Bracelet::Bracelet(JewelerInfo * jeweler_info) {
          i != jeweler_info->gene_id2transcripts.end();
          i++) {
         string gene_id = i->first;
-        string result_file = jeweler_info->result_folder + "/" +gene_id + "/" + gene_id + ".pb";
-        unique_ptr<Jeweler::EarringsData> ed(new Jeweler::EarringsData());
-        load_protobuf_data(result_file, ed.get());
+        shared_ptr<Jeweler::EarringsData> ed = 
+            this->zmf->get<Jeweler::EarringsData>(gene_id);
+        if (ed.get() == NULL) continue;
         for (int j = 0; j < ed->multiple_read_size(); j++) {
             reads[id].push_back(ed->multiple_read(j).name());
             reads_index[id].insert(ed->multiple_read(j).name());

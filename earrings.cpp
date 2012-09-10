@@ -7,12 +7,14 @@
 #include "pileup.plot.hpp"
 #include "alignment_glue.hpp"
 #include "graph/graph.hpp"
+#include "zleveldb.hpp"
 #include <fstream>
 using namespace std;
 
 Earrings::Earrings(JewelerInfo *jeweler_info,
 				   string gene_id,
 				   SewingMachine *sm,
+                   ZMegaFile *file,
 				   bool is_prepare = false) {
 	size_t i;
 
@@ -21,6 +23,7 @@ Earrings::Earrings(JewelerInfo *jeweler_info,
 	this->jeweler_info = jeweler_info;
 	this->gene_id = gene_id;
 	this->result_folder = jeweler_info->result_folder + "/" + gene_id + "/";
+    this->zmf = file;
 
 	// load maternal and paternal transcripts sequences.
 	load_transcript_data(is_prepare);
@@ -247,16 +250,12 @@ int Earrings::transcript_helper(vector<Transcript *> &transcripts,
     vector<string> reference_sequences;
     vector<string> reference_ids;
     string merged_fasta_file= (result_folder+"/"+prefix + transcripts[0]->gene_id+".fasta");
-    FILE * file = fopen(merged_fasta_file.c_str(),"w+");;
     for (j = 0; j < transcripts.size(); j++) {
         transcripts[j]->load_seq(fasta_ref);
         string filename = string(prefix+transcripts[j]->transcript_id);
-        transcripts[j]->dump_seq(result_folder, filename);
-        write_fasta_file(file, transcripts[j]->transcript_id, transcripts[j]->seq);
         reference_sequences.push_back(result_folder + "/"+ filename);
         reference_ids.push_back(transcripts[j]->transcript_id);
     }
-    fclose(file);
     if (is_prepare)
         ta.align(jeweler_info->left_unmapped_file, jeweler_info->right_unmapped_file,
                  reference_sequences, reference_ids, merged_fasta_file,output_bam);
@@ -470,29 +469,23 @@ void Earrings::align_reads() {
 			);
 
 	if (sm!=NULL) {
-		count_multiple_alignments(/* is after alignment*/ true);
+		//count_multiple_alignments(/* is after alignment*/ true);
 	}
-	finfo=fopen(string(result_folder+"/"+gene_id+".landscape.plot.meta").c_str(),"w+");
+	// finfo=fopen(string(result_folder+"/"+gene_id+".landscape.plot.meta").c_str(),"w+");
 
-	for (i=0;i<maternal_transcripts.size();i++) {
-		FILE *foutput;
-		foutput=fopen(string(result_folder+"/"+maternal_transcripts[i]->transcript_id+".landscape.plot.info").c_str(),"w+");
-		if (foutput == NULL) {
-			fprintf(stderr, "cannot open file at %s\n",
-					string(result_folder+"/"+maternal_transcripts[i]->transcript_id+".landscape.plot.info").c_str());
-		}
-		string name=maternal_transcripts[i]->transcript_id;
-		PileupPlot lp(maternal_transcripts[i],paternal_transcripts[i],noninfo[i], multiple_reads);
-		lp.generate_pileup_plot(finfo, foutput);
-		fclose(foutput);
-	}
-	fclose(finfo);
-	finfo=fopen(string(result_folder+"/"+gene_id+".mismatcher").c_str(),"w+");
-	mismatcher->dump(finfo);
-	fclose(finfo);
-	finfo=fopen(string(result_folder+"/"+gene_id+".mismatcher.extra").c_str(),"w+");
-	mismatcher->write(finfo);
-	fclose(finfo);
+	// for (i=0;i<maternal_transcripts.size();i++) {
+	// 	FILE *foutput;
+	// 	foutput=fopen(string(result_folder+"/"+maternal_transcripts[i]->transcript_id+".landscape.plot.info").c_str(),"w+");
+	// 	if (foutput == NULL) {
+	// 		fprintf(stderr, "cannot open file at %s\n",
+	// 				string(result_folder+"/"+maternal_transcripts[i]->transcript_id+".landscape.plot.info").c_str());
+	// 	}
+	// 	string name=maternal_transcripts[i]->transcript_id;
+	// 	PileupPlot lp(maternal_transcripts[i],paternal_transcripts[i],noninfo[i], multiple_reads);
+	// 	lp.generate_pileup_plot(finfo, foutput);
+	// 	fclose(foutput);
+	// }
+	// fclose(finfo);
 
 	//fprintf(stdout,"Unaligned\tUncleared\tCleared\tNoninfo\tTotal\n");
 	//fprintf(stdout,"%d\t%d\t%d\t%d\t%d\n",unaligned.size(),
@@ -596,7 +589,7 @@ void Earrings::dump_data() {
     ed->set_num_single_reads(this->single_reads.size());
     ed->set_num_multiple_reads(this->multiple_reads.size());
     this->mismatcher->dump(ed->mutable_mismatcher());
-    dump_protobuf_data(this->result_folder + "/" + this->gene_id + ".pb", ed.get());
+    this->zmf->append(this->gene_id, ed.get());
     return ;
 }
 

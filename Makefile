@@ -43,8 +43,8 @@ JEWELER_LIB_SOURCES =  jeweler_info.cpp jeweler_alignment.cpp read_matcher.cpp \
 JEWELER_SOURCES= jeweler.cpp $(JEWELER_LIB_SOURCES)
 
 TEST_JEWELER_SOURCES= test_common.cpp test_jeweler_alignment.cpp test_gtf.cpp \
-                      test_jeweler_info.cpp test_transcript.cpp test_bracelet.cpp\
-                      laboratory/test_sewing_machine.cpp \
+                      test_jeweler_info.cpp test_transcript.cpp test_bracelet.cpp \
+                      test_zleveldb.cpp laboratory/test_sewing_machine.cpp \
                       laboratory/test_cigar_holder.cpp test_alignment_glue.cpp
 
 TEST_JEWELER_OBJECTS=$(TEST_JEWELER_SOURCES:.cpp=.o)
@@ -74,7 +74,7 @@ TEST_BAM_OBJECTS=$(TEST_BAM_SOURCES:.cpp=.o)
 
 EXECUTABLE=$(JEWELER_EXECUTABLE) $(APPRAISER_EXECUTABLE) $(TEST_BAM_EXECUTABLE)
 SOURCES=$(JEWELER_SOURCES) $(APPRAISER_SOURCES)
-OBJECTS=$(JEWELER_OBJECTS) $(APPRAISER_OBJECTS) $(TEST_BAM_OBJECTS)
+OBJECTS=$(JEWELER_OBJECTS) $(APPRAISER_OBJECTS) $(TEST_BAM_OBJECTS) $(TEST_JEWELER_OBJECTS)
 
 TESTS = $(TEST_JEWELER)
 

@@ -9,6 +9,7 @@
 #include "gtf.hpp"
 #include "laboratory/sewing_machine.hpp"
 #include "jeweler_info.hpp"
+#include "zleveldb.hpp"
 
 using namespace std;
 
@@ -100,11 +101,12 @@ int jeweler::run() {
 
 		load_mamf_file();
 		int id = -1;
+        ZMegaFile zmf(jeweler_info->result_folder);
+        zmf.clear();
 		for (auto i = jeweler_info->gene_id2transcripts.begin();
 			 i != jeweler_info->gene_id2transcripts.end();
 			 i++) {
 			if (i->second[0]->chr =="chrM") continue;
-			create_directory(path(jeweler_info->result_folder + "/" + i->first));
 			id ++;
 			if (test_case > 0  && id != test_case)  continue;
 			else {
@@ -117,6 +119,7 @@ int jeweler::run() {
 			Earrings earrings(jeweler_info, 
 							  i->first,
 							  sm,
+                              &zmf,
 							  is_prepare);
 		}
 	}
