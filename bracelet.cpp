@@ -143,8 +143,8 @@ void Bracelet::dump_shared_pileup(Jeweler::BraceletData::RelatedTranscript * rt,
         }
         add_coverage(ed->read(i), coverage);
         add_coverage_details(ed->read(i),
-                         target_ed->read(reads_index[target_id][name]),
-                         coverage_details);
+                             target_ed->read(reads_index[target_id][name]),
+                             coverage_details);
     }
 
     for (size_t i = 0; i < ed->read_size(); i++) {
