@@ -53,22 +53,6 @@ def shared_graph_worker(args):
         print('python3.2 shop/shared_graph.py '+cuffcompare_folder + "/ " +jeweler_folder + "/ "+bracelet_folder + "/ " + mismatch_analyzer_folder + "/ "+
               shared_graph_folder + "/ " +sample_id  )
 
-def black_list_worker(args):
-    files=open(args.filelist).readlines()
-    for f in files:
-        cuffcompare_folder=get_cuffcompare_folder(args, f)
-        jeweler_folder=get_jeweler_folder(args, f)
-        bracelet_folder=get_bracelet_folder(args,f)
-        mismatch_analyzer_folder = get_mismatch_analyzer(args, f)
-        shared_graph_folder = get_shared_graph_folder(args, f)
-        sample_id =  os.path.basename(f.strip().replace('.bam',''))
-
-        ##stupid python evoke a R program that cannot read a file
-        print('python3.2 shop/black_list.py '+cuffcompare_folder + "/ " +
-              jeweler_folder + "/ "+bracelet_folder + "/ " +
-              mismatch_analyzer_folder + "/ " +
-              shared_graph_folder + "/ " +sample_id)
-
 def classify_gene_worker(args):
     files=open(args.filelist).readlines()
     for f in files:

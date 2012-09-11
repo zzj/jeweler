@@ -7,7 +7,6 @@ from subprocess import call
 
 from shared_graph_worker import shared_graph_worker
 from shared_graph_worker import classify_gene_worker
-from shared_graph_worker import black_list_worker
 from miner_parser import initialize_parser
 from cufflinks_worker import cufflinks_worker
 from cuffcompare_worker import cuffcompare_worker
@@ -17,7 +16,6 @@ from transcriptome_alignment_worker import transcriptome_alignment_worker
 
 def config(queue, memory, process):
     print("config " + queue + " " + memory + " " + process)
-
 
 def main():
     try:
@@ -62,18 +60,16 @@ def main():
                 config("day", "8", "1")
                 cuffcompare_worker(args)
             elif (args.is_jeweler):
-                config("day", "32", "1")
+                config("day", "8", "1")
                 jeweler_worker(args, refidtable, reffiletable)
             elif (args.is_transcriptome_alignment):
                 transcriptome_alignment_worker(args, refidtable, reffiletable)
             elif (args.is_appraiser):
-                config("bigmem", "32", "1")
+                config("day", "4", "1")
                 appraiser_worker(args)
             elif (args.plot_shared_graph):
                 config("day", "4", "1")
                 shared_graph_worker(args)
-            elif (args.is_black_list):
-                black_list_worker(args)
             elif (args.classify_gene):
                 classify_gene_worker(args)
 

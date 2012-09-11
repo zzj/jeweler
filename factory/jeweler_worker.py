@@ -52,8 +52,8 @@ def jeweler_worker(args, refidtable, reffiletable):
         earrings_command = ""
         ma_command = ""
         prepare_command = ""
-        if (os.path.exists(appraiser_result_folder + alias +"/sm_table")):
-            mamf_command = " -mamf " + appraiser_result_folder + alias +"/sm_table";
+        if (os.path.exists(appraiser_result_folder + alias +"/sm_map")):
+            mamf_command = " -mamf " + appraiser_result_folder + alias +"/sm_map";
 
         if (args.is_earrings):
             ## multiple alignments maps

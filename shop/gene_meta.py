@@ -10,14 +10,15 @@ from subprocess import Popen
 from subprocess import call
 
 class GeneMeta:
+    coverage = dict()
+    mismatches = dict()
+    total_coverage = 0
+    num_isoforms = 0
+    num_exons = 0
+
     def __init__(self, genename, root, category, etype, pattern):
         self.genename = genename
         self.root = root
-        self.coverage = dict()
-        self.mismatches = dict()
-        self.total_coverage = 0
-        self.num_isoforms = 0
-        self.num_exons = 0
         self.category = category
         self.pattern = pattern
         self.expressing_type = etype
@@ -25,7 +26,7 @@ class GeneMeta:
 
     def load_data(self):
         mismatcher_file = self.root+"/"+self.genename+"/"+self.genename+".mismatcher"
-        lines = open( mismatcher_file).readlines()
+        lines = open(mismatcher_file).readlines()
         lineid = 1
         colname = dict()
         locationidx = 0
