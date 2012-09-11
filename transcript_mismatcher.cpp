@@ -268,7 +268,6 @@ TranscriptMismatcherAnalyzer::TranscriptMismatcherAnalyzer(string filename,
         shared_ptr<Jeweler::EarringsData> ed = 
             zmf->get<Jeweler::EarringsData>(jeweler_info->gene_id[i]);
         if (ed.get() == NULL) {
-            fprintf(stderr, "The data is corrupted");
             continue;
         }
 		append(ed->mismatcher(), jeweler_info->gene_id[i]);

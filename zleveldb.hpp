@@ -16,6 +16,7 @@
 using boost::filesystem::path;
 using boost::filesystem::create_directory;
 using boost::filesystem::remove_all;
+using boost::filesystem::exists;
 
 using namespace std;
 
@@ -49,14 +50,14 @@ public:
     }
 
     template<typename T, typename U>
-    void foreach(U* const sm, void (U::*func)(string&, shared_ptr<T>)) {
+    void foreach(U* const sm, void (U::*func)(const string&, shared_ptr<T>)) {
         shared_ptr<T> smd(new T);
         leveldb::Iterator* it = this->db->NewIterator(leveldb::ReadOptions());
         int idx = 0;
         for (it->SeekToFirst(); it->Valid(); it->Next()) {
             string name = it->key().ToString();
             if (!smd->ParseFromString(it->value().ToString())) {
-                fprintf(stderr, "The alignment %s is corrupted", name.c_str()); 
+                fprintf(stderr, "The ZLevelDB data is corrupted or the type is wrong\n");
                 continue;
             }
             else {
@@ -64,7 +65,6 @@ public:
                 if (idx % 1000000 == 0) fprintf(stdout, "%d\n", idx);
                 (sm->*func)(name, smd);
             }
-
         }
     }
 
@@ -89,6 +89,7 @@ shared_ptr<T> ZLevelDB::get(const string &key) {
     if (!s.ok()) return shared_ptr<T>();
     shared_ptr<T> ret(new T);
     if (!ret->ParseFromString(value)) {
+        fprintf(stderr, "The ZLevelDB data is corrupted or the type is wrong\n");
         return shared_ptr<T>();
     }
     return ret;
@@ -121,10 +122,10 @@ public:
     }
     void clear() {
         stream.close();
-        this->file_meta_db.clear();
-        // make sure this function is called after db clear,
+        // make sure this function is called before db clear,
         // because db clear will clear all files under the folder.
         remove(this->file_name.c_str());
+        this->file_meta_db.clear();
         this->initialize();
     }
 

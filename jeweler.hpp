@@ -43,6 +43,7 @@ public:
 	// debug
 	// test case 
 	int test_case;
+    int num_test_case;
 
 	bool is_earrings;
 	bool is_bracelet;

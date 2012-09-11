@@ -26,12 +26,24 @@ public:
 private:
     Jeweler::BraceletData *data;
 	vector<vector<string> > reads;
-	vector<set<string> > reads_index;
+	vector<map<string, int> > reads_index;
 	vector<vector<int> > results;
 	vector<vector<int> > related_transcripts;
 	JewelerInfo *jeweler_info;
 	string gene_id;
 	string result_folder;
     shared_ptr<ZMegaFile> zmf;
+    int num_single_reads;
+    int num_fixed_reads;
 };
+
+double get_coverage_rate(const Jeweler::EarringsData::Read &origin,
+                         const map<int, int> &coverage);
+
+void add_coverage_details(const Jeweler::EarringsData::Read &origin,
+                          const Jeweler::EarringsData::Read &target,
+                          map<int, map<int, int> > &genome_position_map);
+
+void add_coverage(const Jeweler::EarringsData::Read &origin,
+                          map<int, int> &coverage);
 #endif

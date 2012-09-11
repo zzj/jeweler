@@ -592,8 +592,8 @@ void Earrings::dump_data() {
     ed->set_num_single_reads(this->single_reads.size());
     ed->set_num_multiple_reads(this->multiple_reads.size());
     this->mismatcher->dump(ed->mutable_mismatcher());
-    this->zmf->append(this->gene_id, ed.get());
     this->dump_reads(ed.get());
+    this->zmf->append(this->gene_id, ed.get());
     return ;
 }
 

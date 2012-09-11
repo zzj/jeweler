@@ -555,7 +555,7 @@ int Transcript::register_read(JewelerAlignment *al) {
         reads_per_exon[matched_exons[i]].insert(al);
     }
     al->genome_position =
-        get_transcript_aligned_info<vector<int> >(al, get_genome_location_info);
+        get_transcript_aligned_info<map<int, int> >(al, get_genome_location_info);
 
     reads.insert(al);
 
@@ -594,10 +594,10 @@ int get_transcript_location_info(Transcript * ti, JewelerAlignment *al,
 
 int get_genome_location_info(Transcript * ti, JewelerAlignment *al,
                              int genome_start, int alignment_start, int length,
-                             vector<int>  &ret) {
+                             map<int, int>  &ret) {
     int i;
     for (i = 0 ; i < length ; i++) {
-        ret.push_back(genome_start+i);
+        ret[alignment_start + i] = genome_start + i;
     }
     return 0;
 }

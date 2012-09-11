@@ -26,7 +26,7 @@ protected:
         create_alignment("al3", 30, "10M", al3);
         create_alignment("al4", 40, "10M", al4);
         BamTools::RefData rf("chr1", 10);
-        system(" rm -rf test_data/test_sm/");
+        remove_all("test_data/test_sm/");
         this->initialize();
         add();
     }

@@ -22,6 +22,7 @@ jeweler::jeweler(int argc, char * argv[]) {
 	is_mismatch_analyzer = false;
 	is_prepare = false;
 	test_case = -1;
+	num_test_case = -1;
 	sm = NULL;
 	log_file = stdout;
 	mamf_filename = "none";
@@ -78,6 +79,12 @@ jeweler::jeweler(int argc, char * argv[]) {
 				sscanf(argv[i],"%d", &test_case);
 			}
 		}
+		if (strcmp(argv[i], "-numtestcase") == 0) {
+			i++;
+			if (i < argc) {
+				sscanf(argv[i],"%d", &num_test_case);
+			}
+		}
 	}
 
 	if (!has_info) {
@@ -109,11 +116,12 @@ int jeweler::run() {
 			if (i->second[0]->chr =="chrM") continue;
 			id ++;
 			if (test_case > 0  && id != test_case)  continue;
-			else {
-				if (test_case > 0) {
-
-				}
-			}
+            if (num_test_case > 0) {
+                num_test_case --; 
+                if (num_test_case == 0) {
+                    break;
+                }
+            }
 			if (id%10 == 0) fprintf(log_file,"%d\n",id);
 			printf("%s\n", i->first.c_str());
 			Earrings earrings(jeweler_info, 

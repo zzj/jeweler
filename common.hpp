@@ -15,11 +15,16 @@
 #include <api/BamWriter.h>
 #include <fstream>
 #include "jeweler_alignment.hpp"
+#include <google/protobuf/io/coded_stream.h>
+#include <memory>
+using namespace google::protobuf::io;
 
 using std::string;
 using std::map;
 using std::fstream;
 using std::ios;
+using std::unique_ptr;
+
 
 #define MAXLINE 10000
 
@@ -56,14 +61,13 @@ int load_protobuf_data(fstream *file, T *data) {
     int m;
     file->read(reinterpret_cast < char * > (&m), sizeof(m));
     if (file->eof()) return -1;
-    char * buffer = new char[m + 1];
-    file->read(buffer, m);
-    buffer[m] = '\0';
+    ::google::protobuf::uint8 * buffer = new ::google::protobuf::uint8[m + 1];
+    file->read((char *) buffer, m);
     // must use assign because '\0' might be part of the message.
     // TODO: add unit test.
-    string raw; 
-    raw.assign(buffer, m);
-    if (!data->ParseFromString(raw)) {
+    unique_ptr<CodedInputStream> input(new CodedInputStream(buffer, m));
+    input->SetTotalBytesLimit(1024 * 1024 * 1024, 1024 * 1024 * 1024);
+    if (!data->ParseFromCodedStream(input.get())) {
         fprintf(stderr, "Failed to parse the buffer. [fstream version]");
         return -1;
     }
@@ -78,7 +82,6 @@ int write_protobuf_data(fstream *file, T *data) {
     int m = seq.size();
     file->write(reinterpret_cast<char *> (&m), sizeof(m));
     file->write(seq.c_str(), seq.size());
-    T *newdata = new T();
     return 0;
 }
 
@@ -88,9 +91,31 @@ int map_add_count(map<T, int> &m, const T& key) {
         m[key] ++;
     }
     else {
-        m[key] = 0;
+        m[key] = 1;
     }
     return m[key];
+}
+
+template<class T, class U>
+bool map_add_default(map<T, U> &m, const T& key, const U& value) {
+    if (m.find(key) != m.end()) {
+        return false;
+    }
+    else {
+        m[key] = value;
+        return true;
+    }
+}
+
+template<class T, class U>
+U map_get_default(const map<T, U> &m, const T& key, const U& value) {
+    typename map<T,U>::const_iterator it;
+    if ((it = m.find(key)) != m.end()) {
+        return it->second;
+    }
+    else {
+        return value;
+    }
 }
 
 #endif /* _COMMON_H_ */

@@ -3,6 +3,11 @@
 #include "../proto/jeweler.pb.h"
 #include "../zleveldb.hpp"
 #include <memory>
+#include <boost/filesystem.hpp>
+using boost::filesystem::path;
+using boost::filesystem::create_directory;
+using boost::filesystem::remove_all;
+using boost::filesystem::exists;
 
 
 locator::locator(const JewelerAlignment &al, const RefVector &rv) {
@@ -39,13 +44,14 @@ SewingMachine::SewingMachine(BamReader &reader, string &db_folder) {
 
 
 void SewingMachine::initialize(BamReader &reader, string &db_folder) {
+    this->db_folder = db_folder;
 	BamInfo::initialize(reader);
     this->load_zdb(db_folder);
     this->zdb->clear();
 	//this->num_multiple_reads_per_chr.resize(references.size(),0);
 }
 
-void SewingMachine::add_read(string &name,
+void SewingMachine::add_read(const string &name,
                              shared_ptr<Jeweler::SewingMachineData> smd) {
     if (this->is_multiple_alignment(smd)) {
         this->multiple_alignment_names.insert(name);
@@ -54,11 +60,45 @@ void SewingMachine::add_read(string &name,
 
 void SewingMachine::load_zdb(string &db_file){
     this->zdb = new ZLevelDB(db_file);
-    this->zdb->foreach<Jeweler::SewingMachineData, SewingMachine >(this, &SewingMachine::add_read);
+    this->db_folder = db_file;
+    if (!exists(this->snapshot_file())) {
+        this->snapshot();
+    }
+    else {
+        this->load_snapshot();
+    }
 }
 
+string SewingMachine::snapshot_file() {
+    return this->db_folder + "/sewing_machine.data";
+}
+
+void SewingMachine::snapshot() {
+    this->zdb->foreach<Jeweler::SewingMachineData, SewingMachine >(this, &SewingMachine::add_read);
+    fstream out(this->snapshot_file(),
+                ios::out | ios::binary | ios::trunc);
+    for (auto i = this->multiple_alignment_names.begin();
+         i != this->multiple_alignment_names.end();
+         i ++) {
+        unique_ptr<Jeweler::String> s(new Jeweler::String);
+        s->set_data(*i);
+        write_protobuf_data(&out, s.get());
+    }
+    this->initialized_size = this->multiple_alignment_names.size();
+}
+
+void SewingMachine::load_snapshot() {
+    fstream input(this->snapshot_file(),
+                  ios::in | ios::binary);
+    unique_ptr<Jeweler::String> s(new Jeweler::String);
+    while (load_protobuf_data(&input, s.get()) != -1) {
+        this->multiple_alignment_names.insert(s->data());
+    }
+}
 
 SewingMachine::~SewingMachine() {
+    if (this->initialized_size != this->multiple_alignment_names.size())
+        this->snapshot();
     delete this->zdb;
 }
 
@@ -80,10 +120,8 @@ int SewingMachine::add_alignment(const JewelerAlignment &al) {
     }
     l->dump(smd->add_locator());
     this->zdb->set<Jeweler::SewingMachineData>(al.Name, smd.get());
-    if (is_multiple_alignment(smd)) {
-        this->multiple_alignment_names.insert(al.Name);
-    }
-	return 0;
+    this->add_read(al.Name, smd);
+  	return 0;
 }
 
 

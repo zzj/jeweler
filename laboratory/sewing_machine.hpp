@@ -49,7 +49,7 @@ public:
 	SewingMachine(BamReader &reader, string &db_file);
 	void initialize(BamReader &reader, string &db_file);
     int add_alignment(const JewelerAlignment &al);
-    void add_read(string &name,
+    void add_read(const string &name,
                   shared_ptr<Jeweler::SewingMachineData> smd);
     void load_zdb(string &db_file);
 	string get_reference_sequence(FastaReference &fr, JewelerAlignment &al);
@@ -58,10 +58,15 @@ public:
     int build_alignment_connection_map_core();
     int output_alignment_connection_map_core(FILE * file);
     int output_alignment_connection_map(FILE * file);
-    set<string> multiple_alignment_names;
+    void snapshot();
+    string snapshot_file();
+    void load_snapshot();
 private:
 	// storage
     ZLevelDB *zdb;
+    string db_folder;
+    set<string> multiple_alignment_names;
+    size_t initialized_size;
 	// statistics
 	//vector<int> num_multiple_reads_per_chr;
 
