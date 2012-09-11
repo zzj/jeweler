@@ -69,6 +69,7 @@ int load_protobuf_data(fstream *file, T *data) {
     input->SetTotalBytesLimit(1024 * 1024 * 1024, 1024 * 1024 * 1024);
     if (!data->ParseFromCodedStream(input.get())) {
         fprintf(stderr, "Failed to parse the buffer. [fstream version]");
+        delete buffer;
         return -1;
     }
     delete buffer;

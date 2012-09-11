@@ -136,7 +136,7 @@ public:
         if (zfp.get() == NULL) return shared_ptr<T>();
         shared_ptr<T> ret(new T);
         stream.seekg(zfp->position());
-        load_protobuf_data(&stream, ret.get());
+        if (load_protobuf_data(&stream, ret.get()) == -1) return shared_ptr<T>();
         return ret;
     }
 
