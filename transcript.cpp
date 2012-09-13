@@ -33,9 +33,9 @@ void Transcript::load_gtf(vector<gtf_info> &gtf_list) {
         }
     }
 	// check error
-	if (this->exon_start[0] != this->start)
+    if (this->exon_start[0] != this->start())
 	{
-		fprintf(stderr, "%s:%d:%d\n", this->transcript_id.c_str(),
+		fprintf(stderr, "%s:%d:%d\n", this->transcript_id().c_str(),
 				this->exon_start[0],this->start);
 		fprintf(stderr, "The start position of the first exon does not equal to the start position of the transcript \n");
 		exit(0);
@@ -49,7 +49,7 @@ void Transcript::load_gtf(vector<gtf_info> &gtf_list) {
 void Transcript::load_seq(FastaReference * fr) {
 	seq = "";
 	for (size_t i=0; i < exon_start.size(); i++) {
-		seq+=fr->getSubSequence(chr, exon_start[i] - 1, exon_end[i]-exon_start[i]+1);
+		seq += fr->getSubSequence(chr, exon_start[i] - 1, exon_end[i]-exon_start[i]+1);
 	}
 }
 
@@ -572,7 +572,7 @@ int get_seq_info(Transcript * ti, JewelerAlignment *al,
         ti->output_segments();
         exit(0);
     }
-    ret+=ti->seq.substr(transcript_start,length);
+    ret+=ti->seq().substr(transcript_start,length);
     return 0;
 }
 int get_transcript_location_info(Transcript * ti, JewelerAlignment *al,
@@ -644,7 +644,7 @@ int insert_mismatch_info(Transcript *ti,  JewelerAlignment * al,
         ti->output_segments();
         exit(1);
     }
-    string genome_seq    = ti->seq.substr(transcript_start, length);
+    string genome_seq    = ti->seq().substr(transcript_start, length);
     string alignment_seq = al->QueryBases.substr(alignment_start, length);
     for (i = 0; i < genome_seq.size(); i++) {
         if (genome_seq[i] != alignment_seq[i]) {
@@ -709,5 +709,5 @@ bool Transcript::is_equal(Transcript *t) {
 
 
 void Transcript::dump_seq(string &result_folder, string &filename) {
-	write_fasta_file(result_folder + "/" + filename, transcript_id, seq);
+	write_fasta_file(result_folder + "/" + filename, transcript_id, seq());
 }

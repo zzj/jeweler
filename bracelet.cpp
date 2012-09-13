@@ -135,7 +135,7 @@ void Bracelet::dump_shared_pileup(Jeweler::BraceletData::RelatedTranscript * rt,
     if (target_ed.get() == NULL)
         return ;
 
-    for (size_t i = 0; i < ed->read_size(); i++) {
+    for (int i = 0; i < ed->read_size(); i++) {
         string name = ed->read(i).name();
         if (reads_index[original_id].find(name)==reads_index[original_id].end() ||
             reads_index[target_id].find(name)==reads_index[target_id].end()) {
@@ -147,7 +147,7 @@ void Bracelet::dump_shared_pileup(Jeweler::BraceletData::RelatedTranscript * rt,
                              coverage_details);
     }
 
-    for (size_t i = 0; i < ed->read_size(); i++) {
+    for (int i = 0; i < ed->read_size(); i++) {
         if (ed->read(i).is_multiple_alignment()) {
             continue;
         }

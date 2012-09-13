@@ -35,7 +35,7 @@ TEST(GTF, test_load_gtf_file) {
     ASSERT_EQ(4767729, transcripts[1]->exon_end[1]);
     ASSERT_EQ(4772811, transcripts[2]->exon_end[1]);
 
-	ASSERT_STREQ("CUFF.10", transcripts[2]->gene_id.c_str());
-	ASSERT_STREQ("CUFF.9.2", transcripts[1]->transcript_id.c_str());
-	ASSERT_STREQ("chr1", transcripts[1]->chr.c_str());
+	ASSERT_STREQ("CUFF.10", transcripts[2]->gene_id().c_str());
+	ASSERT_STREQ("CUFF.9.2", transcripts[1]->transcript_id().c_str());
+	ASSERT_STREQ("chr1", transcripts[1]->chr().c_str());
 }

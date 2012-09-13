@@ -113,7 +113,7 @@ int jeweler::run() {
 		for (auto i = jeweler_info->gene_id2transcripts.begin();
 			 i != jeweler_info->gene_id2transcripts.end();
 			 i++) {
-			if (i->second[0]->chr =="chrM") continue;
+			if (i->second[0]->chr() == "chrM") continue;
 			id ++;
 			if (test_case > 0  && id != test_case)  continue;
             if (num_test_case > 0) {

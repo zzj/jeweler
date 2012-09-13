@@ -39,10 +39,10 @@ int TranscriptMismatcher::add_transcript(Transcript *t, int origin) {
 		 i++) {
 		genome_pos2idx[(*i)]=0;
 		if (origin == TRANSCRIPT_PATERNAL) {
-			genome_pos2paternal[(*i)] = t->seq[(i-t->genome_pos.begin())];
+			genome_pos2paternal[(*i)] = t->seq()[(i-t->genome_pos.begin())];
 		}
 		if (origin == TRANSCRIPT_MATERNAL) {
-			genome_pos2maternal[(*i)] = t->seq[i-t->genome_pos.begin()];
+			genome_pos2maternal[(*i)] = t->seq()[i-t->genome_pos.begin()];
 		}
 	}
 	return 0;

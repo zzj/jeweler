@@ -13,6 +13,7 @@
 #include <Fasta.h>
 #include "gtf_info.hpp"
 #include "jeweler_alignment.hpp"
+#include "common.hpp"
 
 using namespace std;
 using namespace BamTools;
@@ -23,25 +24,28 @@ class Path;
 
 class Transcript{
 
-public:
-    Transcript();
-
-    static int tolerate ;
+private:
     bool is_initialized;
-    int origin;
-    string gene_id;
-    string transcript_id;
-    string seq;
-    string chr;  // storing chromosome name
-    string transcript_file;
-    int start, end;
+
+
+public:
+    _PROXY_(Transcript)
+
+    Transcript();
+    read_only<string> chr;  // storing chromosome name
+    read_only<string> gene_id;
+    read_only<string> transcript_id;
+    read_only<string> seq;
+    static int tolerate ;
+    read_only<int> origin;
+    read_only<int> start, end;
 
     // exon info
     // TODO: exon class
 
-    vector<int> exon_start;
-    vector<int> exon_end; //end is inclusive
-    vector<int> num_alleles_per_exon;
+    vector<unsigned int> exon_start;
+    vector<unsigned int> exon_end; //end is inclusive
+    vector<unsigned int> num_alleles_per_exon;
 
     // SNP info
     // TODO: snp class

@@ -51,12 +51,12 @@ int load_fasta_file(string fasta_filename, vector<seq_read *> &seq_reads) {
 	return 0;
 }
 
-void write_fasta_file(string fasta_filename, string &name, string &seq) {
+void write_fasta_file(const string fasta_filename, const string &name, const string &seq) {
 	FILE *fd = file_open(fasta_filename.c_str(), "w+");
 	write_fasta_file(fd, name,seq);
 	fclose(fd);
 }
-void write_fasta_file(FILE *fd, string &name, string &seq) {
+void write_fasta_file(FILE *fd, const string &name, const string &seq) {
 	fprintf(fd,">%s\n", name.c_str());
 	for (size_t i = 0; i < seq.size(); i = i + 80) {
 		fprintf(fd,"%s\n", seq.substr(i, 80).c_str());

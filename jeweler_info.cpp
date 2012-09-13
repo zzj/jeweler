@@ -15,7 +15,7 @@ int JewelerInfo::build_gene_id2transcripts() {
 	fprintf(stdout, "Bulding gene_id to transcripts index ...\n");
 	gene_id2transcripts.clear();
 	for (size_t i = 0; i < transcripts.size(); i++) {
-		gene_id2transcripts[transcripts[i]->gene_id].push_back(transcripts[i]);
+		gene_id2transcripts[transcripts[i]->gene_id()].push_back(transcripts[i]);
 	}
 	gene_id.clear();
 	for (auto j = gene_id2transcripts.begin();

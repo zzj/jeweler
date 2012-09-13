@@ -37,9 +37,9 @@ protected:
 };
 
 TEST_F(TranscriptTest, test_load_seq) { 
-    ASSERT_EQ(320, transcripts[0]->seq.size());
+    ASSERT_EQ(320, transcripts[0]->seq().size());
     ASSERT_EQ(320, transcripts[0]->genome_pos.size());
-    ASSERT_STREQ("GGTATTTATTTCATTTACATTTCCAATGCTATTCCAAAAGTCCCACACACAGACCCCACTCACTCCCCCACCCACCTAATGCCAACTAGGCCATCTTCTGATACATATGCAGCTATTGAAAGTGCTCTTTGCCTTACAGAAGCTTTGCAATTTTATGAGGCAAGGTTATCCCCACTTTCACCTCTATAAGTTTCAATGTCTATGGTTTTATGTGGAGGTCCTTGATCCACTTGGACTTGAAAAATGCTATTTTTTTTTCTGCTGGATTGTTTTATCTCCTTTGTCAAAGATCAAATGATCATAGGTGTGTGGGTTCATTT", transcripts[0]->seq.c_str());
+    ASSERT_STREQ("GGTATTTATTTCATTTACATTTCCAATGCTATTCCAAAAGTCCCACACACAGACCCCACTCACTCCCCCACCCACCTAATGCCAACTAGGCCATCTTCTGATACATATGCAGCTATTGAAAGTGCTCTTTGCCTTACAGAAGCTTTGCAATTTTATGAGGCAAGGTTATCCCCACTTTCACCTCTATAAGTTTCAATGTCTATGGTTTTATGTGGAGGTCCTTGATCCACTTGGACTTGAAAAATGCTATTTTTTTTTCTGCTGGATTGTTTTATCTCCTTTGTCAAAGATCAAATGATCATAGGTGTGTGGGTTCATTT", transcripts[0]->seq().c_str());
 }
 
 TEST_F(TranscriptTest, test_load_gtf) {
@@ -51,7 +51,7 @@ TEST_F(TranscriptTest, test_load_snps) {
     snp_pos += 0, 1, 81, 161, 241;
     vector<int> allele_exon;
     allele_exon += 0, 0, 1, 2, 3;
-    vector<int> num_alleles_per_exon;
+    vector<unsigned int> num_alleles_per_exon;
     num_alleles_per_exon += 2, 1, 1, 1;
     vector<char> alleles;
     alleles += 'A', 'T', 'C', 'G';
@@ -61,10 +61,10 @@ TEST_F(TranscriptTest, test_load_snps) {
     EXPECT_EQ(alleles.size(), transcripts[0]->alleles.size());
     EXPECT_ITERABLE_EQ(vector<unsigned int>, snp_pos, transcripts[0]->snp_pos);
     EXPECT_ITERABLE_EQ(vector<int>, allele_exon, transcripts[0]->allele_exon);
-    EXPECT_ITERABLE_EQ(vector<int>, num_alleles_per_exon,
+    EXPECT_ITERABLE_EQ(vector<unsigned int>, num_alleles_per_exon,
                        transcripts[0]->num_alleles_per_exon);
     EXPECT_ITERABLE_EQ(vector<char>, alleles, transcripts[0]->alleles);
-    EXPECT_EQ(EXON_PATERNAL, transcripts[0]->origin);
+    EXPECT_EQ(EXON_PATERNAL, transcripts[0]->origin());
     
 }
 

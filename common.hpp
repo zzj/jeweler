@@ -18,14 +18,7 @@
 #include <google/protobuf/io/coded_stream.h>
 #include <memory>
 using namespace google::protobuf::io;
-
-using std::string;
-using std::map;
-using std::fstream;
-using std::ios;
-using std::unique_ptr;
-
-
+using namespace std;
 #define MAXLINE 10000
 
 using namespace BamTools;
@@ -35,6 +28,25 @@ FILE * file_open(const char *name, const char * mode);
 char * trim(char *);
 
 void open_bam(BamReader &bam_reader, string bam_file);
+
+#define _PROXY_(CLS) \
+template <class T>                                              \
+class read_only {                                                   \
+    friend class CLS;                                           \
+private:                                                        \
+    T data;                                                     \
+    T operator=(const T& arg) { data = arg; return data; }      \
+    T operator+=(const T& arg) { data += arg; return data; }      \
+    operator const T& () const { return data; }                \
+    bool operator==(const T& arg) { return data == arg; }       \
+    bool operator<=(const T& arg) { return data <= arg; }       \
+    bool operator>=(const T& arg) { return data >= arg; }       \
+    bool operator<(const T& arg) { return data < arg; }       \
+    bool operator>(const T& arg) { return data > arg; }       \
+    bool operator!=(const T& arg) { return data != arg; }       \
+public:                                                         \
+    const T& operator () () const { return data; }              \
+};                                                              \
 
 template<class T>
 void dump_protobuf_data(string file_name, T *data) {
@@ -117,6 +129,16 @@ U map_get_default(const map<T, U> &m, const T& key, const U& value) {
     else {
         return value;
     }
+}
+
+template<class T>
+vector<T *> duplicate_vector(vector<T *> in) {
+    vector<T *> ret(in.size());
+    size_t i;
+    for (i = 0; i < in.size(); i ++) {
+        ret[i] = new T(*in[i]);
+    }
+    return ret;
 }
 
 #endif /* _COMMON_H_ */

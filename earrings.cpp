@@ -29,7 +29,7 @@ Earrings::Earrings(JewelerInfo *jeweler_info,
 	load_transcript_data(is_prepare);
 	//if (is_prepare) return;
 
-	this->chr = paternal_transcripts[0]->chr;
+	this->chr = paternal_transcripts[0]->chr();
 	this->ref_id = jeweler_info->get_refID(chr);
 	if (ref_id == NOT_FOUND) {
 		fprintf(stdout, "Cannot find reference id for %s\n", this->chr.c_str());
@@ -39,12 +39,12 @@ Earrings::Earrings(JewelerInfo *jeweler_info,
 		Transcript *p=paternal_transcripts[i];
 
 		if (i == 0) {
-			left_pos = p->start;
-			right_pos = p->end;
+			left_pos = p->start();
+			right_pos = p->end();
 		}
 		else {
-			left_pos = min(left_pos, p->start);
-			right_pos = max(right_pos, p->end);
+			left_pos = min(left_pos, p->start());
+			right_pos = max(right_pos, p->end());
 		}
 	}
 	// load bamalignment by bamtools.
@@ -196,24 +196,17 @@ int Earrings::load_transcript_data(bool is_prepare) {
     for (i = 0; i < paternal_transcripts.size(); i++) {
         Transcript *p = paternal_transcripts[i];
         Transcript *m = maternal_transcripts[i];
-        p->transcript_file = "paternal." + p->transcript_id + ".fasta";
-        m->transcript_file = "maternal." + m->transcript_id + ".fasta";
 
-        if (p->seq.size() != m->seq.size()) {
-            fprintf(stderr,
-                    "ERROR: transcript sequence size does not match at gene %s  at %s:%d\n",
-                    p->transcript_id.c_str(),__FILE__, __LINE__);
-            exit(0);
-        }
+        assert(p->seq().size() != m->seq().size());
 
         // find SNP position by given both paternal and maternal
         // transcripts sequences
         vector<unsigned int> snp_pos;
         vector<char> alleles;
-        for (j = 0; j < p->seq.size(); j++) {
-            if (p->seq[j] != m->seq[j]) {
+        for (j = 0; j < p->seq().size(); j++) {
+            if (p->seq()[j] != m->seq()[j]) {
                 snp_pos.push_back(j);
-                alleles.push_back(p->seq[j]);
+                alleles.push_back(p->seq()[j]);
             }
         }
 
@@ -228,15 +221,6 @@ int Earrings::load_transcript_data(bool is_prepare) {
     return 0;
 }
 
-template<class T>
-vector<T *> duplicate_vector(vector<T *> in) {
-    vector<T *> ret(in.size());
-    size_t i;
-    for (i = 0; i < in.size(); i ++) {
-        ret[i] = new T(*in[i]);
-    }
-    return ret;
-}
 
 int Earrings::transcript_helper(vector<Transcript *> &transcripts,
                                 FastaReference *fasta_ref,
@@ -252,12 +236,12 @@ int Earrings::transcript_helper(vector<Transcript *> &transcripts,
     TranscriptomeAligner ta;
     vector<string> reference_sequences;
     vector<string> reference_ids;
-    string merged_fasta_file= (result_folder+"/"+prefix + transcripts[0]->gene_id+".fasta");
+    string merged_fasta_file= (result_folder+"/"+prefix + transcripts[0]->gene_id()+".fasta");
     for (j = 0; j < transcripts.size(); j++) {
         transcripts[j]->load_seq(fasta_ref);
-        string filename = string(prefix+transcripts[j]->transcript_id);
+        string filename = string(prefix+transcripts[j]->transcript_id());
         reference_sequences.push_back(result_folder + "/"+ filename);
-        reference_ids.push_back(transcripts[j]->transcript_id);
+        reference_ids.push_back(transcripts[j]->transcript_id());
     }
     if (is_prepare)
         ta.align(jeweler_info->left_unmapped_file, jeweler_info->right_unmapped_file,
@@ -464,7 +448,6 @@ void Earrings::align_reads() {
 			output_bamalignment(bam_reads[i]);
 		}
 	}
-	FILE * finfo;
 
 	fprintf(stdout, "%d compatible reads in %zu reads\n",
 			num_compatible_reads,

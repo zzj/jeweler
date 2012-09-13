@@ -2,6 +2,9 @@
 
 #include "pileup.plot.hpp"
 
+// change to observer pattern
+
+
 PileupPlot::PileupPlot(Transcript * maternal_transcript,
 					   Transcript * paternal_transcript,
 					   set<JewelerAlignment *> & unknown_reads,
@@ -9,12 +12,8 @@ PileupPlot::PileupPlot(Transcript * maternal_transcript,
 
 	size_t i, j;
 
-	if (maternal_transcript->seq.size() != paternal_transcript->seq.size()) {
-		fprintf(stderr,  "Maternal and paternal transcripts must be the same one");
-		exit(0);
-	}
-	transcript_id = maternal_transcript->transcript_id;
-	int size = maternal_transcript->seq.size();
+	transcript_id = maternal_transcript->transcript_id();
+	int size = maternal_transcript->seq().size();
 
 	unknown.resize(size, 0);
 	paternal.resize(size, 0);
@@ -72,6 +71,7 @@ int PileupPlot::add_transcript_to_pileup(Transcript * transcript,
 	}
 	return 0;
 }
+
 int PileupPlot::add_transcript_to_pileup_filter(Transcript * transcript,
 												set<JewelerAlignment *> &reads,
 												vector<int> & coverage,
