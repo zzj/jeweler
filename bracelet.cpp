@@ -1,5 +1,6 @@
 #include "bracelet.hpp"
 #include "common.hpp"
+#include "constants.hpp"
 #include "jeweler_info.hpp"
 #include <boost/filesystem.hpp>
 #include "zleveldb.hpp"
@@ -72,7 +73,8 @@ void add_coverage(const Jeweler::EarringsData::Read &origin,
                   map<int, int> &coverage) {
     for (int i = 0 ; i < origin.genome_position_size(); i ++) {
         int pos = origin.genome_position(i);
-        map_add_count(coverage, pos);
+        if (pos != NOT_FOUND)
+            map_add_count(coverage, pos);
     }
     return ;
 }
@@ -82,13 +84,16 @@ double get_coverage_rate(const Jeweler::EarringsData::Read &origin,
                          const map<int, int> &coverage) {
     if (origin.genome_position_size() == 0) return 0;
     int cov = 0;
+    int total = 0;
     for (int i = 0 ; i < origin.genome_position_size(); i ++) {
         const int pos = origin.genome_position(i);
+        if (pos == NOT_FOUND) continue;
         if (map_get_default(coverage, pos, 0) > 0) {
             cov ++;
         }
+        total ++;
     }
-    return double(cov) / origin.genome_position_size();
+    return double(cov) / total;
 }
 
 void add_coverage_details(const Jeweler::EarringsData::Read &origin,
@@ -97,19 +102,20 @@ void add_coverage_details(const Jeweler::EarringsData::Read &origin,
     // genome_position_map: first is the original genome position,
     // second is another map, which is the target_genome_position and times.
     map<int, int> original_read2genome;
-    assert(origin.genome_position_size() == origin.read_position_size());
 
     for (int i = 0; i < origin.genome_position_size(); i ++){
-        original_read2genome[origin.read_position(i)] = origin.genome_position(i);
+        if (origin.genome_position(i) != NOT_FOUND)
+            original_read2genome[i] = origin.genome_position(i);
     }
-    assert(target.genome_position_size() == target.read_position_size());
     for (int i = 0; i < target.genome_position_size(); i ++){
-        if (original_read2genome.find(target.read_position(i)) != 
+        if (target.genome_position(i) == NOT_FOUND)
+            continue;
+        if (original_read2genome.find(i) != 
             original_read2genome.end()) {
             map_add_default(genome_position_map,
-                            target.read_position(i),
+                            i,
                             map<int, int>());
-            map_add_count(genome_position_map[target.read_position(i)],
+            map_add_count(genome_position_map[i],
                           target.genome_position(i));
         }
     }

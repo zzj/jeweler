@@ -153,7 +153,7 @@ int get_transcript_location_info(Transcript *, JewelerAlignment * al,
                       vector<int>  &ret);
 int get_genome_location_info(Transcript *, JewelerAlignment * al,
                       int genome_start, int alignment_start, int length,
-                      map<int, int>  &ret);
+                      vector<int>  &ret);
 int get_read_location_info(Transcript *, JewelerAlignment * al,
                       int genome_start, int alignment_start, int length,
                       vector<int>  &ret);

@@ -62,7 +62,7 @@ int TranscriptMismatcher::add_mismatches(Transcript *transcript, JewelerAlignmen
 
 			coverage[ idx ]++;
 			read_call_qualities[idx].push_back(al->Qualities[rm->read_aligned_locations[i]]);
-			read_call_locations[idx].push_back(al->read_position[rm->read_aligned_locations[i]]);
+			read_call_locations[idx].push_back(rm->read_aligned_locations[i]);
 		}
         reads.insert(al);
     }
@@ -74,8 +74,8 @@ int TranscriptMismatcher::add_mismatches(Transcript *transcript, JewelerAlignmen
         }
         mismatched_reads[ idx ].insert(al);
 
-        read_mismatch_qualities[ idx ].push_back(rm->mismatch_qualities[ i ]);
-        read_mismatch_locations[ idx ].push_back(al->read_position[rm->mismatch_read_locations[ i ]]);
+        read_mismatch_qualities[ idx ].push_back(rm->mismatch_qualities[i]);
+        read_mismatch_locations[ idx ].push_back(rm->mismatch_read_locations[i]);
 
         char mismatchar = rm->mismatchars[i];
         mismatches[idx]++;

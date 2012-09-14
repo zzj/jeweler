@@ -14,6 +14,8 @@ class JewelerAlignment;
 
 class AlignmentExpert {
 public:
+    virtual void initialize(JewelerAlignment *al);
+
     virtual void study_matched_seq(JewelerAlignment *al, int genome_start,
                                    int alignment_start, int length) ;
 
@@ -27,13 +29,29 @@ public:
                                           int alignment_start, int length);
 };
 
+class AlignmentExpertStarter : public AlignmentExpert {
+public:
+
+    virtual void initialize(JewelerAlignment *al);
+
+
+    virtual void study_matched_seq(JewelerAlignment *al,
+                           int genome_start,
+                           int alignment_start,
+                           int length);
+
+    virtual void study_only_read_seq(JewelerAlignment *al,
+                             int genome_start,
+                             int alignment_start,
+                             int length);
+};
 
 class JewelerAlignment : public BamAlignment {
 public:
     _PROXY_(JewelerAlignment)
 	// if two reads are merged, record the read position
-	vector<int> read_position;
-	map<int, int> genome_position;
+	vector<int> genome_position;
+    
     read_only<bool> is_multiple_alignment;
 
     void dump_data(Jeweler::EarringsData::Read *read);
@@ -41,9 +59,16 @@ public:
     void set_is_multiple_alignment(const SewingMachine *sm);
     void jeweler_initialize(const SewingMachine *sm);
     void investigate(AlignmentExpert *ae);
-    int GenomeStartPosition();
-private:
+    int GetStartPosition();
+    int GetEndPosition();
+    void glue(JewelerAlignment *that);
+    int get_skipped_region(int skipped_alignment_length,
+                           vector<CigarOp> &cigar_data,
+                           int &skipped_length);
 
+private:
+    int is_first_ahead;
+    int skip_length;
 };
 
 int get_read_position(JewelerAlignment *al, const int i);

@@ -18,9 +18,6 @@ class AlignmentGlue{
 public:
 	void glue_paired_alignments(JewelerAlignment *first, JewelerAlignment *second);
 	int glue_cigar_data(JewelerAlignment *first, JewelerAlignment *second, int overlapped);	
-	int get_skipped_region(const JewelerAlignment *al, int overlapped, 
-						   vector<CigarOp> &cigar_data, int &skipped_length);
-	
 
 	int glue(vector<JewelerAlignment *> &in_reads, 
 			 vector<JewelerAlignment *> &new_reads,
