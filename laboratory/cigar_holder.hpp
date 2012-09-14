@@ -2,7 +2,6 @@
 #include <string>
 #include <api/BamReader.h>
 #include <api/BamWriter.h>
-#include "../common.hpp"
 
 using namespace BamTools;
 using namespace std;

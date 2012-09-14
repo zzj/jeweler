@@ -14,7 +14,6 @@
 #include <api/BamReader.h>
 #include <api/BamWriter.h>
 #include <fstream>
-#include "jeweler_alignment.hpp"
 #include <google/protobuf/io/coded_stream.h>
 #include <memory>
 using namespace google::protobuf::io;

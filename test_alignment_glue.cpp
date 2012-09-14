@@ -1,6 +1,7 @@
 #include "alignment_glue.hpp"
 #include "gtest/gtest.h"
-
+#include "jeweler_alignment.hpp"
+#include "laboratory/cigar_holder.hpp"
 class AlignmentGlueTest : public ::testing::Test {
 protected:
 	virtual void SetUp() {

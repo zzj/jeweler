@@ -8,6 +8,7 @@
 #include "alignment_glue.hpp"
 #include "graph/graph.hpp"
 #include "zleveldb.hpp"
+#include "constants.hpp"
 #include <fstream>
 using namespace std;
 
@@ -98,13 +99,8 @@ int Earrings::load_read_data() {
     JewelerAlignment *al=new JewelerAlignment();
 
     while(jeweler_info->bam_reader.GetNextAlignment(*al)) {
+        al->jeweler_initialize(this->sm);
         bam_reads.push_back(al);
-        if (sm->is_multiple_alignment(al->Name)) {
-            al->set_is_multiple_alignment(true);
-        }
-        else {
-            al->set_is_multiple_alignment(false);
-        }
         al=new JewelerAlignment();
     }
     delete al; // delete the last unused one
@@ -264,8 +260,8 @@ void Earrings::align_reads() {
 													   &paternal_matcher);
 
 				//fprintf(stdout,"%d\n",total_alleles);
-				num_maternal_alleles=maternal_alleles.size();
-				num_paternal_alleles=paternal_alleles.size();
+				num_maternal_alleles = maternal_alleles.size();
+				num_paternal_alleles = paternal_alleles.size();
 				if (total_alleles>0) {
 					if (num_paternal_alleles == num_maternal_alleles) {
 						noninfo[j].insert(bam_reads[i]);

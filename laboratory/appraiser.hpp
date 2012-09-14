@@ -3,10 +3,6 @@
 #include <api/BamReader.h>
 #include <api/BamWriter.h>
 #include <Fasta.h>
-#include "../common.hpp"
-#include "metabam.hpp"
-#include "sewing_machine.hpp"
-#include "cigar_holder.hpp"
 
 using namespace BamTools;
 using namespace std;

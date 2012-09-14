@@ -3,10 +3,12 @@
 #include <string> 
 #include <api/BamReader.h>
 #include <api/BamWriter.h>
-#include "../common.hpp"
 #include "bam_info.hpp"
+
 using namespace BamTools;
 using namespace std;
+
+class JewelerAlignment;
 
 class Metabam: public BamInfo{
 public:

@@ -2,6 +2,7 @@
 #include "sewing_machine.hpp"
 #include "../proto/jeweler.pb.h"
 #include "../zleveldb.hpp"
+#include "../jeweler_alignment.hpp"
 #include <memory>
 #include <boost/filesystem.hpp>
 using boost::filesystem::path;
@@ -169,7 +170,7 @@ int SewingMachine::output_alignment_connection_map(FILE * file) {
 }
 
 
-bool SewingMachine::is_multiple_alignment(const string &name) {
+bool SewingMachine::is_multiple_alignment(const string &name) const {
     return multiple_alignment_names.find(name) != multiple_alignment_names.end();
 }
 

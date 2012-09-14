@@ -1,4 +1,5 @@
 #include "cigar_holder.hpp"
+#include "../jeweler_alignment.hpp"
 #include "gtest/gtest.h"
 
 TEST(CigarHolderTest, test_get_cigarop) {

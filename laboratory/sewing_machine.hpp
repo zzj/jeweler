@@ -54,7 +54,7 @@ public:
     void load_zdb(string &db_file);
 	string get_reference_sequence(FastaReference &fr, JewelerAlignment &al);
     bool is_multiple_alignment(const shared_ptr<Jeweler::SewingMachineData> smd);
-    bool is_multiple_alignment(const string &name);
+    bool is_multiple_alignment(const string &name) const;
     int build_alignment_connection_map_core();
     int output_alignment_connection_map_core(FILE * file);
     int output_alignment_connection_map(FILE * file);

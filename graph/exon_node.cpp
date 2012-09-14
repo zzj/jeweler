@@ -1,4 +1,7 @@
 #include "exon_node.hpp"
+#include "../constants.hpp"
+#include "../common.hpp"
+#include "../jeweler_alignment.hpp"
 
 ExonNode::ExonNode(int start, int end, int origin){
 	this->start=start;

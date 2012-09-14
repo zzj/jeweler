@@ -7,8 +7,6 @@
 #include <api/BamWriter.h>
 #include <Fasta.h>
 #include <set> 
-#include "../constants.hpp"
-#include "../common.hpp"
 
 using namespace BamTools;
 using namespace std;
@@ -18,7 +16,7 @@ using namespace std;
 
 // This class will investigate the possible allele specific pile up graph.
 
-
+class JewelerAlignment;
 
 class ExonNode{
 public :

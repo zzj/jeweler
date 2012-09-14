@@ -9,10 +9,10 @@
 #include <set>
 #include <Fasta.h>
 #include <algorithm>
-#include "laboratory/cigar_holder.hpp"
 using namespace BamTools;
 using namespace std;
 
+class JewelerAlignment;
 
 class AlignmentGlue{
 public:

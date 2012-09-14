@@ -1,4 +1,6 @@
 #include "metabam.hpp"
+#include "../common.hpp"
+#include "../jeweler_alignment.hpp"
 
 Metabam::Metabam() {
 }

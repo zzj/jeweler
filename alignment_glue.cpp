@@ -1,4 +1,6 @@
 #include "alignment_glue.hpp"
+#include "jeweler_alignment.hpp"
+#include "laboratory/cigar_holder.hpp"
 
 int output_bamalignment(JewelerAlignment *al) {
 	fprintf(stdout,"%s\n",al->Name.c_str());
@@ -184,8 +186,10 @@ int AlignmentGlue::glue(vector<JewelerAlignment *> &in_reads,
                     continue;
                 }
                 else if (alignments.size()==2) {
-                    if ((alignments[1]->IsFirstMate() && alignments[0]->IsSecondMate()) ||
-                        (alignments[0]->IsFirstMate() && alignments[1]->IsSecondMate())) {
+                    if ((alignments[1]->IsFirstMate() &&
+                         alignments[0]->IsSecondMate()) ||
+                        (alignments[0]->IsFirstMate() &&
+                         alignments[1]->IsSecondMate())) {
                         if (alignments[0]->Position < alignments[1]->Position) {
                             glue_paired_alignments(alignments[0], alignments[1]);
                             new_reads.push_back(alignments[0]);

@@ -1,4 +1,9 @@
 #include "appraiser.hpp"
+#include "../common.hpp"
+#include "../jeweler_alignment.hpp"
+#include "metabam.hpp"
+#include "sewing_machine.hpp"
+#include "cigar_holder.hpp"
 using namespace std;
 
 Appraiser::Appraiser(int argc, char* argv[]) {

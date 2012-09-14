@@ -1,4 +1,5 @@
 #include "path.hpp"
+#include "../constants.hpp"
 
 Path::Path(vector<ExonNode*> &current_path){
 	path=current_path;
