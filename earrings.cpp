@@ -14,20 +14,25 @@ using namespace std;
 Earrings::Earrings(JewelerInfo *jeweler_info,
 				   string gene_id,
 				   SewingMachine *sm,
-                   ZMegaFile *file,
-				   bool is_prepare = false) {
+                   ZMegaFile *file) {
 	size_t i;
 
 	this->sm = sm;
-	this->mismatcher = new TranscriptMismatcher();
+
 	this->jeweler_info = jeweler_info;
 	this->gene_id = gene_id;
 	this->result_folder = jeweler_info->result_folder + "/" + gene_id + "/";
     this->zmf = file;
 
-	// load maternal and paternal transcripts sequences.
-	load_transcript_data(is_prepare);
-	//if (is_prepare) return;
+    this->maternal_transcripts = this->jeweler_info->get_maternal_transcripts(this->gene_id);
+    this->paternal_transcripts = this->jeweler_info->get_paternal_transcripts(this->gene_id);
+
+	this->mismatcher = new TranscriptMismatcher();
+    for (i = 0; i < paternal_transcripts.size(); i++) {
+        mismatcher->add_transcript(paternal_transcripts[i], TRANSCRIPT_PATERNAL);
+        mismatcher->add_transcript(maternal_transcripts[i], TRANSCRIPT_MATERNAL);
+    }
+    mismatcher->initialize();
 
 	this->chr = paternal_transcripts[0]->chr();
 	this->ref_id = jeweler_info->get_refID(chr);
@@ -47,6 +52,7 @@ Earrings::Earrings(JewelerInfo *jeweler_info,
 			right_pos = max(right_pos, p->end());
 		}
 	}
+
 	// load bamalignment by bamtools.
 	load_read_data();
 
@@ -62,10 +68,6 @@ Earrings::Earrings(JewelerInfo *jeweler_info,
 Earrings::~Earrings() {
 	size_t i=0;
 	test_memory_leak();
-	for (i = 0; i < maternal_transcripts.size(); i++) {
-		delete maternal_transcripts[i];
-		delete paternal_transcripts[i];
-	}
 	for (i = 0; i < bam_reads.size(); i++) {
 		delete bam_reads[i];
 	}
@@ -79,57 +81,11 @@ Earrings::~Earrings() {
 }
 
 
-// this function must be called after the align_reads
-// otherwise the statistics may be incorrect.
-void Earrings::count_multiple_alignments(bool is_after_aligned) {
-
-    single_reads.clear();
-    multiple_reads.clear();
-
-    for (size_t i = 0; i < bam_reads.size(); i ++) {
-        if (sm->is_multiple_alignment(bam_reads[i]->Name)){
-            multiple_reads.insert(bam_reads[i]);
-        }
-        else {
-            single_reads.insert(bam_reads[i]);
-        }
-    }
-
-    FILE *foutput_mamf = fopen(string(result_folder+"/"+gene_id+".mamf.meta").c_str(),"w+");
-    fprintf(foutput_mamf, "%zu\t%zu\n", single_reads.size(), bam_reads.size());
-    fprintf(stdout, "%zu\t%zu\n", single_reads.size(), bam_reads.size());
-    fclose(foutput_mamf);
-    if (is_after_aligned) {
-        foutput_mamf=fopen(string(result_folder+"/"+gene_id+".mamf.multiple.reads").c_str(),"w+");
-    }
-    else {
-        foutput_mamf=fopen(string(result_folder+"/"+gene_id+".mamf.before.multiple.reads").c_str(),"w+");
-    }
-    for (auto i = multiple_reads.begin(); i != multiple_reads.end(); i++) {
-        fprintf(foutput_mamf, "%s\t%s\n", (*i)->Name.c_str(), (*i)->QueryBases.c_str());
-    }
-    fclose(foutput_mamf);
-    if (is_after_aligned) {
-        foutput_mamf=fopen(string(result_folder+"/"+gene_id+".mamf.single.reads").c_str(),"w+");
-    }
-    else {
-        foutput_mamf=fopen(string(result_folder+"/"+gene_id+".mamf.before.single.reads").c_str(),"w+");
-    }
-    for (auto i = single_reads.begin(); i != single_reads.end(); i++) {
-        fprintf(foutput_mamf, "%s\t%s\n", (*i)->Name.c_str(), (*i)->QueryBases.c_str());
-    }
-    fclose(foutput_mamf);
-    FILE *finfo;
-    finfo=fopen(string(result_folder +"/" + gene_id +".compatible.reads").c_str(), "w+");
-    dump_compatible_reads(finfo);
-    fclose(finfo);
-}
 
 void Earrings::test_memory_leak() {
     if (num_total_reads !=
         bam_reads.size() + unaligned_reads.size() + noused_reads.size())
         fprintf (stderr, "WARNING: Memory Leaking: total reads %zu\t record reads%zu\n", num_total_reads,  bam_reads.size() + unaligned_reads.size() + noused_reads.size());
-
 }
 
 int Earrings::load_read_data() {
@@ -158,98 +114,6 @@ int Earrings::load_read_data() {
 
     return 0;
 }
-
-int Earrings::load_transcript_data(bool is_prepare) {
-    size_t i, j;
-
-    transcript_helper(maternal_transcripts ,
-                       jeweler_info->maternal_fasta, "maternal.",
-                       result_folder + "/maternal.unmapped.bam",
-                       is_prepare);
-
-    transcript_helper(paternal_transcripts ,
-                      jeweler_info->paternal_fasta, "paternal.",
-                      result_folder + "/paternal.unmapped.bam",
-                      is_prepare);
-    if (is_prepare) {
-        // fprintf(stdout, "%s\n", (string("python pipeline/mergeBam.py ")
-        //                       + result_folder + "/maternal.unmapped.bam " +
-        //                       result_folder + "/paternal.unmapped.bam "+
-        //                       result_folder+" unmapped.bam").c_str());
-
-        // system((string("python pipeline/mergeBam.py ")
-        //      + result_folder + "/maternal.unmapped.bam " +
-        //      result_folder + "/paternal.unmapped.bam " +
-        //      result_folder+" unmapped.bam").c_str());
-        system(string("cp " + result_folder + "/paternal.unmapped.bam " +
-                      result_folder+"/unmapped.bam").c_str());
-
-    }
-    if (paternal_transcripts.size() != maternal_transcripts.size()
-        || paternal_transcripts.size() == 0) {
-        fprintf(stderr,
-                "ERROR: number of transcripts does not match or no reads at all for gene %s  at %s:%d\n",
-                gene_id.c_str(), __FILE__, __LINE__);
-        exit(0);
-    }
-
-    for (i = 0; i < paternal_transcripts.size(); i++) {
-        Transcript *p = paternal_transcripts[i];
-        Transcript *m = maternal_transcripts[i];
-
-        assert(p->seq().size() != m->seq().size());
-
-        // find SNP position by given both paternal and maternal
-        // transcripts sequences
-        vector<unsigned int> snp_pos;
-        vector<char> alleles;
-        for (j = 0; j < p->seq().size(); j++) {
-            if (p->seq()[j] != m->seq()[j]) {
-                snp_pos.push_back(j);
-                alleles.push_back(p->seq()[j]);
-            }
-        }
-
-        p->load_snps(snp_pos, alleles, EXON_PATERNAL);
-        m->load_snps(snp_pos, alleles, EXON_MATERNAL);
-
-        // mismatcher initialization
-        mismatcher->add_transcript(p, TRANSCRIPT_PATERNAL);
-        mismatcher->add_transcript(m, TRANSCRIPT_MATERNAL);
-    }
-    mismatcher->initialize();
-    return 0;
-}
-
-
-int Earrings::transcript_helper(vector<Transcript *> &transcripts,
-                                FastaReference *fasta_ref,
-                                string prefix,
-                                string output_bam,
-                                bool is_prepare) {
-    //assuming gtf file has the same order of transcripts with the seq files
-    size_t j;
-
-    transcripts = duplicate_vector(jeweler_info->gene_id2transcripts[gene_id]);
-    // TODO: put these code into gtf.cpp files.
-    // All transcript class operations should be done in transcripts.
-    TranscriptomeAligner ta;
-    vector<string> reference_sequences;
-    vector<string> reference_ids;
-    string merged_fasta_file= (result_folder+"/"+prefix + transcripts[0]->gene_id()+".fasta");
-    for (j = 0; j < transcripts.size(); j++) {
-        transcripts[j]->load_seq(fasta_ref);
-        string filename = string(prefix+transcripts[j]->transcript_id());
-        reference_sequences.push_back(result_folder + "/"+ filename);
-        reference_ids.push_back(transcripts[j]->transcript_id());
-    }
-    if (is_prepare)
-        ta.align(jeweler_info->left_unmapped_file, jeweler_info->right_unmapped_file,
-                 reference_sequences, reference_ids, merged_fasta_file,output_bam);
-
-    return 0;
-}
-
 
 int Earrings::study_compatible_reads() {
     Transcript::tolerate = 0;
@@ -454,9 +318,6 @@ void Earrings::align_reads() {
 			bam_reads.size()
 			);
 
-	if (sm!=NULL) {
-		//count_multiple_alignments(/* is after alignment*/ true);
-	}
 	// finfo=fopen(string(result_folder+"/"+gene_id+".landscape.plot.meta").c_str(),"w+");
 
 	// for (i=0;i<maternal_transcripts.size();i++) {

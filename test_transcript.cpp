@@ -20,7 +20,8 @@ protected:
         
         this->fasta_ref = new FastaReference();
         this->fasta_ref->open(fasta_name);
-        load_gtf_file(gtf_filename, this->transcripts);
+        load_gtf_file(gtf_filename, this->transcripts, this->paternal_transcripts,
+                      this->fasta_ref, this->fasta_ref);
         this->transcripts[0]->load_seq(this->fasta_ref);
     }
     

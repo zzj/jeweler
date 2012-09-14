@@ -1,8 +1,17 @@
 #ifndef _GTF_H_
 #define _GTF_H_
-#include "transcript.hpp"
-#include "gtf_info.hpp"
+#include <vector>
+#include <string>
+#include <Fasta.h>
 
-void load_gtf_file(const string &gtf_filename, vector<Transcript *> &transcripts);
+using namespace std;
+
+class Transcript;
+void load_gtf_file(const string &gtf_filename,
+                   vector<Transcript *> &maternal_transcripts,
+                   vector<Transcript *> &paternal_transcripts,
+                   FastaReference * maternal_ref,
+                   FastaReference * paternal_ref);
+
 
 #endif /* _GTF_H_ */

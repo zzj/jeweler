@@ -8,9 +8,6 @@
 #include <map>
 #include <set>
 #include <vector> 
-#include "fasta.hpp"
-#include "common.hpp"
-
 #include <api/BamReader.h>
 #include <api/BamWriter.h>
 

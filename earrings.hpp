@@ -27,7 +27,7 @@ class ZMegaFile;
 class Earrings{
 public :
 	Earrings(JewelerInfo *, string gene_id,
-             SewingMachine * sm, ZMegaFile * file, bool is_prepare);
+             SewingMachine * sm, ZMegaFile * file);
 
     ~Earrings();
 
@@ -54,16 +54,6 @@ public :
 
     // find the reads that are mulitple aligned to other places
     void count_multiple_alignments(bool is_after_aligned);
-    // create paternal and maternal transcripts databases
-    // annotate SNPs for paternal  and maternal transcripts' sequence
-    int load_transcript_data(bool is_prepares); // load transcript data
-
-    // load cufflinks' gtf file
-    int transcript_helper(vector<Transcript *> &new_transcripts,
-                          FastaReference *f,
-                          string prefix,
-                          string unmapped_bam,
-                          bool is_prepare);
 
     // load JewelerAlignment into bam_reads
     int load_read_data();

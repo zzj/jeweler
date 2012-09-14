@@ -27,7 +27,6 @@ class Transcript{
 private:
     bool is_initialized;
 
-
 public:
     _PROXY_(Transcript)
 
@@ -67,7 +66,7 @@ public:
     vector<set<JewelerAlignment *> > allele_reads_per_exon;
     vector<set<JewelerAlignment *> > reads_per_exon;
 
-    void load_gtf(vector<gtf_info> &);
+    void load_gtf(const vector<gtf_info> &);
 
     void load_seq(FastaReference *fr);
 
@@ -141,6 +140,8 @@ public:
 
     vector<int> num_total_reads; // number of total reads per locus
     int build_landscape_plot();
+
+    void set_origin(int);
 };
 
 int get_seq_info(Transcript *, JewelerAlignment * al,

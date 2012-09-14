@@ -26,6 +26,13 @@ using boost::filesystem::create_directory;
 class Transcript;
 
 class JewelerInfo{
+private:
+	vector<Transcript *> paternal_transcripts;
+	vector<Transcript *> maternal_transcripts;
+
+	map<string, vector<Transcript *> > gene_id2maternal_transcripts;
+	map<string, vector<Transcript *> > gene_id2paternal_transcripts;
+
 public:
 	string maternal_strain_ref_file;
 	string paternal_strain_ref_file;
@@ -42,9 +49,6 @@ public:
 	RefVector references;
 	FastaReference *maternal_fasta, *paternal_fasta;
 
-	vector<Transcript *> transcripts;
-
-	map<string, vector<Transcript *> > gene_id2transcripts;
 	vector<string> gene_id;
 	JewelerInfo();
 	JewelerInfo(int argc, char * argv[]);
@@ -52,5 +56,8 @@ public:
 	int check_args(const int i, char *  argv[], const char *name, string &a);
 	int build_gene_id2transcripts();
 	int get_refID(string chr);
+    vector<Transcript *> get_paternal_transcripts(const string &gene_id);
+    vector<Transcript *> get_maternal_transcripts(const string &gene_id);
+    int get_num_genes();
 };
 #endif /*  _JEWELER_INFO_H_ */

@@ -16,14 +16,14 @@ Bracelet::Bracelet(JewelerInfo * jeweler_info) :
 	this->jeweler_info = jeweler_info;
 	fprintf(stdout, "bracelet initializing ...\n");
 
-	reads.resize(jeweler_info->gene_id2transcripts.size());
-	reads_index.resize(jeweler_info->gene_id2transcripts.size());
-	results.resize(jeweler_info->gene_id2transcripts.size());
-	related_transcripts.resize(jeweler_info->gene_id2transcripts.size());
-    for (auto i = jeweler_info->gene_id2transcripts.begin();
-         i != jeweler_info->gene_id2transcripts.end();
+	reads.resize(jeweler_info->get_num_genes());
+	reads_index.resize(jeweler_info->get_num_genes());
+	results.resize(jeweler_info->get_num_genes());
+	related_transcripts.resize(jeweler_info->get_num_genes());
+    for (auto i = jeweler_info->gene_id.begin();
+         i != jeweler_info->gene_id.end();
          i++) {
-        string gene_id = i->first;
+        string gene_id = (*i);
         shared_ptr<Jeweler::EarringsData> ed = 
             this->zmf->get<Jeweler::EarringsData>(gene_id);
         if (ed.get() == NULL) continue;

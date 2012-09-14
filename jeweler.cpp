@@ -10,6 +10,9 @@
 #include "laboratory/sewing_machine.hpp"
 #include "jeweler_info.hpp"
 #include "zleveldb.hpp"
+#include "fasta.hpp"
+#include "common.hpp"
+
 
 using namespace std;
 
@@ -110,10 +113,9 @@ int jeweler::run() {
 		int id = -1;
         ZMegaFile zmf(jeweler_info->result_folder);
         zmf.clear();
-		for (auto i = jeweler_info->gene_id2transcripts.begin();
-			 i != jeweler_info->gene_id2transcripts.end();
+		for (auto i = jeweler_info->gene_id.begin();
+			 i != jeweler_info->gene_id.end();
 			 i++) {
-			if (i->second[0]->chr() == "chrM") continue;
 			id ++;
 			if (test_case > 0  && id != test_case)  continue;
             if (num_test_case > 0) {
@@ -123,12 +125,10 @@ int jeweler::run() {
                 }
             }
 			if (id%10 == 0) fprintf(log_file,"%d\n",id);
-			printf("%s\n", i->first.c_str());
 			Earrings earrings(jeweler_info, 
-							  i->first,
+							  (*i),
 							  sm,
-                              &zmf,
-							  is_prepare);
+                              &zmf);
 		}
 	}
 	if (!is_prepare) {

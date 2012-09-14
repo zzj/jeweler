@@ -19,7 +19,12 @@ Transcript::Transcript() {
 	is_initialized=false;
 }
 
-void Transcript::load_gtf(vector<gtf_info> &gtf_list) {
+void Transcript::set_origin(int o) {
+    this->origin = o;
+}
+
+void Transcript::load_gtf(const vector<gtf_info> &gtf_list) {
+    assert(gtf_list.size() != 0);
     this->start = gtf_list[0].start;
     this->end = gtf_list[0].end;
     this->chr = gtf_list[0].chr;
@@ -33,13 +38,8 @@ void Transcript::load_gtf(vector<gtf_info> &gtf_list) {
         }
     }
 	// check error
-    if (this->exon_start[0] != this->start())
-	{
-		fprintf(stderr, "%s:%d:%d\n", this->transcript_id().c_str(),
-				this->exon_start[0],this->start);
-		fprintf(stderr, "The start position of the first exon does not equal to the start position of the transcript \n");
-		exit(0);
-	}
+    assert(this->exon_start[0] == this->start());
+
     this->num_info_reads_per_exon.resize(this->exon_start.size(),0);
     this->num_alleles_per_exon.resize(this->exon_start.size(),0);
     this->allele_reads_per_exon.resize(this->exon_start.size());

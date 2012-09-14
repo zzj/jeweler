@@ -10,16 +10,30 @@ int JewelerInfo::check_args(const int i, char *argv[], const char * name, string
 	return i;
 }
 
+vector<Transcript *> JewelerInfo::get_paternal_transcripts(const string &gene_id) {
+    return this->gene_id2paternal_transcripts[gene_id];
+}
+
+vector<Transcript *> JewelerInfo::get_maternal_transcripts(const string &gene_id) {
+    return this->gene_id2maternal_transcripts[gene_id];
+}
+
+int JewelerInfo::get_num_genes() {
+    return this->gene_id2maternal_transcripts.size();
+}
+
 
 int JewelerInfo::build_gene_id2transcripts() {
 	fprintf(stdout, "Bulding gene_id to transcripts index ...\n");
-	gene_id2transcripts.clear();
-	for (size_t i = 0; i < transcripts.size(); i++) {
-		gene_id2transcripts[transcripts[i]->gene_id()].push_back(transcripts[i]);
+	gene_id2maternal_transcripts.clear();
+	gene_id2paternal_transcripts.clear();
+	for (size_t i = 0; i < maternal_transcripts.size(); i++) {
+		gene_id2maternal_transcripts[maternal_transcripts[i]->gene_id()].push_back(maternal_transcripts[i]);
+		gene_id2paternal_transcripts[paternal_transcripts[i]->gene_id()].push_back(paternal_transcripts[i]);
 	}
 	gene_id.clear();
-	for (auto j = gene_id2transcripts.begin();
-		 j != gene_id2transcripts.end();
+	for (auto j = gene_id2maternal_transcripts.begin();
+		 j != gene_id2maternal_transcripts.end();
 		 j ++) {
 		gene_id.push_back(j->first);
 	}
@@ -52,15 +66,17 @@ JewelerInfo::JewelerInfo(int argc, char *argv []) {
 	}
 	result_folder += string("/") + alias + "/";
 	create_directory(path(result_folder));
-	load_gtf_file(gtf_input_file, transcripts);
-	this->build_gene_id2transcripts();
 	
-	fprintf(stdout, "There are totally %zu transcripts loaded from %s\n", 
-			transcripts.size(), gtf_input_file.c_str());
 	maternal_fasta = new FastaReference();
 	paternal_fasta = new FastaReference();
 	maternal_fasta->open(maternal_strain_ref_file);
 	paternal_fasta->open(paternal_strain_ref_file);
+
+	load_gtf_file(gtf_input_file, maternal_transcripts, paternal_transcripts,
+                  maternal_fasta, paternal_fasta);
+	this->build_gene_id2transcripts();
+	fprintf(stdout, "There are totally %zu transcripts loaded from %s\n", 
+			maternal_transcripts.size(), gtf_input_file.c_str());
     open_bam(this->bam_reader, this->bam_file);
 	references = bam_reader.GetReferenceData();
 }
