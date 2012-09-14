@@ -165,7 +165,6 @@ int get_exon_info(Transcript *,  JewelerAlignment * al,
 int insert_mismatch_info(Transcript *,  JewelerAlignment * al,
                          int start, int length, vector<int> &mismatches);
 
-
 template<typename T, typename get_info>
 T Transcript::get_transcript_aligned_info(JewelerAlignment * al, get_info gi) {
     // must perform the compatible test first!

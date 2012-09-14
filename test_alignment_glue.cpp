@@ -1,7 +1,9 @@
 #include "alignment_glue.hpp"
 #include "gtest/gtest.h"
 #include "jeweler_alignment.hpp"
+#include "test_jeweler_alignment.hpp"
 #include "laboratory/cigar_holder.hpp"
+
 class AlignmentGlueTest : public ::testing::Test {
 protected:
 	virtual void SetUp() {
@@ -11,14 +13,6 @@ protected:
     AlignmentGlue ag;
     int skipped_alignment_length;
     vector<CigarOp> cigar_data;
-
-    void create_alignment(const int position, const string &cigar_string,
-                          const char rep, int query_length, JewelerAlignment &al) {
-        al.Position = position;
-        al.QueryBases = string(query_length, rep);
-        al.Qualities = string(query_length, rep);
-        get_cigarop(cigar_string, al.CigarData);
-    }
 
     void test_get_skipped_region(const int pos, const string &cigar_string,
                                  const char rep, const int query_length,
