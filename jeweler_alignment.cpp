@@ -101,11 +101,11 @@ void JewelerAlignment::jeweler_initialize(const SewingMachine *sm) {
 }
 
 
-int JewelerAlignment::GetStartPosition() {
+int JewelerAlignment::get_start_position() {
     return this->Position + 1;
 }
 
-int JewelerAlignment::GetEndPosition() {
+int JewelerAlignment::get_end_position() {
     return this->GetEndPosition() + 1;
 }
 
@@ -116,9 +116,9 @@ void JewelerAlignment::glue(JewelerAlignment *that) {
 	// output_bamalignment(second);
 	size_t i, j;
 	// int first_start	 = this->Position + 1;
-	size_t first_end	 = this->GetEndPosition();
-	size_t second_start = that->GetStartPosition();
-	size_t second_end	 = that->GetEndPosition() ;
+	size_t first_end	 = this->get_end_position();
+	size_t second_start = that->get_start_position();
+	size_t second_end	 = that->get_end_position() ;
 	int overlapped	 = second_start - first_end;
 	// DEBUG:
 	// Check weather the first alignment is always before the second
@@ -149,7 +149,7 @@ void JewelerAlignment::glue(JewelerAlignment *that) {
                                  new_cigar_data, skipped_read_length);
         this->Length += that->Length - skipped_read_length;
         this->QueryBases += that->QueryBases.substr(skipped_read_length);
-        this->Qualities +=that->Qualities.substr(skipped_read_length);
+        this->Qualities += that->Qualities.substr(skipped_read_length);
         this->CigarData.insert(this->CigarData.end(),
                                 new_cigar_data.begin(), new_cigar_data.end());
         // merge consective ops
@@ -189,7 +189,7 @@ void JewelerAlignment::investigate(AlignmentExpert *ae) {
     // the coordinates right.
     ae->initialize(this);
 
-    int genome_start=this->GetStartPosition();
+    int genome_start=this->get_start_position();
     int alignment_start=0;
 
     const std::vector< CigarOp > &cigar_data = this->CigarData;

@@ -59,8 +59,8 @@ public:
     void set_is_multiple_alignment(const SewingMachine *sm);
     void jeweler_initialize(const SewingMachine *sm);
     void investigate(AlignmentExpert *ae);
-    int GetStartPosition();
-    int GetEndPosition();
+    int get_start_position();
+    int get_end_position();
     void glue(JewelerAlignment *that);
     int get_skipped_region(int skipped_alignment_length,
                            vector<CigarOp> &cigar_data,
@@ -72,7 +72,5 @@ private:
 };
 
 int get_read_position(JewelerAlignment *al, const int i);
-
-
 
 #endif
