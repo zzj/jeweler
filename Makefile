@@ -1,8 +1,8 @@
 CC=g++
-LIB=-Llib/bamtools/lib/ -L$(HOME)/bin/lib -Llib/leveldb-1.5.0/
-LDFLAGS= -lz lib/bamtools/lib/libbamtools.a -lboost_filesystem -lprotobuf lib/leveldb-1.5.0/libleveldb.a
+LIB=-Llib/bamtools/lib/ -L$(HOME)/bin/lib -Llib/leveldb-1.5.0/ -Ilib/glog-0.3.2/.lib/
+LDFLAGS= -lz lib/bamtools/lib/libbamtools.a -lboost_filesystem -lprotobuf lib/leveldb-1.5.0/libleveldb.a lib/glog-0.3.2/.libs/libglog.a
 CFLAGS= -g -O3 -std=gnu++0x -Wall -Wextra
-INC=-Ilib/bamtools/include/ -Ilib/fastahack/ -I$(HOME)/bin/include -Ilib/leveldb-1.5.0/include
+INC=-Ilib/bamtools/include/ -Ilib/fastahack/ -I$(HOME)/bin/include -Ilib/leveldb-1.5.0/include -Ilib/glog-0.3.2/src/
 
 # UNIT TEST MAKEFILE
 
