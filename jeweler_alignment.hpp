@@ -31,7 +31,6 @@ public:
 
 class AlignmentExpertStarter : public AlignmentExpert {
 public:
-
     virtual void initialize(JewelerAlignment *al);
 
 
@@ -49,8 +48,9 @@ public:
 class JewelerAlignment : public BamAlignment {
 public:
     _PROXY_(JewelerAlignment)
+    friend class AlignmentExpertStarter;
+
 	// if two reads are merged, record the read position
-	vector<int> genome_position;
     
     read_only<bool> is_multiple_alignment;
 
@@ -67,8 +67,16 @@ public:
                            int &skipped_length);
 
 private:
+	vector<int> genome_position;
     int is_first_ahead;
     int skip_length;
+    int glue_position;
+    int tail_length;
+    int head_length;
+    // if second is not truncated, it means first one is truncated,
+    // and is appended to the second one.
+    bool is_second_truncated;
+
 };
 
 int get_read_position(JewelerAlignment *al, const int i);

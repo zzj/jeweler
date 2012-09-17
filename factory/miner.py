@@ -60,7 +60,7 @@ def main():
                 config("day", "8", "1")
                 cuffcompare_worker(args)
             elif (args.is_jeweler):
-                config("day", "8", "1")
+                config("day", "24", "1")
                 jeweler_worker(args, refidtable, reffiletable)
             elif (args.is_transcriptome_alignment):
                 transcriptome_alignment_worker(args, refidtable, reffiletable)

@@ -47,6 +47,14 @@ public:                                                         \
     const T& operator () () const { return data; }              \
 };                                                              \
 
+#define _PROXY_CLS_(CLS) \
+template <class T>                                              \
+class read_only_cls: private T {                                             \
+    friend class CLS;                                           \
+public:                                                         \
+    const T& operator () () const { return *this; }              \
+};                                                              \
+
 template<class T>
 void dump_protobuf_data(string file_name, T *data) {
     fstream out(file_name,

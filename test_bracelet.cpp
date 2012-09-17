@@ -15,6 +15,7 @@ protected:
         origin.add_genome_position(1);
         origin.add_genome_position(NOT_FOUND);
         origin.add_genome_position(NOT_FOUND);
+
         target.add_genome_position(NOT_FOUND);
         target.add_genome_position(1);
         target.add_genome_position(2);

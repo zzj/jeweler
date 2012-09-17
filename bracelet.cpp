@@ -96,6 +96,45 @@ double get_coverage_rate(const Jeweler::EarringsData::Read &origin,
     return double(cov) / total;
 }
 
+
+// This is arbitrarily implemented.
+
+//                ~~~~~~  Ambiguous region.
+// Origin1: ------------
+// Origin2:       ************
+// HEAD:          ^
+// TAIL:                ^
+//          ~~~~~~                  ~~~~~
+// Target1: ************
+// Target2:                  ____________
+
+int get_origin_read_position(const Jeweler::EarringsData::Read &origin,
+                             const Jeweler::EarringsData::Read &target,
+                             int i) {
+    int origin_overlap_head, origin_overlap_tail, target_overlap_head, target_overlap_tail;
+    origin_overlap_tail = origin.glue_position();
+    origin_overlap_head = origin.genome_position_size() - origin.tail_length();
+    target_overlap_tail = target.glue_position();
+    target_overlap_head = target.genome_position_size() - target.tail_length();
+    if (origin.is_second_truncated() == target.is_second_truncated()) {
+        if (i < target.head_length()) {
+            return i;
+        }
+        else {
+            return (i - target_overlap_head) + origin_overlap_head;
+        }
+    }
+    else {
+        if (i < target.head_length()) {
+            return i + origin_overlap_head;
+        }
+        else {
+            return i - target.head_length();
+        }
+     }
+}
+                          
+
 void add_coverage_details(const Jeweler::EarringsData::Read &origin,
                           const Jeweler::EarringsData::Read &target,
                           map<int, map<int, int> > &genome_position_map) {
@@ -110,7 +149,8 @@ void add_coverage_details(const Jeweler::EarringsData::Read &origin,
     for (int i = 0; i < target.genome_position_size(); i ++){
         if (target.genome_position(i) == NOT_FOUND)
             continue;
-        if (original_read2genome.find(i) != 
+        int origin_i = get_origin_read_position(origin, target, i);
+        if (original_read2genome.find(origin_i) != 
             original_read2genome.end()) {
             map_add_default(genome_position_map,
                             i,

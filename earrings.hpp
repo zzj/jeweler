@@ -58,10 +58,6 @@ public :
     // load JewelerAlignment into bam_reads
     int load_read_data();
 
-    // dump compatible reads to a file
-    // each line start with read id,
-    // and followed by the genome locations it covered.
-    void dump_compatible_reads(FILE *fd);
 
     // align reads to maternal or paternal transcripts
     void align_reads();

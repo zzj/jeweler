@@ -13,10 +13,50 @@
 #include "fasta.hpp"
 #include "common.hpp"
 
+class AlignmentExpertForTranscript : public AlignmentExpert {
+private:
+    _PROXY_CLS_(AlignmentExpertForTranscript)
+    Transcript *ti;
+
+public:
+
+    read_only_cls<string> transcript_seq;
+    read_only_cls<vector<int> >transcript_aligned_locations;
+    read_only_cls<vector<int> >read_aligned_locations;
+    read_only_cls<vector<int> >transcript_exon;
+    read_only_cls<string> query_seq;
+    AlignmentExpertForTranscript(Transcript * ti) {
+        this->ti = ti;
+    }
+    virtual void initialize(JewelerAlignment *al) {
+        transcript_seq.clear();
+        transcript_aligned_locations.clear();
+        read_aligned_locations.clear();
+        query_seq.clear();
+        transcript_exon.clear();
+    }
+
+    virtual void study_matched_seq(JewelerAlignment *al,
+                                   int genome_start,
+                                   int alignment_start,
+                                   int length) {
+        int transcript_start=ti->get_transcript_location(genome_start);
+        assert(transcript_start != NOT_FOUND);
+        transcript_seq += ti->seq().substr(transcript_start, length);
+        query_seq += al->QueryBases.substr(alignment_start, length);
+        transcript_exon.push_back(ti->get_transcript_exon(genome_start));
+        for (int i = 0; i < length; i ++) {
+            transcript_aligned_locations.push_back(transcript_start + i);
+            read_aligned_locations.push_back(alignment_start + i);
+        }
+        return;
+    }
+};
+
 int Transcript::tolerate=0;
 
 Transcript::Transcript() {
-	is_initialized=false;
+    is_initialized=false;
 }
 
 void Transcript::set_origin(int o) {
@@ -37,7 +77,7 @@ void Transcript::load_gtf(const vector<gtf_info> &gtf_list) {
             this->genome_pos.push_back(j);
         }
     }
-	// check error
+    // check error
     assert(this->exon_start[0] == this->start());
 
     this->num_info_reads_per_exon.resize(this->exon_start.size(),0);
@@ -47,17 +87,17 @@ void Transcript::load_gtf(const vector<gtf_info> &gtf_list) {
 }
 
 void Transcript::load_seq(FastaReference * fr) {
-	seq = "";
-	for (size_t i=0; i < exon_start.size(); i++) {
-		seq += fr->getSubSequence(chr, exon_start[i] - 1, exon_end[i]-exon_start[i]+1);
-	}
+    seq = "";
+    for (size_t i=0; i < exon_start.size(); i++) {
+        seq += fr->getSubSequence(chr, exon_start[i] - 1, exon_end[i]-exon_start[i]+1);
+    }
 }
 
 int Transcript::get_exon_by_genome_pos(unsigned int pos) {
     int exon_id = -1;
     size_t k;
     for (k = 0; k < this->exon_start.size(); k++) {
-        if (this->exon_start[k] <= pos && 
+        if (this->exon_start[k] <= pos &&
             this->exon_end[k] >= pos) {
             exon_id=k;
             break;
@@ -84,11 +124,6 @@ void Transcript::load_snps(vector<unsigned int> &snp_pos, vector<char> &alleles,
             throw string("can not find exon!");
         }
     }
-}
-
-int Transcript::insert_reads(JewelerAlignment *al) {
-    reads.insert(al);
-    return 0;
 }
 
 bool Transcript::is_aligned(JewelerAlignment *al) {
@@ -379,75 +414,18 @@ void Transcript::output_segments() {
 }
 
 
-string Transcript::get_query_aligned_seq(JewelerAlignment * al) {
-    // must perform the compatible test first!
-    // justify whether the sequences contains the JewelerAlignment
-
-    // not sure this is the case, but the coordinates are messed up
-    // sometimes. TODO: read the samtools's specification, and make
-    // the coordinates right.
-    int start_pos=0;
-    string aligned_string;
-    string query_seq=al->QueryBases;
-    std::vector< CigarOp > &cigar_data = al->CigarData;
-    vector<CigarOp>::const_iterator cigar_iter = cigar_data.begin();
-    vector<CigarOp>::const_iterator cigar_end  = cigar_data.end();
-
-    for (; cigar_iter != cigar_end; ++cigar_iter) {
-        const CigarOp& op = (*cigar_iter);
-
-        switch (op.Type) {
-
-            // for 'M', '=', 'X' - write bases
-        case (Constants::BAM_CIGAR_MATCH_CHAR)    :
-        case (Constants::BAM_CIGAR_SEQMATCH_CHAR) :
-        case (Constants::BAM_CIGAR_MISMATCH_CHAR) :
-            // the beginning and end of the matched sequence must
-            // be belong to the same sequences.
-            aligned_string+=query_seq.substr(start_pos,op.Length);
-            start_pos+=op.Length;
-            break;
-
-        case (Constants::BAM_CIGAR_INS_CHAR)      :
-        case (Constants::BAM_CIGAR_SOFTCLIP_CHAR) :
-            // insertion, soft clipnot aligned
-            start_pos+=op.Length;
-            break;
-
-
-        // for 'D' - write gap character
-        // for 'N' - write N's, skip bases in original query sequence
-        // for 'P' - write padding character
-        case (Constants::BAM_CIGAR_DEL_CHAR) :
-        case (Constants::BAM_CIGAR_PAD_CHAR) :
-        case (Constants::BAM_CIGAR_REFSKIP_CHAR) :
-        case ('J'):
-            break;
-
-            // for 'H' - hard clip, do nothing to AlignedBases, move to next op
-        case (Constants::BAM_CIGAR_HARDCLIP_CHAR) :
-            break;
-
-            // invalid CIGAR op-code
-        default:
-            const string message = string("invalid CIGAR operation type: ") + op.Type;
-            return false;
-        }
-    }
-    return aligned_string;
-
-}
-
 int Transcript::match_alleles(JewelerAlignment *al, int &total_alleles,
                               ReadMatcher * rm
                              ) {
     size_t i;
-    string transcript_seq = get_transcript_aligned_info<string>(al, get_seq_info);
-    rm->transcript_aligned_locations =
-        get_transcript_aligned_info<vector<int> >(al, get_transcript_location_info);
-    rm->read_aligned_locations =
-        get_transcript_aligned_info<vector<int> >(al, get_read_location_info);
-    string query_seq=get_query_aligned_seq(al);
+
+    AlignmentExpertForTranscript aeft(this);
+    al->investigate(&aeft);
+
+    string transcript_seq = aeft.transcript_seq();
+    rm->transcript_aligned_locations = aeft.transcript_aligned_locations();
+    rm->read_aligned_locations = aeft.read_aligned_locations();
+    string query_seq=aeft.query_seq();
 
     total_alleles=0;
 
@@ -473,20 +451,29 @@ int Transcript::match_alleles(JewelerAlignment *al, int &total_alleles,
         if (is_allele(rm->transcript_aligned_locations[i])) {
             total_alleles++;
             if (transcript_seq[i]==query_seq[i]) {
-                rm->allele_transcript_locations.push_back(rm->transcript_aligned_locations[i]);
-                rm->allele_read_locations.push_back(rm->read_aligned_locations[i]);
+                rm->allele_transcript_locations
+                    .push_back(rm->transcript_aligned_locations[i]);
+                rm->allele_read_locations
+                    .push_back(rm->read_aligned_locations[i]);
                 continue;
             }
         }
         // is a mismatch
         if (transcript_seq[i] != query_seq[i]) {
-            rm->mismatch_transcript_locations.push_back(rm->transcript_aligned_locations[i]);
+            rm->mismatch_transcript_locations
+                .push_back(rm->transcript_aligned_locations[i]);
             rm->mismatch_read_locations.push_back(rm->read_aligned_locations[i]);
             rm->mismatchars.push_back(query_seq[i]);
-            rm->mismatch_qualities.push_back(al->Qualities[rm->read_aligned_locations[i]]);
+            rm->mismatch_qualities
+                .push_back(al->Qualities[rm->read_aligned_locations[i]]);
         }
+
     }
 
+    if (rm->mismatch_qualities.size() > 20)  {
+        fprintf(stderr, "too many mismatches in a single read, %zu\n",
+                rm->mismatch_qualities.size());
+    }
     return 0;
 }
 
@@ -526,131 +513,37 @@ int Transcript::get_transcript_exon(int genome_location) {
     return NOT_FOUND;
 }
 
-int Transcript::register_allele_read(JewelerAlignment *al) {
+int Transcript::register_allele_read(JewelerAlignment *al, const ReadMatcher &rm) {
     int total_alleles;
 
     int num_matched_alleles;
     int i;
-    ReadMatcher rm;
-    match_alleles(al,total_alleles,&rm);
-    num_matched_alleles=rm.num_matched_alleles;
-    if (num_matched_alleles>0) {
+    register_read(al);
+    num_matched_alleles = rm.allele_read_locations.size();
+    if (num_matched_alleles > 0) {
         allele_reads.insert(al);
-        for (i=0;i<num_matched_alleles;i++) {
+        for (i = 0; i < num_matched_alleles; i++) {
             int exon_id=get_allele_exon(rm.allele_transcript_locations[i]);
             num_info_reads_per_exon[exon_id]++;
             allele_reads_per_exon[exon_id].insert(al);
         }
     }
-    register_read(al);
     return 0;
 }
 
 int Transcript::register_read(JewelerAlignment *al) {
 
+    AlignmentExpertForTranscript aeft(this);
+    al->investigate(&aeft);
     vector<int> matched_exons;
     size_t i;
-    matched_exons=get_transcript_aligned_info<vector<int> > (al,get_exon_info);
+
+    matched_exons=aeft.transcript_exon();
     for (i = 0; i < matched_exons.size(); i++) {
         reads_per_exon[matched_exons[i]].insert(al);
     }
-    al->genome_position =
-        get_transcript_aligned_info<vector<int> >(al, get_genome_location_info);
-
     reads.insert(al);
 
-    return 0;
-}
-
-
-int get_seq_info(Transcript * ti, JewelerAlignment *al,
-                 int genome_start, int alignment_start, int length,
-                 string &ret) {
-    int transcript_start=ti->get_transcript_location(genome_start);
-    if (transcript_start==NOT_FOUND) {
-        fprintf(stderr,"cannot find transcript postition, did you run Transcript::is_compatible ?\n %d\n%zu\n", genome_start,ti->genome_pos.size());
-        ti->output_segments();
-        exit(0);
-    }
-    ret+=ti->seq().substr(transcript_start,length);
-    return 0;
-}
-int get_transcript_location_info(Transcript * ti, JewelerAlignment *al,
-                                 int genome_start, int alignment_start, int length,
-                                 vector<int>  &ret) {
-    int transcript_start = ti->get_transcript_location(genome_start);
-    int i;
-    if (transcript_start == NOT_FOUND) {
-        fprintf(stderr,"cannot find transcript postition, did you run Transcript::is_compatible ?\n %d\n%zu\n",
-                genome_start, ti->genome_pos.size());
-        ti->output_segments();
-        exit(0);
-    }
-    for (i = 0 ; i < length ; i++) {
-        ret.push_back(transcript_start+i);
-    }
-    return 0;
-}
-
-int get_genome_location_info(Transcript * ti, JewelerAlignment *al,
-                             int genome_start, int alignment_start, int length,
-                             vector<int>  &ret) {
-    int i;
-    for (i = 0 ; i < length ; i++) {
-        ret.push_back(genome_start + i);
-    }
-    return 0;
-}
-
-int get_read_location_info(Transcript * ti, JewelerAlignment *al,
-                           int genome_start, int alignment_start, int length,
-                           vector<int>  &ret) {
-    int transcript_start = ti->get_transcript_location(genome_start);
-    int i;
-    if (transcript_start == NOT_FOUND) {
-        fprintf(stderr,"cannot find transcript postition, did you run Transcript::is_compatible ?\n %d\n%d\n", genome_start,ti->genome_pos.size());
-        ti->output_segments();
-        exit(0);
-    }
-    for (i = 0 ; i < length ; i++) {
-        ret.push_back(alignment_start+i);
-    }
-    return 0;
-}
-
-int get_exon_info(Transcript * ti,  JewelerAlignment * al,
-                  int genome_start, int alignment_start, int length,
-                  vector<int> &ret) {
-
-    int transcript_start=ti->get_transcript_location(genome_start);
-    if (transcript_start==NOT_FOUND) {
-        fprintf(stderr,"cannot find transcript postition, did you run Transcript::is_compatible ?\n %d\n%zu\n", genome_start,ti->genome_pos.size());
-
-        ti->output_segments();
-        exit(0);
-    }
-    ret.push_back(ti->get_transcript_exon(genome_start));
-    return 0;
-}
-
-int insert_mismatch_info(Transcript *ti,  JewelerAlignment * al,
-                         int genome_start, int alignment_start, int length,
-                         vector<int> &mismatches) {
-    size_t i;
-    int transcript_start=ti->get_transcript_location(genome_start);
-    if (transcript_start==NOT_FOUND) {
-        fprintf(stderr,"cannot find transcript postition, did you run Transcript::is_compatible ?\n %d\n%zu\n", genome_start,ti->genome_pos.size());
-
-        ti->output_segments();
-        exit(1);
-    }
-    string genome_seq    = ti->seq().substr(transcript_start, length);
-    string alignment_seq = al->QueryBases.substr(alignment_start, length);
-    for (i = 0; i < genome_seq.size(); i++) {
-        if (genome_seq[i] != alignment_seq[i]) {
-            mismatches.push_back(genome_start + i);
-        }
-    }
     return 0;
 }
 
@@ -709,5 +602,5 @@ bool Transcript::is_equal(Transcript *t) {
 
 
 void Transcript::dump_seq(string &result_folder, string &filename) {
-	write_fasta_file(result_folder + "/" + filename, transcript_id, seq());
+    write_fasta_file(result_folder + "/" + filename, transcript_id, seq());
 }

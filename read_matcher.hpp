@@ -15,7 +15,6 @@ public:
 	vector<char> mismatch_qualities;
 	vector<int> transcript_aligned_locations;
 	vector<int> read_aligned_locations;
-	int num_matched_alleles;
 	void output(JewelerAlignment *al);
 };
 

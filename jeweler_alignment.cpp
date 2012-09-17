@@ -67,6 +67,10 @@ void JewelerAlignment::dump_data(Jeweler::EarringsData::Read *read) {
     }
     read->set_is_multiple_alignment(this->is_multiple_alignment);
     read->set_cigar_string(get_cigar_string(this->CigarData));
+    read->set_is_second_truncated(this->is_second_truncated);
+    read->set_glue_position(this->glue_position);
+    read->set_tail_length(this->tail_length);
+    read->set_head_length(this->head_length);
     return ;
 }
 
@@ -123,8 +127,10 @@ void JewelerAlignment::glue(JewelerAlignment *that) {
 	// DEBUG:
 	// Check weather the first alignment is always before the second
 	// alignment
-    this->is_first_ahead = this->IsFirstMate();
-    this->skip_length = this->Length;
+    this->is_second_truncated = this->IsFirstMate();
+    this->glue_position = this->Length;
+    this->tail_length = that->Length;
+    this->head_length = this->Length;
 
 	if (overlapped>=0) {
 		// Great news! no overlapped region between first and second

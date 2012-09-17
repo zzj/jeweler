@@ -55,7 +55,7 @@ TEST_F(TranscriptTest, test_load_snps) {
     vector<unsigned int> num_alleles_per_exon;
     num_alleles_per_exon += 2, 1, 1, 1;
     vector<char> alleles;
-    alleles += 'A', 'T', 'C', 'G';
+    alleles += 'A', 'T', 'C', 'G', 'G';
 
     transcripts[0]->load_snps(snp_pos, alleles, EXON_PATERNAL);
     EXPECT_EQ(snp_pos.size(), transcripts[0]->snp_pos.size());
