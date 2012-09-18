@@ -8,11 +8,9 @@
 using boost::filesystem::path;
 using boost::filesystem::create_directory;
 
-Bracelet::Bracelet(JewelerInfo * jeweler_info) :
+Bracelet::Bracelet(JewelerInfo * jeweler_info, int num_test_case) :
     zmf(new ZMegaFile(jeweler_info->result_folder)) {
 	int id = 0;
-    this->num_single_reads = 0;
-    this->num_fixed_reads = 0;
 
 	this->jeweler_info = jeweler_info;
 	fprintf(stdout, "bracelet initializing ...\n");
@@ -25,7 +23,7 @@ Bracelet::Bracelet(JewelerInfo * jeweler_info) :
          i != jeweler_info->gene_id.end();
          i++) {
         string gene_id = (*i);
-        shared_ptr<Jeweler::EarringsData> ed = 
+        shared_ptr<Jeweler::EarringsData> ed =
             this->zmf->get<Jeweler::EarringsData>(gene_id);
         if (ed.get() == NULL) continue;
         for (int j = 0; j < ed->read_size(); j++) {
@@ -36,6 +34,7 @@ Bracelet::Bracelet(JewelerInfo * jeweler_info) :
         }
         sort(reads[id].begin(),reads[id].end());
         id ++;
+        if (num_test_case > 0 && id > num_test_case) break;
     }
     this->data = new Jeweler::BraceletData();
 }
@@ -73,8 +72,9 @@ void add_coverage(const Jeweler::EarringsData::Read &origin,
                   map<int, int> &coverage) {
     for (int i = 0 ; i < origin.genome_position_size(); i ++) {
         int pos = origin.genome_position(i);
-        if (pos != NOT_FOUND)
+        if (pos != NOT_FOUND) {
             map_add_count(coverage, pos);
+        }
     }
     return ;
 }
@@ -98,6 +98,7 @@ double get_coverage_rate(const Jeweler::EarringsData::Read &origin,
 
 
 // This is arbitrarily implemented.
+// Under the assumption that all reads are paired and glued reads
 
 //                ~~~~~~  Ambiguous region.
 // Origin1: ------------
@@ -131,9 +132,9 @@ int get_origin_read_position(const Jeweler::EarringsData::Read &origin,
         else {
             return i - target.head_length();
         }
-     }
+    }
 }
-                          
+
 
 void add_coverage_details(const Jeweler::EarringsData::Read &origin,
                           const Jeweler::EarringsData::Read &target,
@@ -150,7 +151,7 @@ void add_coverage_details(const Jeweler::EarringsData::Read &origin,
         if (target.genome_position(i) == NOT_FOUND)
             continue;
         int origin_i = get_origin_read_position(origin, target, i);
-        if (original_read2genome.find(origin_i) != 
+        if (original_read2genome.find(origin_i) !=
             original_read2genome.end()) {
             map_add_default(genome_position_map,
                             i,
@@ -163,50 +164,53 @@ void add_coverage_details(const Jeweler::EarringsData::Read &origin,
 }
 
 
+void generate_coverage(shared_ptr<Jeweler::EarringsData> ed,
+                       map<int, int> &coverage) {
+    for (int i = 0; i < ed->read_size(); i++) {
+        add_coverage(ed->read(i), coverage);
+    }
+    return ;
+}
+
 void Bracelet::dump_shared_pileup(Jeweler::BraceletData::RelatedTranscript * rt,
                                   int original_id,
                                   int target_id) {
 
     map<int, map<int, int> > coverage_details;
-    map<int, int> coverage;
-    shared_ptr<Jeweler::EarringsData> ed = 
+    map<int, int> origin_coverage, origin_shared_coverage;
+    map<int, int> target_coverage, target_shared_coverage;
+    int num_shared_read = 0;
+    shared_ptr<Jeweler::EarringsData> ed =
         this->zmf->get<Jeweler::EarringsData>(jeweler_info->gene_id[original_id]);
 
     if (ed.get() == NULL)
         return ;
 
-    shared_ptr<Jeweler::EarringsData> target_ed = 
+    shared_ptr<Jeweler::EarringsData> target_ed =
         this->zmf->get<Jeweler::EarringsData>(jeweler_info->gene_id[target_id]);
 
     if (target_ed.get() == NULL)
         return ;
 
+    generate_coverage(ed, origin_coverage);
+    generate_coverage(target_ed, target_coverage);
+
     for (int i = 0; i < ed->read_size(); i++) {
         string name = ed->read(i).name();
-        if (reads_index[original_id].find(name)==reads_index[original_id].end() ||
-            reads_index[target_id].find(name)==reads_index[target_id].end()) {
+        auto iter = reads_index[target_id].find(name);
+        if (iter == reads_index[target_id].end()) {
             continue;
         }
-        add_coverage(ed->read(i), coverage);
+        num_shared_read ++;
+        add_coverage(ed->read(i), origin_shared_coverage);
+        add_coverage(target_ed->read(iter->second), target_shared_coverage);
         add_coverage_details(ed->read(i),
-                             target_ed->read(reads_index[target_id][name]),
+                             target_ed->read(iter->second),
                              coverage_details);
     }
 
-    for (int i = 0; i < ed->read_size(); i++) {
-        if (ed->read(i).is_multiple_alignment()) {
-            continue;
-        }
-        else {
-            double rate = get_coverage_rate(ed->read(i), coverage);
-            num_single_reads ++;
-            if (rate > 0.9) {
-                num_fixed_reads ++;
-            }
-        }
-    }
-
-    for (auto i = coverage.begin(); i != coverage.end(); i ++) {
+    for (auto i = origin_shared_coverage.begin();
+         i != origin_shared_coverage.end(); i ++) {
         Jeweler::BraceletData::RelatedTranscript::Coverage *c = rt->add_coverage();
         c->set_position(i->first);
         c->set_total_coverage(i->second);
@@ -217,6 +221,29 @@ void Bracelet::dump_shared_pileup(Jeweler::BraceletData::RelatedTranscript * rt,
             c->add_shared_coverage(j->second);
         }
     }
+
+    rt->set_name(this->jeweler_info->gene_id[target_id]);
+    rt->set_origin_coverage_shared_rate(
+                 safe_rate(origin_shared_coverage.size(),
+                           origin_coverage.size()));
+    rt->set_origin_region_shared_rate(
+                 safe_rate(map_value_sum(origin_shared_coverage, 0),
+                           map_value_sum(origin_coverage, 0)));
+    rt->set_target_coverage_shared_rate(
+                 safe_rate(target_shared_coverage.size(),
+                           target_coverage.size()));
+    rt->set_target_region_shared_rate(
+                 safe_rate(map_value_sum(target_shared_coverage, 0),
+                           map_value_sum(target_coverage, 0)));
+    rt->set_num_shared_read(num_shared_read);
+
+    // fprintf(stderr, "%d\t%lf\t%lf\t%lf\t%lf\n",
+    //         num_shared_read,
+    //         rt->origin_coverage_shared_rate(),
+    //         rt->origin_region_shared_rate(),
+    //         rt->target_coverage_shared_rate(),
+    //         rt->target_region_shared_rate());
+
 }
 
 
@@ -228,12 +255,9 @@ int Bracelet::dump(fstream *fd, string root) {
         t->set_name(jeweler_info->gene_id[i]);
         for (size_t j = 0; j < results[i].size(); j ++) {
             Jeweler::BraceletData::RelatedTranscript *rt = t->add_related_transcript();
-            rt->set_name(jeweler_info->gene_id[related_transcripts[i][j]]);
-            rt->set_num_shared_read(results[i][j]);
             dump_shared_pileup(rt, i, related_transcripts[i][j]);
 		}
         write_protobuf_data(fd, t.get());
 	}
-    fprintf(stdout, "%d/%d", this->num_fixed_reads, this->num_single_reads);
 	return 0;
 }

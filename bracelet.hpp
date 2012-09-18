@@ -14,7 +14,7 @@ class ZMegaFile;
 
 class Bracelet{
 public:
-	Bracelet(JewelerInfo *jeweler_info);
+	Bracelet(JewelerInfo *jeweler_info, int num_test_case = -1);
 	int intersect(vector<string> &a, vector<string> &b);
 	int analyze();
     void dump_shared_pileup(Jeweler::BraceletData::RelatedTranscript *fd,
@@ -33,8 +33,6 @@ private:
 	string gene_id;
 	string result_folder;
     shared_ptr<ZMegaFile> zmf;
-    int num_single_reads;
-    int num_fixed_reads;
 };
 
 double get_coverage_rate(const Jeweler::EarringsData::Read &origin,

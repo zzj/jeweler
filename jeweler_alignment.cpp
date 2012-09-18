@@ -102,6 +102,8 @@ void JewelerAlignment::set_is_multiple_alignment(const SewingMachine *sm) {
 void JewelerAlignment::jeweler_initialize(const SewingMachine *sm) {
     assert(sm);
     this->set_is_multiple_alignment(sm);
+    AlignmentExpertStarter aes;
+    this->investigate(&aes);
 }
 
 
@@ -149,9 +151,9 @@ void JewelerAlignment::glue(JewelerAlignment *that) {
 	else if (second_end > first_end) {
 		// bad news! Overlapped region need to be removed from the
 		// second read.
-		int skipped_read_length = 0 , skipped_alignment_length = -overlapped;
+		int skipped_read_length = 0 , skipped_genome_length = -overlapped;
         vector<CigarOp> new_cigar_data;
-        that->get_skipped_region(skipped_alignment_length,
+        that->get_skipped_region(skipped_genome_length,
                                  new_cigar_data, skipped_read_length);
         this->Length += that->Length - skipped_read_length;
         this->QueryBases += that->QueryBases.substr(skipped_read_length);
@@ -250,7 +252,7 @@ void JewelerAlignment::investigate(AlignmentExpert *ae) {
 }
 
 
-int JewelerAlignment::get_skipped_region(int skipped_alignment_length,
+int JewelerAlignment::get_skipped_region(int skipped_genome_length,
                                          vector<CigarOp> &cigar_data,
                                          int &skipped_length) {
 
@@ -262,7 +264,7 @@ int JewelerAlignment::get_skipped_region(int skipped_alignment_length,
 	for (; cigar_iter != cigar_end; ++cigar_iter) {
 		const CigarOp& op = (*cigar_iter);
 
-		if (skipped_alignment_length <= 0) {
+		if (skipped_genome_length <= 0) {
 			// the overlapped region has been processed.
 			// directly add next op
 			cigar_data.push_back(op);
@@ -276,17 +278,17 @@ int JewelerAlignment::get_skipped_region(int skipped_alignment_length,
 		case (Constants::BAM_CIGAR_SEQMATCH_CHAR):
 		case (Constants::BAM_CIGAR_MISMATCH_CHAR):
 			// skip the overlapped region
-			skipped_length += min(skipped_alignment_length, (int) op.Length);
+			skipped_length += min(skipped_genome_length, (int) op.Length);
 			// fall through
 		case (Constants::BAM_CIGAR_REFSKIP_CHAR):
-			skipped_alignment_length = skipped_alignment_length - op.Length;
-			new_op.Length = - skipped_alignment_length;
+		case (Constants::BAM_CIGAR_DEL_CHAR):
+			skipped_genome_length = skipped_genome_length - op.Length;
+			new_op.Length = - skipped_genome_length;
 			//fall trough
 
-		case (Constants::BAM_CIGAR_DEL_CHAR):
 		case (Constants::BAM_CIGAR_PAD_CHAR):
 			// not completely skipped, go to next opk
-			if (skipped_alignment_length >= 0) {
+			if (skipped_genome_length >= 0) {
 				continue;
 			}
 			cigar_data.push_back(new_op);
@@ -295,6 +297,7 @@ int JewelerAlignment::get_skipped_region(int skipped_alignment_length,
 		case (Constants::BAM_CIGAR_INS_CHAR):
 		case (Constants::BAM_CIGAR_SOFTCLIP_CHAR):
 		case (Constants::BAM_CIGAR_HARDCLIP_CHAR) :
+			skipped_length += (int) op.Length;
 			// simply do nothing, because these chars are from the
 			// read, not the genome, so won't affect the skipped
 			// region;

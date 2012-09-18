@@ -25,8 +25,10 @@ Earrings::Earrings(JewelerInfo *jeweler_info,
     this->result_folder = jeweler_info->result_folder + "/" + gene_id + "/";
     this->zmf = file;
 
-    this->maternal_transcripts = this->jeweler_info->get_maternal_transcripts(this->gene_id);
-    this->paternal_transcripts = this->jeweler_info->get_paternal_transcripts(this->gene_id);
+    this->maternal_transcripts = 
+        this->jeweler_info->get_maternal_transcripts(this->gene_id);
+    this->paternal_transcripts = 
+        this->jeweler_info->get_paternal_transcripts(this->gene_id);
 
     this->mismatcher = new TranscriptMismatcher();
     for (i = 0; i < paternal_transcripts.size(); i++) {
@@ -93,7 +95,9 @@ Earrings::~Earrings() {
 void Earrings::test_memory_leak() {
     if (num_total_reads !=
         bam_reads.size() + unaligned_reads.size() + noused_reads.size())
-        fprintf (stderr, "WARNING: Memory Leaking: total reads %zu\t record reads%zu\n", num_total_reads,  bam_reads.size() + unaligned_reads.size() + noused_reads.size());
+        fprintf (stderr, "WARNING: Memory Leaking: total reads %zu\t record reads%zu\n",
+                 num_total_reads,
+                 bam_reads.size() + unaligned_reads.size() + noused_reads.size());
 }
 
 int Earrings::load_read_data() {
@@ -145,7 +149,8 @@ void Earrings::get_compatible_reads(vector<set<JewelerAlignment *> > &read_lists
             // the maternal_transcript should be the same with the
             // paternal_transcript
 
-            if (maternal_transcripts[j]->is_compatible(bam_reads[i], Transcript::tolerate)) {
+            if (maternal_transcripts[j]->is_compatible(bam_reads[i],
+                                                       Transcript::tolerate)) {
                 maternal_transcripts[j]->get_overlapped_alignment(bam_reads[i],
                                                                   penalties[j]);
                 is_compatible=true;

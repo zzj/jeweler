@@ -470,9 +470,12 @@ int Transcript::match_alleles(JewelerAlignment *al, int &total_alleles,
 
     }
 
-    if (rm->mismatch_qualities.size() > 20)  {
-        fprintf(stderr, "too many mismatches in a single read, %zu\n",
-                rm->mismatch_qualities.size());
+    if (rm->mismatch_qualities.size() > 15)  {
+        fprintf(stderr, "too many mismatches in a single read, %zu\n%s\n%s\n%s\n%s\n",
+                rm->mismatch_qualities.size(),
+                query_seq.c_str(), transcript_seq.c_str(),
+                get_cigar_string(*al).c_str(),
+                al->Name.c_str());
     }
     return 0;
 }

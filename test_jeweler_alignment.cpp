@@ -153,4 +153,9 @@ TEST_F(AlignmentGlueTest, test_get_skipped_region) {
     test_get_skipped_region(10, "10M", '1', 10, 10, 10, "");
     test_get_skipped_region(10, "10M", '1', 10, 15, 10, "");
     test_get_skipped_region(10, "10M10N10M", '1', 10, 15, 10, "5N10M");
+    test_get_skipped_region(10, "10M10N10M", '1', 10, 25, 15, "5M");
+    test_get_skipped_region(10, "5M1D4M10N10M", '1', 10, 15, 9, "5N10M");
+    test_get_skipped_region(10, "5M1D4M10N10M", '1', 10, 25, 14, "5M");
+    test_get_skipped_region(10, "5M1I4M10N10M", '1', 10, 15, 10, "4N10M");
+    test_get_skipped_region(10, "5M1I4M10N10M", '1', 10, 25, 16, "4M");
 } 

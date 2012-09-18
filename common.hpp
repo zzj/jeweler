@@ -28,6 +28,8 @@ char * trim(char *);
 
 void open_bam(BamReader &bam_reader, string bam_file);
 
+double safe_rate(int a, int b);
+
 #define _PROXY_(CLS) \
 template <class T>                                              \
 class read_only {                                                   \
@@ -147,5 +149,14 @@ vector<T *> duplicate_vector(vector<T *> in) {
     }
     return ret;
 }
+
+template<class T, class U>
+U map_value_sum(class map<T, U> &m, U init) {
+    for (auto i = m.begin(); i != m.end(); i ++) {
+        init += i->second;
+    }
+    return init;
+}
+
 
 #endif /* _COMMON_H_ */

@@ -69,7 +69,7 @@ void load_gtf_file(const string &gtf_filename,
         if (strs.size() != 9) {
             fprintf(stderr, "ERROR: GTF file %s corrupted \n",
                     gtf_filename.c_str());
-            exit(0);
+            exit(1);
         }
 
         if (gi.type == "transcript") {

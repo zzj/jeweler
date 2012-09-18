@@ -34,7 +34,7 @@ jeweler::jeweler(int argc, char * argv[]) {
 		if (strcmp(argv[i], "-h") == 0) {
 			fprintf(stdout, "help information for jeweler:\n");
 			fprintf(stdout, "command: jeweler -i infofile [-l logfile] [-mamf multiple_alignment_file] -earrnings -bracelet -mismatch_analyzer\n");
-			exit(0);
+			exit(1);
 		}
 		if (strcmp(argv[i], "-i") == 0) {
 			i++;
@@ -92,7 +92,7 @@ jeweler::jeweler(int argc, char * argv[]) {
 
 	if (!has_info) {
 		fprintf(stderr, "ERROR: No infomation file! You need to specify it by -i\n");
-		exit(0);
+		exit(1);
 	}
 	
 }
@@ -134,7 +134,7 @@ int jeweler::run() {
 	if (!is_prepare) {
 		if (is_bracelet) {
 			fprintf(stdout, "Bracelet analyzing ...\n");
-			Bracelet bracelet(jeweler_info);
+			Bracelet bracelet(jeweler_info, num_test_case);
 			bracelet.analyze();
 			fstream out(bracelet_filename+"/result.bracelet",
                 ios::out | ios::binary | ios::trunc);

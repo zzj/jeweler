@@ -30,8 +30,6 @@ public:
 	int add_mismatches(Transcript *transcript, JewelerAlignment *al,
 					   ReadMatcher *rm);
 
-	int dump(FILE *);
-	int write(FILE *);
     void dump(Jeweler::EarringsData::Mismatcher *data);
 private:
 	map<int, int> genome_pos2idx;

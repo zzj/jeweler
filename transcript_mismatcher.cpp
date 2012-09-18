@@ -103,23 +103,6 @@ int TranscriptMismatcher::add_mismatches(Transcript *transcript, JewelerAlignmen
 	return 0;
 }
 
-int TranscriptMismatcher::dump(FILE *file) {
-	size_t i;
-	fprintf(file,"location\tcoverage\tmismatches\tA\tT\tC\tG\tN\tMaternal\tPaternal\n");
-	auto j=genome_pos2idx.begin();
-	auto m=genome_pos2maternal.begin();
-	auto p=genome_pos2paternal.begin();
-	for (i = 0 ; i < mismatches.size() ; i++) {
-		fprintf(file,"%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%c\t%c\n",
-				j->first, coverage[i], mismatches[i],
-				A_mismatches[i],T_mismatches[i], C_mismatches[i], G_mismatches[i],
-				N_mismatches[i],
-				m->second, p->second);
-		j++; m++; p++;
-	}
-	return 0;
-}
-
 void TranscriptMismatcher::dump(Jeweler::EarringsData::Mismatcher *mismatcher) {
 	size_t i,k;
     string paternal_chars;
@@ -160,31 +143,6 @@ void TranscriptMismatcher::dump(Jeweler::EarringsData::Mismatcher *mismatcher) {
 
 
 	return ;
-}
-
-int TranscriptMismatcher::write(FILE *file) {
-	size_t i,k;
-	auto j=genome_pos2idx.begin();
-	auto m=genome_pos2maternal.begin();
-	auto p=genome_pos2paternal.begin();
-	for (i = 0 ; i < mismatches.size() ; i++) {
-		fprintf(file,"%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%c\t%c",
-				j->first, coverage[i], mismatches[i],
-				A_mismatches[i],T_mismatches[i], C_mismatches[i], G_mismatches[i],
-				N_mismatches[i],
-				m->second, p->second);
-		for (k = 0; k < read_mismatch_qualities[i].size(); k ++) {
-			fprintf(file,"\t%c\t%d", read_mismatch_qualities[i][k],
-					                 read_mismatch_locations[i][k]);
-		}
-		for (k = 0; k < read_call_qualities[i].size(); k ++) {
-			fprintf(file,"\t%c\t%d", read_call_qualities[i][k],
-                                     read_call_locations[i][k]);
-		}
-		fprintf(file,"\n");
-		j++; m++; p++;
-	}
-	return 0;
 }
 
 int TranscriptMismatcherAnalyzer::add_calls_by_quality(
@@ -350,10 +308,6 @@ void TranscriptMismatcherAnalyzer::analyze() {
 	fd = fopen((filename+".consistent.locations").c_str(), "w+");
 	dump_location_results (fd, true);
 	fclose(fd);
-	fd = fopen((filename+".log").c_str(), "w+");
-	fprintf(fd, "%d\t%d\n", total, num_locations);
-	fclose(fd);
-
 }
 
 void TranscriptMismatcherAnalyzer::dump_error_rate_by_quality(FILE * fd) {

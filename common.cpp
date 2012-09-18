@@ -1,5 +1,6 @@
 
 #include "common.hpp"
+#include <cmath>
 using namespace std;
 
 char *trim(char *str)
@@ -28,7 +29,7 @@ FILE * file_open(const char *name, const char * mode) {
      if (ret==NULL)  {
 	  fprintf(stderr, "ERROR: can not open file %s  at %s:%d\n",
 			     name, __FILE__, __LINE__);
-	  exit(0);
+	  exit(1);
      }
      return ret;
 }
@@ -49,4 +50,12 @@ void open_bam(BamReader &bam_reader, string bam_file){
 			exit(1);
 		}
 	}
+}
+
+
+double safe_rate(int a, int b) {
+    if (b == 0) {
+        return 0;
+    }
+    return (double)a / b;
 }
