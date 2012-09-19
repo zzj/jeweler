@@ -236,7 +236,12 @@ void Bracelet::dump_shared_pileup(Jeweler::BraceletData::RelatedTranscript * rt,
                  safe_rate(map_value_sum(target_shared_coverage, 0),
                            map_value_sum(target_coverage, 0)));
     rt->set_num_shared_read(num_shared_read);
-
+    for (int i = 0; i < ed->transcript_size(); i ++) {
+        rt->add_origin_num_exon(ed->transcript(i).exon_size());
+    }
+    for (int i = 0; i < target_ed->transcript_size(); i ++) {
+        rt->add_target_num_exon(target_ed->transcript(i).exon_size());
+    }
     // fprintf(stderr, "%d\t%lf\t%lf\t%lf\t%lf\n",
     //         num_shared_read,
     //         rt->origin_coverage_shared_rate(),

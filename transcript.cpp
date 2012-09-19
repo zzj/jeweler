@@ -607,3 +607,5 @@ bool Transcript::is_equal(Transcript *t) {
 void Transcript::dump_seq(string &result_folder, string &filename) {
     write_fasta_file(result_folder + "/" + filename, transcript_id, seq());
 }
+
+

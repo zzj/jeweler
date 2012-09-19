@@ -422,6 +422,17 @@ void Earrings::dump_data() {
     ed->set_num_multiple_reads(this->multiple_reads.size());
     this->mismatcher->dump(ed->mutable_mismatcher());
     this->dump_reads(ed.get());
+    for (int i = 0; i < maternal_transcripts.size(); i++) {
+        auto transcript_data = ed->add_transcript();
+        transcript_data->set_transcript_id(maternal_transcripts[i]->transcript_id());
+        transcript_data->set_maternal_seq(maternal_transcripts[i]->seq());
+        transcript_data->set_paternal_seq(paternal_transcripts[i]->seq());
+        for (int j = 0; j < maternal_transcripts[i]->exon_start.size(); j ++) {
+            auto exon_data = transcript_data->add_exon();
+            exon_data->set_start(maternal_transcripts[i]->exon_start[j]);
+            exon_data->set_end(maternal_transcripts[i]->exon_end[j]);
+        }
+    }
     this->zmf->append(this->gene_id, ed.get());
     return ;
 }
