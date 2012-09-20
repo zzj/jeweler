@@ -223,6 +223,7 @@ void Bracelet::dump_shared_pileup(Jeweler::BraceletData::RelatedTranscript * rt,
     }
 
     rt->set_name(this->jeweler_info->gene_id[target_id]);
+    rt->set_num_read(target_ed->read_size());
     rt->set_origin_coverage_shared_rate(
                  safe_rate(origin_shared_coverage.size(),
                            origin_coverage.size()));
@@ -255,9 +256,11 @@ void Bracelet::dump_shared_pileup(Jeweler::BraceletData::RelatedTranscript * rt,
 int Bracelet::dump(fstream *fd, string root) {
     fprintf(stdout, "bracelet dumping %s...\n", root.c_str());
     for (size_t i = 0; i < reads.size() ;i++) {
-        if (results[i].size()==0) continue;
         unique_ptr<Jeweler::BraceletData> t(new Jeweler::BraceletData());
+        shared_ptr<Jeweler::EarringsData> ed =
+            this->zmf->get<Jeweler::EarringsData>(jeweler_info->gene_id[i]);
         t->set_name(jeweler_info->gene_id[i]);
+        t->set_num_read(ed->read_size());
         for (size_t j = 0; j < results[i].size(); j ++) {
             Jeweler::BraceletData::RelatedTranscript *rt = t->add_related_transcript();
             dump_shared_pileup(rt, i, related_transcripts[i][j]);

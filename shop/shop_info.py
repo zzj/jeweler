@@ -1,5 +1,6 @@
 import constants
 import sys
+import os
 
 class ShopInfo:
     def __init__(self):
@@ -17,15 +18,11 @@ class ShopInfo:
 
     @property
     def mismatch_analyzer_file(self):
-        return self.mismatch_analyzer_folder + "/" + "result.consistent.locations"
+        return self.mismatch_analyzer_folder + "/" + "result"
 
     @property
     def bracelet_file(self):
         return self.bracelet_folder + "/" + "result.bracelet"
-
-    @property
-    def gene_relationship_file(self):
-        return self.result_folder + "/gene_relationships.obj"
 
     @property
     def gene_meta_file(self):
@@ -34,15 +31,3 @@ class ShopInfo:
     @property
     def blacklist_file(self):
         return self.result_folder + "/blacklist.obj"
-
-    def load_num_reads(self, gene_id):
-        ret = 0
-        single = 0
-        multiple = 0
-        filename  = self.jeweler_folder + "/"+ gene_id + "/" + gene_id + ".mamf.multiple.reads"
-        lines = open( filename).readlines()
-        ret += len(lines)
-        filename  = self.jeweler_folder + "/"+ gene_id +"/"+gene_id+ ".mamf.single.reads"
-        lines = open( filename).readlines()
-        ret += len(lines)
-        return ret
