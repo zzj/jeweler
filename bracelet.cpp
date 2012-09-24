@@ -96,7 +96,6 @@ double get_coverage_rate(const Jeweler::EarringsData::Read &origin,
     return double(cov) / total;
 }
 
-
 // This is arbitrarily implemented.
 // Under the assumption that all reads are paired and glued reads
 
@@ -120,7 +119,7 @@ int get_origin_read_position(const Jeweler::EarringsData::Read &origin,
     // hack
     // bamtools' reversetrand does not work
     // TODO(investigate)
-    if (origin.seq() == target.seq()) { 
+    if (origin.seq() == target.seq()) {
         if (i < target.head_length()) {
             return i;
         }
@@ -160,7 +159,7 @@ void add_coverage_details(const Jeweler::EarringsData::Read &origin,
                             origin_genome_location,
                             map<int, int>());
             // if (genome_position_map[origin_genome_location].size() != 0) {
-            //     if (genome_position_map[origin_genome_location].begin()->first != 
+            //     if (genome_position_map[origin_genome_location].begin()->first !=
             //         target.genome_position(i)) {
             //         fprintf(stdout, "%d\n", i);
             //         fprintf(stdout, "%d\n",
@@ -191,6 +190,17 @@ void generate_coverage(shared_ptr<Jeweler::EarringsData> ed,
     return ;
 }
 
+int get_additional_shared_coverage(shared_ptr<Jeweler::EarringsData> ed,
+                                   map<int, int> &coverage) {
+    int ret = 0;
+    for (int i = 0; i < ed->read_size(); i++) {
+        if (get_coverage_rate(ed->read(i), coverage) > 0.95) {
+            ret += ed->read(i).genome_position_size();
+        }
+    }
+    return ret;
+}
+
 void Bracelet::dump_shared_pileup(Jeweler::BraceletData::RelatedTranscript * rt,
                                   int original_id,
                                   int target_id) {
@@ -213,6 +223,11 @@ void Bracelet::dump_shared_pileup(Jeweler::BraceletData::RelatedTranscript * rt,
 
     generate_coverage(ed, origin_coverage);
     generate_coverage(target_ed, target_coverage);
+
+    int origin_additional_coverage = \
+        get_additional_shared_coverage(ed, origin_coverage);
+    int target_additional_coverage = \
+        get_additional_shared_coverage(target_ed, target_coverage);
 
     for (int i = 0; i < ed->read_size(); i++) {
         string name = ed->read(i).name();
@@ -247,14 +262,14 @@ void Bracelet::dump_shared_pileup(Jeweler::BraceletData::RelatedTranscript * rt,
                  safe_rate(origin_shared_coverage.size(),
                            origin_coverage.size()));
     rt->set_origin_region_shared_rate(
-                 safe_rate(map_value_sum(origin_shared_coverage, 0),
-                           map_value_sum(origin_coverage, 0)));
+     safe_rate(map_value_sum(origin_shared_coverage, 0) + origin_additional_coverage,
+               map_value_sum(origin_coverage, 0)));
     rt->set_target_coverage_shared_rate(
                  safe_rate(target_shared_coverage.size(),
                            target_coverage.size()));
     rt->set_target_region_shared_rate(
-                 safe_rate(map_value_sum(target_shared_coverage, 0),
-                           map_value_sum(target_coverage, 0)));
+     safe_rate(map_value_sum(target_shared_coverage, 0) + target_additional_coverage,
+               map_value_sum(target_coverage, 0)));
     rt->set_num_shared_read(num_shared_read);
     for (int i = 0; i < ed->transcript_size(); i ++) {
         rt->add_origin_num_exon(ed->transcript(i).exon_size());

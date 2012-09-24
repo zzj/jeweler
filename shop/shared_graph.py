@@ -15,6 +15,7 @@ import shop_info
 import cuffcompare
 import jeweler_pb2
 import zleveldb
+from gene_relationship import GeneRelationship
 
 class SharedGraph():
     num_genes = 0
@@ -83,44 +84,56 @@ class SharedGraph():
             ret[d.gene_id].add(d.genome_location)
         return ret
 
-    def load_bracelet_data(self, bracelet_file):
+    def load_bracelet_data(self):
         graphs = list()
         graph_index = dict()
         data = jeweler_pb2.BraceletData()
-        fd = open(bracelet_file, "rb")
+        fd = open(self.shop_info.bracelet_file, "rb")
         while zleveldb.load_protobuf_data(fd, data):
-            print data.name
-            print len(data.related_transcript)
-            self.num_genes += 1
+            if len(data.related_transcript) == 0:
+                continue
             graph = graph_index.get(data.name, None)
             if data.num_read == 0:
                 self.black_list.add(data.name)
             if not graph:
                 graph = nx.Graph()
                 graphs.append(graph)
+            graph_index[data.name] = graph
             for gene in data.related_transcript:
+                graph_index[gene.name] = graph
                 graph.add_edge(data.name, gene.name,
                                label = gene.num_shared_read)
-                print gene.num_shared_read
                 self.add_node_color(graph, gene.name)
                 self.add_node_color(graph, data.name)
                 self.register_edge(data.name,
                                    gene.name)
+        return graphs
+
+    def generate_training_data(self):
+        ret = []
+        data = jeweler_pb2.BraceletData()
+        fd = open(self.shop_info.bracelet_file, "rb")
+        while zleveldb.load_protobuf_data(fd, data):
+            for gene in data.related_transcript:
+                ret.append(GeneRelationship(data, gene, self))
+        return ret
 
     def __init__(self):
+        self.black_list = set()
         self.shop_info = shop_info.ShopInfo()
         self.cuffcompare_result = \
             cuffcompare.CuffcompareResult(self.shop_info.cuffcompare_file)
-        self.mismatch_analyzer = \
-            self.load_mismatch_analyzer()
-        self.bracelet_result = \
-            self.load_bracelet_data(self.shop_info.bracelet_file)
+        self.mismatch_analyzer = self.load_mismatch_analyzer()
+        self.bracelet_result = self.load_bracelet_data()
+        self.training_data = self.generate_training_data()
 
         print("there are totally " +
               str(len(self.bracelet_result)) +
               " graphs are built .")
-        print("there are totally " + str((self.num_genes)) +  " genes")
-        pickle.dump(self.blacklist, open(self.blacklist_file, "wb"))
+        pickle.dump(self.black_list,
+                    open(self.shop_info.blacklist_file, "wb"))
+        pickle.dump(self.training_data,
+                    open(self.shop_info.test_data_file, "wb"))
         # dump_dot_graph()
 
     def dump_dot_graph():

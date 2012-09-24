@@ -14,7 +14,7 @@ from gene_relationship import GeneRelationship
 import pickle 
 import constants
 
-class Classifier:
+class JewelerClassifier:
 
     def count_num_not_sure(self):
         ret = 0
@@ -234,4 +234,4 @@ class Classifier:
 
 if __name__ == "__main__":
     
-    classifier = Classifier()
+    classifier = JewelerClassifier()

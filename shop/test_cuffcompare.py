@@ -34,4 +34,3 @@ class TestCuffcompareResult:
         assert_equal(True, data[5].is_pseudo)
         assert_equal(None, self.cuffcompare_result.get('CUFF.10123'))
         assert_not_equal(None, self.cuffcompare_result.get('CUFF.1044'))
-

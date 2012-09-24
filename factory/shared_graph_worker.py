@@ -27,7 +27,7 @@ def get_bracelet_folder(args, filename):
 
 def get_shared_graph_folder(args, filename):
     resultfolder='result/'+os.path.basename(args.filelist)+ args.shared_graph_folder
-    
+
     resultsubfolder=resultfolder+'/'+os.path.basename(filename.strip().replace('.bam',''))
     return  resultsubfolder
 
@@ -36,9 +36,9 @@ def get_mismatch_analyzer(args, filename):
     if (args.is_new_cufflinks):
         ma_result_folder = 'result/'+os.path.basename(args.filelist)+'/new_mismatch_analyzer/' + alias + '/'
     else:
-        ma_result_folder = 'result/'+os.path.basename(args.filelist)+'/mismatch_analyzer/' + alias + '/'                
+        ma_result_folder = 'result/'+os.path.basename(args.filelist)+'/mismatch_analyzer/' + alias + '/'
     return ma_result_folder
-    
+
 def shared_graph_worker(args):
     files=open(args.filelist).readlines()
     for f in files:
@@ -48,18 +48,17 @@ def shared_graph_worker(args):
         mismatch_analyzer_folder = get_mismatch_analyzer(args, f)
         shared_graph_folder = get_shared_graph_folder(args, f)
         sample_id =  os.path.basename(f.strip().replace('.bam',''))
-
-        ##stupid python evoke a R program that cannot read a file
-        print('python3.2 shop/shared_graph.py '+cuffcompare_folder + "/ " +jeweler_folder + "/ "+bracelet_folder + "/ " + mismatch_analyzer_folder + "/ "+
-              shared_graph_folder + "/ " +sample_id  )
-
-def classify_gene_worker(args):
-    files=open(args.filelist).readlines()
-    for f in files:
-        shared_graph_folder = get_shared_graph_folder(args, f)
         cufflinks_folder = get_cufflinks_folder(args, f)
-        sample_id =  os.path.basename(f.strip().replace('.bam',''))
-
         ##stupid python evoke a R program that cannot read a file
-        print('python3.2 shop/classify_genes.py ' + shared_graph_folder + "/ " +sample_id +" " + cufflinks_folder )
-        ##print ("~/bin/bin/R CMD BATCH --no-save --no-restore '--args name=\""+sample_id+"\"' shop/shared_graph.R temp/"+sample_id)
+        if args.classify_gene:
+            command = "python shop/classifier2.py "
+        elif args.plot_shared_graph:
+            command = "python shop/shared_graph.py "
+        print(command + 
+              cuffcompare_folder + "/ " +
+              jeweler_folder + "/ " +
+              bracelet_folder + "/ " +
+              mismatch_analyzer_folder + "/ " +
+              shared_graph_folder + "/ " +
+              cufflinks_folder + "/ " +
+              sample_id)

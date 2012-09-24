@@ -9,6 +9,7 @@ class ShopInfo:
         self.bracelet_folder = sys.argv[3]
         self.mismatch_analyzer_folder = sys.argv[4]
         self.result_folder = sys.argv[5]
+        self.cufflinks_folder = sys.argv[6]
         if (not os.path.exists(self.result_folder)):
             os.makedirs(self.result_folder)
 
@@ -25,8 +26,8 @@ class ShopInfo:
         return self.bracelet_folder + "/" + "result.bracelet"
 
     @property
-    def gene_meta_file(self):
-        return self.result_folder + "/gene_meta.obj"
+    def test_data_file(self):
+        return self.result_folder + "/test_data.obj"
 
     @property
     def blacklist_file(self):

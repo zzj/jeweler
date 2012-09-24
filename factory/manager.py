@@ -51,9 +51,9 @@ def main():
         run_command(args.filelist, args.reftable, "--appraiser", extra)
         pause_command()
         run_command(args.filelist, args.reftable,
-                    "--jeweler --earrings --bracelet", extra)
-        run_command(args.filelist, args.reftable,
                     "--jeweler --mismatch_analyzer", extra)
+        run_command(args.filelist, args.reftable,
+                    "--jeweler --earrings --bracelet", extra)
         pause_command()
         run_command(args.filelist, args.reftable, "--shared_graph", extra)
     except:

@@ -6,7 +6,6 @@ import argparse
 from subprocess import call
 
 from shared_graph_worker import shared_graph_worker
-from shared_graph_worker import classify_gene_worker
 from miner_parser import initialize_parser
 from cufflinks_worker import cufflinks_worker
 from cuffcompare_worker import cuffcompare_worker
@@ -67,11 +66,10 @@ def main():
             elif (args.is_appraiser):
                 config("day", "4", "1")
                 appraiser_worker(args)
-            elif (args.plot_shared_graph):
+            elif (args.plot_shared_graph or args.classify_gene):
                 config("day", "4", "1")
                 shared_graph_worker(args)
-            elif (args.classify_gene):
-                classify_gene_worker(args)
+
 
     except:
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
