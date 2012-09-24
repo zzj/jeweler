@@ -129,6 +129,9 @@ int get_origin_read_position(const Jeweler::EarringsData::Read &origin,
         }
     }
     else {
+        // this one works for most of the cases, however, this does
+        // not work for every cases, and need to be refined.
+        // TODO
         return origin.genome_position_size() - i - 1;
     }
 }
