@@ -18,9 +18,12 @@ int output_bamalignment(JewelerAlignment *al) {
 	return 0;
 }
 
+
 void AlignmentGlue::glue_paired_alignments(JewelerAlignment *first, JewelerAlignment *second) {
     first->glue(second);
 }
+
+
 int AlignmentGlue::glue(vector<JewelerAlignment *> &in_reads,
                         vector<JewelerAlignment *> &new_reads,
                         vector<JewelerAlignment *> &noused_reads) {

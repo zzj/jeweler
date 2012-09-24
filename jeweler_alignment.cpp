@@ -61,16 +61,19 @@ void AlignmentExpertStarter::study_only_read_seq(JewelerAlignment *al,
 }
 
 void JewelerAlignment::dump_data(Jeweler::EarringsData::Read *read) {
+    assert(this->QueryBases.size() == this->genome_position.size());
     read->set_name(this->Name);
     for (auto i = genome_position.begin(); i != genome_position.end(); i++) {
         read->add_genome_position(*i);
     }
+    read->set_seq(this->QueryBases);
     read->set_is_multiple_alignment(this->is_multiple_alignment);
     read->set_cigar_string(get_cigar_string(this->CigarData));
     read->set_is_second_truncated(this->is_second_truncated);
     read->set_glue_position(this->glue_position);
     read->set_tail_length(this->tail_length);
     read->set_head_length(this->head_length);
+    read->set_is_reverse_strand(this->IsReverseStrand());
     return ;
 }
 
@@ -182,6 +185,8 @@ void JewelerAlignment::glue(JewelerAlignment *that) {
         // and simply do nothing
         ;
     }
+    AlignmentExpertStarter aes;
+    this->investigate(&aes);
 
     // DEBUG: output merged ones
     // fprintf(stdout, "Merged: \n");

@@ -32,7 +32,7 @@ Bracelet::Bracelet(JewelerInfo * jeweler_info, int num_test_case) :
                 reads_index[id][ed->read(j).name()] = j;
             }
         }
-        sort(reads[id].begin(),reads[id].end());
+        sort(reads[id].begin(), reads[id].end());
         id ++;
         if (num_test_case > 0 && id > num_test_case) break;
     }
@@ -117,7 +117,10 @@ int get_origin_read_position(const Jeweler::EarringsData::Read &origin,
     origin_overlap_head = origin.genome_position_size() - origin.tail_length();
     target_overlap_tail = target.glue_position();
     target_overlap_head = target.genome_position_size() - target.tail_length();
-    if (origin.is_second_truncated() == target.is_second_truncated()) {
+    // hack
+    // bamtools' reversetrand does not work
+    // TODO(investigate)
+    if (origin.seq() == target.seq()) { 
         if (i < target.head_length()) {
             return i;
         }
@@ -126,12 +129,7 @@ int get_origin_read_position(const Jeweler::EarringsData::Read &origin,
         }
     }
     else {
-        if (i < target.head_length()) {
-            return i + origin_overlap_head;
-        }
-        else {
-            return i - target.head_length();
-        }
+        return origin.genome_position_size() - i - 1;
     }
 }
 
@@ -143,20 +141,38 @@ void add_coverage_details(const Jeweler::EarringsData::Read &origin,
     // second is another map, which is the target_genome_position and times.
     map<int, int> original_read2genome;
 
-    for (int i = 0; i < origin.genome_position_size(); i ++){
+    for (int i = 0; i < origin.genome_position_size(); i ++) {
         if (origin.genome_position(i) != NOT_FOUND)
             original_read2genome[i] = origin.genome_position(i);
     }
-    for (int i = 0; i < target.genome_position_size(); i ++){
+    for (int i = 0; i < target.genome_position_size(); i ++) {
         if (target.genome_position(i) == NOT_FOUND)
             continue;
-        int origin_i = get_origin_read_position(origin, target, i);
+        int origin_i;
+        origin_i = get_origin_read_position(origin, target, i);
         if (original_read2genome.find(origin_i) !=
             original_read2genome.end()) {
+            int origin_genome_location = original_read2genome[origin_i];
             map_add_default(genome_position_map,
-                            i,
+                            origin_genome_location,
                             map<int, int>());
-            map_add_count(genome_position_map[i],
+            // if (genome_position_map[origin_genome_location].size() != 0) {
+            //     if (genome_position_map[origin_genome_location].begin()->first != 
+            //         target.genome_position(i)) {
+            //         fprintf(stdout, "%d\n", i);
+            //         fprintf(stdout, "%d\n",
+            //                 genome_position_map[origin_genome_location].begin()->first);
+            //         fprintf(stdout, "%d\n",
+            //                 target.genome_position(i));
+            //         fprintf(stdout, "%s\n", origin.cigar_string().c_str());
+            //         fprintf(stdout, "%s\n", target.cigar_string().c_str());
+            //         fprintf(stdout, "%s\n", origin.seq().c_str());
+            //         fprintf(stdout, "%s\n", target.seq().c_str());
+            //         fprintf(stdout, "%s\n", origin.is_reverse_strand() ? "Yes" : "No");
+            //         fprintf(stdout, "%s\n", target.is_reverse_strand() ? "Yes" : "No");
+            //     }
+            // }
+            map_add_count(genome_position_map[origin_genome_location],
                           target.genome_position(i));
         }
     }
@@ -249,7 +265,6 @@ void Bracelet::dump_shared_pileup(Jeweler::BraceletData::RelatedTranscript * rt,
     //         rt->origin_region_shared_rate(),
     //         rt->target_coverage_shared_rate(),
     //         rt->target_region_shared_rate());
-
 }
 
 
@@ -259,6 +274,7 @@ int Bracelet::dump(fstream *fd, string root) {
         unique_ptr<Jeweler::BraceletData> t(new Jeweler::BraceletData());
         shared_ptr<Jeweler::EarringsData> ed =
             this->zmf->get<Jeweler::EarringsData>(jeweler_info->gene_id[i]);
+        if (ed.get() == NULL) continue;
         t->set_name(jeweler_info->gene_id[i]);
         t->set_num_read(ed->read_size());
         for (size_t j = 0; j < results[i].size(); j ++) {
