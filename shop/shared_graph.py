@@ -90,11 +90,11 @@ class SharedGraph():
         data = jeweler_pb2.BraceletData()
         fd = open(self.shop_info.bracelet_file, "rb")
         while zleveldb.load_protobuf_data(fd, data):
+            if data.num_read == 0:
+                self.black_list.add(data.name)
             if len(data.related_transcript) == 0:
                 continue
             graph = graph_index.get(data.name, None)
-            if data.num_read == 0:
-                self.black_list.add(data.name)
             if not graph:
                 graph = nx.Graph()
                 graphs.append(graph)

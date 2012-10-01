@@ -258,18 +258,21 @@ void Bracelet::dump_shared_pileup(Jeweler::BraceletData::RelatedTranscript * rt,
 
     rt->set_name(this->jeweler_info->gene_id[target_id]);
     rt->set_num_read(target_ed->read_size());
+    rt->set_chr(target_ed->chr());
+    rt->set_start_position(target_ed->start_position());
+    rt->set_end_position(target_ed->end_position());
     rt->set_origin_coverage_shared_rate(
                  safe_rate(origin_shared_coverage.size(),
                            origin_coverage.size()));
     rt->set_origin_region_shared_rate(
      safe_rate(map_value_sum(origin_shared_coverage, 0) + origin_additional_coverage,
-               map_value_sum(origin_coverage, 0)));
+               map_value_sum(origin_coverage, 0) + origin_additional_coverage));
     rt->set_target_coverage_shared_rate(
                  safe_rate(target_shared_coverage.size(),
                            target_coverage.size()));
     rt->set_target_region_shared_rate(
      safe_rate(map_value_sum(target_shared_coverage, 0) + target_additional_coverage,
-               map_value_sum(target_coverage, 0)));
+               map_value_sum(target_coverage, 0) + target_additional_coverage));
     rt->set_num_shared_read(num_shared_read);
     for (int i = 0; i < ed->transcript_size(); i ++) {
         rt->add_origin_num_exon(ed->transcript(i).exon_size());
@@ -295,6 +298,9 @@ int Bracelet::dump(fstream *fd, string root) {
         if (ed.get() == NULL) continue;
         t->set_name(jeweler_info->gene_id[i]);
         t->set_num_read(ed->read_size());
+        t->set_chr(ed->chr());
+        t->set_start_position(ed->start_position());
+        t->set_end_position(ed->end_position());
         for (size_t j = 0; j < results[i].size(); j ++) {
             Jeweler::BraceletData::RelatedTranscript *rt = t->add_related_transcript();
             dump_shared_pileup(rt, i, related_transcripts[i][j]);

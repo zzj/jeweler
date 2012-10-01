@@ -47,13 +47,14 @@ def main():
             extra = "--new_cufflinks"
         os.system("rm command_list")
         run_command(args.filelist, args.reftable, "--cufflinks", extra)
-        run_command(args.filelist, args.reftable, "--cuffcompare", extra)
         run_command(args.filelist, args.reftable, "--appraiser", extra)
+        pause_command()
+        run_command(args.filelist, args.reftable, "--cuffcompare", extra)
+        run_command(args.filelist, args.reftable,
+                    "--jeweler --earrings --bracelet", extra)
         pause_command()
         run_command(args.filelist, args.reftable,
                     "--jeweler --mismatch_analyzer", extra)
-        run_command(args.filelist, args.reftable,
-                    "--jeweler --earrings --bracelet", extra)
         pause_command()
         run_command(args.filelist, args.reftable, "--shared_graph", extra)
     except:

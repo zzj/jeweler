@@ -10,6 +10,7 @@ class ShopInfo:
         self.mismatch_analyzer_folder = sys.argv[4]
         self.result_folder = sys.argv[5]
         self.cufflinks_folder = sys.argv[6]
+        self.sample_id = sys.argv[7]
         if (not os.path.exists(self.result_folder)):
             os.makedirs(self.result_folder)
 

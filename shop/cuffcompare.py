@@ -53,5 +53,25 @@ class CuffcompareResult:
         for d in self.data.gene_data:
             self.index[d.gene_id] = d
 
+    def filter(self, black_list):
+        for b in black_list:
+            del self.index
+
+    def all_gene_names(self, black_list = None):
+        gene_names = set()
+        for d in self.data.gene_data:
+            if black_list and d.gene_id in black_list:
+                continue
+            gene_names.add(d.gene_name)
+        return gene_names
+
+    def all_transcript_names(self, black_list = None):
+        transcript_names = set()
+        for d in self.data.gene_data:
+            if black_list and d.gene_id in black_list:
+                continue
+            transcript_names.add(d.transcript_name)
+        return transcript_names
+
     def get(self, gene_id):
         return self.index.get(gene_id, None)

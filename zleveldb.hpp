@@ -76,7 +76,8 @@ private:
         system((string("mkdir -p ") + db_folder).c_str());
         leveldb::Options options;
         options.create_if_missing = true;
-        options.block_cache = leveldb::NewLRUCache(1000 * 1048576);
+        options.block_cache = leveldb::NewLRUCache(4000 * 1048576);
+        options.max_open_files = 1000;
         leveldb::Status status = leveldb::DB::Open(options, db_folder, &this->db);
         assert(status.ok());
     }

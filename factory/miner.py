@@ -64,7 +64,7 @@ def main():
             elif (args.is_transcriptome_alignment):
                 transcriptome_alignment_worker(args, refidtable, reffiletable)
             elif (args.is_appraiser):
-                config("day", "4", "1")
+                config("adhoc", "8", "1")
                 appraiser_worker(args)
             elif (args.plot_shared_graph or args.classify_gene):
                 config("day", "4", "1")
