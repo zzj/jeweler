@@ -80,6 +80,7 @@ class JewelerClassifier:
         print(precision_score(self.Y, predict))
         print(recall_score(self.Y, predict))
         print(f1_score(self.Y, predict))
+
         for i, v in enumerate(predict):
             if v == 1:
                 self.black_list.add(self.training_data[self.idx[i]].target_name)
@@ -87,18 +88,25 @@ class JewelerClassifier:
                     # print (self.training_data[self.idx[i]].origin_gene_name,
                     #        self.training_data[self.idx[i]].target_gene_name)
                     # print (self.training_data[self.idx[i]].X)
-        all_genes = self.cuffcompare_result.all_gene_names()
-        self.good_genes = self.cuffcompare_result.all_gene_names(self.black_list)
-        self.print_output(self.good_genes, self.correct_gene_set)
-        self.print_output(all_genes, self.correct_gene_set)
+        if self.correct_gene_set:
+            all_genes = self.cuffcompare_result.all_gene_names()
+            self.good_genes = self.cuffcompare_result.all_gene_names(self.black_list)
+            self.print_output(self.good_genes, self.correct_gene_set)
+            self.print_output(all_genes, self.correct_gene_set)
 
-        all_transcripts = self.cuffcompare_result.all_transcript_names()
-        self.good_transcripts = self.cuffcompare_result.all_transcript_names(self.black_list)
-        self.print_output(self.good_transcripts, self.correct_transcript_set)
-        self.print_output(all_transcripts, self.correct_transcript_set)
+            all_transcripts = self.cuffcompare_result.all_transcript_names()
+            self.good_transcripts = self.cuffcompare_result.all_transcript_names(self.black_list)
+            self.print_output(self.good_transcripts, self.correct_transcript_set)
+            self.print_output(all_transcripts, self.correct_transcript_set)
+
+        predict = self.fit.predict(self.allX)
+
+        for i, v in enumerate(predict):
+            if v == 1:
+                self.black_list.add(self.training_data[i].target_name)
 
     def dump_gtf_file(self):
-        gene_names = self.bad_genes
+        gene_names = self.black_list
         lines = open(self.shop_info.cufflinks_folder + "/" +
                      "transcripts.gtf").readlines()
 
@@ -131,17 +139,21 @@ class JewelerClassifier:
     def generate_training_data(self):
         self.X = []
         self.Y = []
+        self.allX = []
+        self.allY = []
         self.idx = []
         for i, s in enumerate(self.training_data):
             if s.origin_name in self.black_list or s.target_name in self.black_list:
                continue
+            self.allX.append(s.X)
+            self.allY.append(0)
             if s.used_for_training(self.correct_gene_set, self.black_list):
                 self.X.append(s.X)
                 self.Y.append(s.Y(self.correct_gene_set))
                 self.idx.append(i)
 
         pickle.dump((self.X, self.Y),
-                    open("simulation_data/" + self.shop_info.sample_id, "wb"))
+                    open("real_data/" + self.shop_info.sample_id, "wb"))
 
 class SVMJewelerClassifier(JewelerClassifier):
     def train(self):

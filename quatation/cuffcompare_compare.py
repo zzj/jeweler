@@ -42,7 +42,7 @@ def load_cuffcompare_stat(cuffcompare_file, sample_id, filtered_gene_file, afd):
     correct_transcript_set = get_correct_transcript_data("../data/simulation_bam_new_merge/"+sample_id[0:9]+".abundance")
 
     pseudo_set = get_pseudogene_list()
-    
+
     for line in lines:
         data = (line.strip().split('\t'))
 
@@ -66,7 +66,7 @@ def load_cuffcompare_stat(cuffcompare_file, sample_id, filtered_gene_file, afd):
         if (correct_transcript_set is not None and tid in correct_transcript_set):
             correct += 1
             correct_transcript_result_set.add(tid)
-        
+
         transcripts.add(transcript_id)
         genes_precision.add(gene_id)
         if (eid != ""):
@@ -116,7 +116,7 @@ def get_pseudogene_list():
         ret.add(data)
 
     return ret
-    
+
 def get_pseudogene_transcript_list():
     ret =set ()
     lines = open("../info/pseudo_transcript_ids").readlines()
@@ -125,7 +125,7 @@ def get_pseudogene_transcript_list():
         ret.add(data)
 
     return ret
-    
+
 def get_correct_transcript_data(filename):
     print(filename)
     if (filename is None ):
@@ -156,14 +156,13 @@ def get_correct_data(filename):
         ret.add(data[3])
 
     return ret
-        
+
 def main():
 
 
     cuff1_root = "../result/merged_list/cuffcompare/"
     cuff2_root = "../result/new_merged_list/new_cuffcompare/"
     cuff3_root = "../result/new_merged_list/new_cuffcompare/"
-
     sg2_root = "../result/new_merged_list/new_shared_graph/"
     app1_root = "../result/merged_list/appraiser/"
     app2_root = "../result/new_merged_list/new_appraiser/"
@@ -185,7 +184,7 @@ def main():
         cuff1_result = load_cuffcompare_stat ( cuff1_root + i + "/cuffcompare.tracking",
                                                i,
                                                None, afd1)
-        print(cuff1_result)                                               
+        print(cuff1_result)
         cuff2_result = load_cuffcompare_stat ( cuff2_root + i + "/cuffcompare.tracking",
                                                i,
                                                sg2_root + i + "/filtered_gene.obj", afd2)
@@ -198,12 +197,12 @@ def main():
             j += 1
         print(i+"\t"+"\t".join(["%s" % e for e in cuff1_result.values()]) +"\t"
               +("\t".join(["%s" % e for e in cuff2_result.values()])) + "\t"
-              +("\t".join(["%.4lf" % e for e in r])) 
+              +("\t".join(["%.4lf" % e for e in r]))
               ,file = fd)
         ##app1_result = load_appraiser_stat(app1_root + i +"/log")
         ##app2_result = load_appraiser_stat(app2_root + i +"/log")
         ##print(i + "\t" + app1_result + "\t" + app2_result + "\t"+str((int(app2_result)-int(app1_result))/int(app1_result)), file = fda)
-    
+
 
 if __name__ == "__main__":
     main()
