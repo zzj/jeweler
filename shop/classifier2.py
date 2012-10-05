@@ -5,6 +5,7 @@ import os
 import json
 import sys
 import traceback
+import collections
 import argparse
 import pydot
 import math
@@ -29,7 +30,6 @@ from sklearn.ensemble import RandomForestClassifier
 def f1(precision, recall):
     return 2 * precision * recall / (precision + recall)
 
-
 class JewelerClassifier:
     def __init__(self):
         self.shop_info = shop_info.ShopInfo()
@@ -48,6 +48,7 @@ class JewelerClassifier:
         self.train()
         self.classify()
         self.dump_gtf_file()
+        self.dump_cuffcompare_file()
 
     def get_correct_data(self, filename):
         if filename is None :
@@ -56,21 +57,24 @@ class JewelerClassifier:
         if not os.path.isfile(filename):
             return (None, None)
 
-        gene = set()
-        transcript =set()
+        gene = []
+        transcript = []
         lines = open(filename).readlines()
         for line in lines:
             data = line.strip().split(" ")
-            gene.add(data[3])
-            transcript.add(data[0])
+            gene.append(data[3])
+            transcript.append(data[0])
         return (gene, transcript)
 
     def train(self):
         raise NotImplementedError
-
-    def print_output(self, goods, correct_set):
-        pre = len(goods.intersection(correct_set)) * 1.0 / len(goods)
-        recall = len(goods.intersection(correct_set)) * 1.0 / len(correct_set)
+    def count_intersect(goods, alls):
+        g = goods.copy
+    def print_output(self, goods, alls, correct_set):
+        num_correct_genes = sum((collections.Counter(goods) & collections.Counter(correct_set)).values())
+        pre = num_correct_genes * 1.0 / len((alls))
+        recall = len(filter(set(goods).__contains__, set(correct_set))) * 1.0 / len(set(correct_set))
+        print(len(alls))
         print (pre, recall, f1(pre, recall))
 
     def classify(self):
@@ -88,22 +92,38 @@ class JewelerClassifier:
                     # print (self.training_data[self.idx[i]].origin_gene_name,
                     #        self.training_data[self.idx[i]].target_gene_name)
                     # print (self.training_data[self.idx[i]].X)
-        if self.correct_gene_set:
-            all_genes = self.cuffcompare_result.all_gene_names()
-            self.good_genes = self.cuffcompare_result.all_gene_names(self.black_list)
-            self.print_output(self.good_genes, self.correct_gene_set)
-            self.print_output(all_genes, self.correct_gene_set)
-
-            all_transcripts = self.cuffcompare_result.all_transcript_names()
-            self.good_transcripts = self.cuffcompare_result.all_transcript_names(self.black_list)
-            self.print_output(self.good_transcripts, self.correct_transcript_set)
-            self.print_output(all_transcripts, self.correct_transcript_set)
-
         predict = self.fit.predict(self.allX)
 
         for i, v in enumerate(predict):
             if v == 1:
                 self.black_list.add(self.training_data[i].target_name)
+        if self.correct_gene_set:
+            self.old_cuffcompare_result = \
+                  cuffcompare.CuffcompareResult("result/simulation_mapsplice_trim/new_cuffcompare/" + self.shop_info.sample_id + "/cuffcompare.tracking")
+            self.good_genes = self.cuffcompare_result.all_gene_names(self.black_list, True)
+            all_genes = self.cuffcompare_result.all_gene_names(self.black_list)
+            old_all_genes = self.old_cuffcompare_result.all_gene_names(None, False)
+            old_good_genes = self.old_cuffcompare_result.all_gene_names(None, True)
+            self.print_output(self.good_genes, all_genes, self.correct_gene_set)
+            self.print_output(old_good_genes, old_all_genes, self.correct_gene_set)
+
+            old_good_transcripts = self.old_cuffcompare_result.all_transcript_names(None, True)
+            old_all_transcripts = self.old_cuffcompare_result.all_transcript_names(None)
+            all_transcripts = self.cuffcompare_result.all_transcript_names(self.black_list)
+            self.good_transcripts = self.cuffcompare_result.all_transcript_names(self.black_list, True)
+            self.print_output(self.good_transcripts, all_transcripts, self.correct_transcript_set)
+            self.print_output(old_good_transcripts, old_all_transcripts, self.correct_transcript_set)
+
+
+    def dump_cuffcompare_file(self):
+        gene_names = self.black_list
+        lines = open(self.shop_info.cuffcompare_file).readlines()
+        def cuffcompare_filter(line):
+            line_data = line.strip().split('\t')
+            gene_id = line_data[4][3:(line_data[4].find('|'))]
+            return gene_id not in gene_names
+        new_lines = filter(cuffcompare_filter, lines)
+        open(self.shop_info.cuffcompare_folder+"/"+"new_cuffcompare.tracking","w+").writelines(new_lines)
 
     def dump_gtf_file(self):
         gene_names = self.black_list
@@ -153,7 +173,7 @@ class JewelerClassifier:
                 self.idx.append(i)
 
         pickle.dump((self.X, self.Y),
-                    open("real_data/" + self.shop_info.sample_id, "wb"))
+                    open("simulation_data/" + self.shop_info.sample_id, "wb"))
 
 class SVMJewelerClassifier(JewelerClassifier):
     def train(self):

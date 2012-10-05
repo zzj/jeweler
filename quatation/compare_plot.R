@@ -1,4 +1,3 @@
-
 plot.comparision <- function(data, name, filename, title, so, founder.names, label.position, break.position, offset.position){
   pdf(paste(filename,".pdf",sep=""))
   y1 <-  data[so,paste('before.',name,sep="")]
@@ -29,14 +28,14 @@ order.gender = c("F","M","F","M","F","M","F","M","F","M","F","M")
 order.names = c()
 
 
-cuff <- read.table('cuff.real.stats', header= T, stringsAsFactors =F)
+cuff <- read.table('cuff.stats', header= T, stringsAsFactors =F)
 order.sample <- c()
 for (i in 1:dim(cuff)[1]){
   for (j in 1:length(order.founder)){
 
     if ( substr(cuff[i,1],1,2) == order.founder[j] &&  substr(cuff[i,1],9,9) == order.gender[j]){
       order.sample <- c(order.sample,j)
-      
+
       break
     }
   }

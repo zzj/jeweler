@@ -52,7 +52,9 @@ class GeneRelationship:
 
     @property
     def X(self):
-        return [self.target_coverage_shared_rate,
+        return [self.origin_num_reads,
+                self.target_num_reads,
+                self.target_coverage_shared_rate,
                 self.origin_coverage_shared_rate,
                 self.target_coverage_shared_rate -
                 self.origin_coverage_shared_rate,
@@ -80,8 +82,6 @@ class GeneRelationship:
         return 1 if self.relationshiop_type == constants.GP else 0
 
     def used_for_training(self, correct_gene_set=None, black_list=None):
-        if self.target_num_reads < 100 and self.origin_num_reads < 100:
-            return False
         if correct_gene_set is not None:
             ## if two scripts are too close, should be removed because
             ## they might be the same script

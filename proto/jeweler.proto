@@ -1,0 +1,152 @@
+package Jeweler;
+
+message EarringsData {
+    optional string gene_id = 1;
+    optional string chr = 2;
+    optional int32 start_position = 3;
+    optional int32 end_position = 4;
+
+    message Transcript {
+        optional string transcript_id = 1;
+        optional string maternal_seq = 2;
+        optional string paternal_seq = 3;
+        message Exon {
+            optional int32 start = 1;
+            optional int32 end = 2;
+        }
+        repeated Exon exon = 4;
+    }
+
+    repeated Transcript transcript = 5;
+
+    optional int32 num_single_reads = 7;
+    optional int32 num_multiple_reads = 8;
+    optional int32 num_total_reads = 9;
+
+    message Read {
+        optional string name = 1;
+        repeated int32 genome_position = 3;
+        optional string cigar_string = 4;
+        optional bool is_multiple_alignment = 5;
+        optional bool is_second_truncated = 6;
+        optional int32 tail_length = 7;
+        optional int32 head_length = 8;
+        optional int32 glue_position = 9;
+        optional int32 length = 10;
+        optional string seq = 11;
+        optional bool is_reverse_strand = 12;
+    }
+    repeated Read read = 10;
+
+    message Mismatcher {
+        message Mismatch {
+            optional int32 genome_position = 1;
+            optional string maternal_char = 2;
+            optional string paternal_char = 3;
+            optional int32 coverage = 4;
+            optional int32 num_mismatches = 5;
+            optional int32 num_a = 6;
+            optional int32 num_t = 7;
+            optional int32 num_c = 8;
+            optional int32 num_g = 9;
+
+            message Call {
+                // TODO fix the read position in code
+                // the read position is after glued, not the real read position
+                optional int32 read_position = 2;
+                optional bool is_mismatch = 3;
+            }
+            // the following two should have the same length
+            repeated Call call = 10;
+            optional string quality_string = 11;
+        }
+        repeated Mismatch mismatch = 1;
+    }
+
+    optional Mismatcher mismatcher = 12;
+}
+
+message BraceletData {
+    message RelatedTranscript {
+        optional string name = 1;
+        optional int32 num_shared_read = 2;
+        message Coverage {
+            optional int32 position = 1;
+            repeated int32 shared_coverage = 2;
+            repeated int32 target_position = 3;
+            optional int32 total_coverage = 4;
+        }
+        repeated Coverage coverage = 3;
+        optional float origin_coverage_shared_rate = 4;
+        optional float origin_region_shared_rate = 5;
+        optional float target_coverage_shared_rate = 6;
+        optional float target_region_shared_rate = 7;
+        repeated int32 origin_num_exon = 8;
+        repeated int32 target_num_exon = 9;
+        optional int32 num_read = 10;
+        optional int32 num_consistent_mismatches = 11;
+        optional string chr = 12;
+        optional int32 start_position = 13;
+        optional int32 end_position = 14;
+    }
+    repeated RelatedTranscript related_transcript = 1;
+    optional string name = 2;
+    optional int32 num_read = 3;
+    optional string chr = 4;
+    optional int32 start_position = 5;
+    optional int32 end_position = 6;
+ }
+
+message SewingMachineData {
+    optional string name = 1;
+    message Locator {
+        optional int32 distance = 1;
+        optional string cigar_string = 2;
+        optional int32 position = 3;
+        optional string chr = 4;
+        optional bool is_first = 5;
+    }
+    repeated Locator locator = 4;
+}
+
+message TranscriptMismatcherAnalyzerData {
+    message IterationResult {
+        optional string phred = 1;
+        repeated int32 num_calls = 2;
+        repeated int32 num_mismatches = 3;
+        repeated double error_rate = 4;
+    }
+    repeated IterationResult iteration_result = 1;
+
+    message LocationResult {
+        optional string gene_id = 1;
+        optional double pvalue = 2;
+        optional int32 coverage = 3;
+        optional int32 num_mismatches = 4;
+        optional int32 genome_location = 5;
+    }
+    repeated LocationResult location_result = 2;
+}
+
+message ZMegaFilePosition {
+    optional int64 position = 1;
+}
+
+message String {
+    required string data = 1;
+}
+
+message CuffcompareData {
+    message GeneData {
+        optional bool is_pseudo = 1;
+        optional bool is_good = 2;
+        optional bool is_unknown = 3;
+        optional string gene_id = 4;
+        optional string matched_score = 5;
+        optional string transcript_id = 6;
+        optional string gene_name = 7;
+        optional string transcript_name = 8;
+        optional float fpkm = 9;
+    }
+    repeated GeneData gene_data = 1;
+}
