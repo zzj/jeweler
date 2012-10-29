@@ -7,15 +7,3 @@
 [submodule "lib/bwa"]
 	path = lib/bwa
 	url = https://github.com/lh3/bwa.git
-[submodule "lib/networkx"]
-	path = lib/networkx
-	url = https://github.com/networkx/networkx.git
-[submodule "lib/pygraphviz"]
-	path = lib/pygraphviz
-	url = https://github.com/arruda/pygraphviz.git
-[submodule "lib/pydot"]
-	path = lib/pydot
-	url = https://github.com/nlhepler/pydot-py3.git
-[submodule "lib/pyparsing"]
-	path = lib/pyparsing
-	url = https://github.com/druplug/pyparsing.git
