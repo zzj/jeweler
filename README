@@ -2,6 +2,10 @@ This is the source repository of GeneScissors, and its internal name is Jeweler.
 
 The dependency on python packages: networkx, pygraphviz, pydot, pyparsing.
 
+The dependency on softwares: graphviz, cmake, gcc(>=4.6)
+
+
+The dependency on libraries: boost
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
