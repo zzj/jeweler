@@ -98,12 +98,17 @@ class JewelerClassifier:
             if v == 1:
                 self.black_list.add(self.training_data[i].target_name)
         if self.correct_gene_set:
+            # self.old_cuffcompare_result = \
+            #       cuffcompare.CuffcompareResult("result/simulation_mapsplice_trim/new_cuffcompare/" + self.shop_info.sample_id + "/cuffcompare.tracking")
             self.old_cuffcompare_result = \
-                  cuffcompare.CuffcompareResult("result/simulation_mapsplice_trim/new_cuffcompare/" + self.shop_info.sample_id + "/cuffcompare.tracking")
+                  cuffcompare.CuffcompareResult("result/simulation/cuffcompare/" + self.shop_info.sample_id + "/cuffcompare.tracking")
             self.good_genes = self.cuffcompare_result.all_gene_names(self.black_list, True)
             all_genes = self.cuffcompare_result.all_gene_names(self.black_list)
             old_all_genes = self.old_cuffcompare_result.all_gene_names(None, False)
             old_good_genes = self.old_cuffcompare_result.all_gene_names(None, True)
+            print(len(self.good_genes))
+            print(len(old_good_genes))
+            print(len(self.correct_gene_set))
             self.print_output(self.good_genes, all_genes, self.correct_gene_set)
             self.print_output(old_good_genes, old_all_genes, self.correct_gene_set)
 
@@ -208,7 +213,7 @@ class KNNJewelerClassifier(JewelerClassifier):
 
 class ClassifyJewelerClassifier(JewelerClassifier):
     def train(self):
-        self.fit = pickle.load(open("learning_model", "rb"))
+        self.fit = pickle.load(open("learning_model_cv4", "rb"))
 
 if __name__ == "__main__":
     sjc = ClassifyJewelerClassifier()

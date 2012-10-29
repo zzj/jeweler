@@ -1,5 +1,5 @@
 #include <iostream>
-#include <string> 
+#include <string>
 #include <api/BamReader.h>
 #include <api/BamWriter.h>
 #include <Fasta.h>
@@ -12,7 +12,7 @@ public:
 	Appraiser(int argc, char *argv[]);
 
 	string bamfile;
-	string fastafile; 
+	string fastafile;
 	FILE *log_file; // log file
 	string mam_table_file; // multiple alignment file
 	string mam_map_file; // multiple alignment file
@@ -22,5 +22,3 @@ public:
 	void run();
 
 };
-
-
