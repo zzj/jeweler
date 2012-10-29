@@ -1,0 +1,8 @@
+long_spanning_reads v1.4.1 (2912M)
+--------------------------------------------
+Opening ./tophat_out/tmp/right_kept_reads.bwtout.z for reading
+Loading reference sequences...
+        reference sequences loaded.
+Loading spliced hits...done
+Loading junctions...done
+Loading deletions...done

@@ -1,0 +1,9 @@
+tophat_reports v1.4.1 (2912M)
+---------------------------------------
+[samopen] SAM header is present: 1 sequences.
+Loaded 2 junctions
+Reporting final accepted alignments...done.
+Printing junction BED track...done
+Printing insertions...done
+Printing deletions...done
+Found 2 junctions from happy spliced reads

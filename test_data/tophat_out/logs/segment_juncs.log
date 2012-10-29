@@ -1,0 +1,16 @@
+segment_juncs v1.4.1 (2912M)
+---------------------------
+Loading reference sequences...
+>> Performing segment-search:
+Loading left segment hits...
+Microaligned 0 segments
+done.
+Loading right segment hits...
+Microaligned 0 segments
+done.
+	found 3 potential split-segment junctions
+	found 0 potential small deletions
+	found 0 potential small insertions
+Reported 3 total possible splices
+Reporting potential deletions...
+Reporting potential insertions...
