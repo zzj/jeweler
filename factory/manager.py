@@ -11,7 +11,7 @@ def initialize_parser():
     parser.add_argument('--filelist',
                         help='A list of bam files, for multipe bamfiles. ',
                         dest='filelist')
-    
+
     parser.add_argument('--reftable',
                         help='A reference table for reference genomes',
                         dest='reftable')
@@ -34,7 +34,7 @@ def run_command(file_list, reftable, parameters, extra):
 
 def pause_command():
     os.system("echo pause >> command_list")
-    
+
 
 def main():
     try:
@@ -57,6 +57,8 @@ def main():
                     "--jeweler --mismatch_analyzer", extra)
         pause_command()
         run_command(args.filelist, args.reftable, "--shared_graph", extra)
+        pause_command()
+        run_command(args.filelist, args.reftable, "--classify_gene", extra)
     except:
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         print("*** print_exc:")

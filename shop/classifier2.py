@@ -213,7 +213,7 @@ class KNNJewelerClassifier(JewelerClassifier):
 
 class ClassifyJewelerClassifier(JewelerClassifier):
     def train(self):
-        self.fit = pickle.load(open("learning_model_cv4", "rb"))
+        self.fit = pickle.load(open("learning_model", "rb"))
 
 if __name__ == "__main__":
     sjc = ClassifyJewelerClassifier()
