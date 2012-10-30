@@ -3,7 +3,7 @@ BOOST=/opt/local/lib/
 CC=g++
 LIB=-Llib/bamtools/lib/ -L$(HOME)/bin/lib -Llib/leveldb-1.5.0/ \
 	-Llib/glog-0.3.2/.libs/ -L$(BOOST)
-LDFLAGS= -lz lib/bamtools/lib/libbamtools.a -lboost_system-mt -lboost_filesystem-mt  -lprotobuf lib/leveldb-1.5.0/libleveldb.a lib/glog-0.3.2/.libs/libglog.a
+LDFLAGS= -lz lib/bamtools/lib/libbamtools.a -lboost_system -lboost_filesystem  -lprotobuf lib/leveldb-1.5.0/libleveldb.a lib/glog-0.3.2/.libs/libglog.a
 CFLAGS= -g -O3 -std=gnu++0x -Wall -Wextra
 INC=-Ilib/bamtools/include/ -Ilib/fastahack/ -I$(HOME)/bin/include -Ilib/leveldb-1.5.0/include -Ilib/glog-0.3.2/src/ -Ilib/protobuf-2.4.1/src
 
@@ -86,7 +86,7 @@ all: $(SOURCES) $(EXECUTABLE) $(TESTS)
 $(JEWELER_EXECUTABLE): $(JEWELER_OBJECTS)
 	$(CC) $(LIB) $^ $(LDFLAGS) -o $@
 
-$(TEST_JEWELER): $(JEWELER_LIB_OBJECTS) $(TEST_JEWELER_OBJECTS) gtest_main.a 
+$(TEST_JEWELER): $(JEWELER_LIB_OBJECTS) $(TEST_JEWELER_OBJECTS) gtest_main.a
 	$(CC) $(LIB) $^ $(LDFLAGS) -lpthread  -o $@
 	./$(TEST_JEWELER)
 
@@ -130,4 +130,3 @@ gtest_main.a : gtest-all.o gtest_main.o
 
 clean:
 	rm $(sort $(OBJECTS)) $(EXECUTABLE) $(TESTS) gtest.a gtest_main.a
-
