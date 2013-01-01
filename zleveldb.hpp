@@ -40,7 +40,7 @@ public:
     }
 
     template<typename T>
-    shared_ptr<T> get( const string &key);
+    shared_ptr<T> get(const string &key);
 
     template<typename T>
     int set(const string &key, T *data);

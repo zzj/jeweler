@@ -113,9 +113,8 @@ string SewingMachine::get_reference_sequence(FastaReference &fr, JewelerAlignmen
 
 
 int SewingMachine::add_alignment(const JewelerAlignment &al) {
-    unique_ptr<locator>l(new locator(al, this->references));
-    shared_ptr<Jeweler::SewingMachineData> smd = \
-        this->zdb->get<Jeweler::SewingMachineData>(al.Name);
+    unique_ptr<locator> l(new locator(al, this->references));
+    auto smd = this->zdb->get<Jeweler::SewingMachineData>(al.Name);
     if (smd.get() == NULL) {
         smd = shared_ptr<Jeweler::SewingMachineData>(new Jeweler::SewingMachineData);
     }
@@ -178,7 +177,7 @@ bool SewingMachine::is_multiple_alignment(const shared_ptr<Jeweler::SewingMachin
     bool has_first = false, has_second = false;
     for (int i = 0; i < smd->locator_size(); i++) {
         if (smd->locator(i).is_first()) has_first = true;
-        else has_second =true;
+        else has_second = true;
     }
     if ((has_first && !has_second) || (!has_first && has_second))
         return smd->locator_size() >= 2;

@@ -49,11 +49,11 @@ protected:
         sm->add_alignment(al1);
         sm->add_alignment(al2);
         sm->add_alignment(al2);
-        sm->add_alignment(al3);
         al3.SetIsFirstMate(true);
+        sm->add_alignment(al3);
+        al3.SetIsFirstMate(false);
         sm->add_alignment(al3);
         sm->add_alignment(al4);
-        al3.SetIsFirstMate(true);
         sm->add_alignment(al4);
         sm->add_alignment(al4);
     }
