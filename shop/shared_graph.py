@@ -21,6 +21,24 @@ class SharedGraph():
     num_genes = 0
     gene2gene = dict()
 
+    def __init__(self):
+        self.black_list = set()
+        self.shop_info = shop_info.ShopInfo()
+        self.cuffcompare_result = \
+            cuffcompare.CuffcompareResult(self.shop_info.cuffcompare_file)
+        self.mismatch_analyzer = self.load_mismatch_analyzer()
+        self.bracelet_result = self.load_bracelet_data()
+        self.training_data = self.generate_training_data()
+
+        print("there are totally " +
+              str(len(self.bracelet_result)) +
+              " graphs are built .")
+        pickle.dump(self.black_list,
+                    open(self.shop_info.blacklist_file, "wb"))
+        pickle.dump(self.training_data,
+                    open(self.shop_info.test_data_file, "wb"))
+        # dump_dot_graph()
+
     def add_node_color(self, graph, name):
         if (self.is_unknown(name)):
             graph.add_node(name, color="black")
@@ -117,24 +135,6 @@ class SharedGraph():
             for gene in data.related_transcript:
                 ret.append(GeneRelationship(data, gene, self))
         return ret
-
-    def __init__(self):
-        self.black_list = set()
-        self.shop_info = shop_info.ShopInfo()
-        self.cuffcompare_result = \
-            cuffcompare.CuffcompareResult(self.shop_info.cuffcompare_file)
-        self.mismatch_analyzer = self.load_mismatch_analyzer()
-        self.bracelet_result = self.load_bracelet_data()
-        self.training_data = self.generate_training_data()
-
-        print("there are totally " +
-              str(len(self.bracelet_result)) +
-              " graphs are built .")
-        pickle.dump(self.black_list,
-                    open(self.shop_info.blacklist_file, "wb"))
-        pickle.dump(self.training_data,
-                    open(self.shop_info.test_data_file, "wb"))
-        # dump_dot_graph()
 
     def dump_dot_graph():
         fd = open(self.result_folder +"/" + "shared_graph","w+")

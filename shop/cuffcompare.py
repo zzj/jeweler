@@ -58,6 +58,7 @@ class CuffcompareResult:
                 gene_data.gene_name = line_data[2].split("|")[0]
             else:
                 gene_data.is_unknown = True
+                gene_data.gene_name = gene_data.gene_id
             gene_data.fpkm = float(line_data[4].split("|")[6])
             gene_data.matched_score = line_data[3]
             if line_data[2] != '-' and (line_data[3] == '=' or line_data[3] == 'j'):
@@ -100,7 +101,7 @@ class CuffcompareResult:
         )
 
 
-    def all_gene_names(self, black_list = None, only_good = False):
+    def all_gene_names(self, black_list=None):
         gene_names = []
         for d in self.data.gene_data:
             if black_list and d.gene_id in black_list:
@@ -108,7 +109,7 @@ class CuffcompareResult:
             gene_names.append(d.gene_name)
         return gene_names
 
-    def all_transcript_names(self, black_list = None, only_good = False):
+    def all_transcript_names(self, black_list=None):
         transcript_names = []
         for d in self.data.gene_data:
             if black_list and d.gene_id in black_list:

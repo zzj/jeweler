@@ -3,9 +3,11 @@ BOOST=/opt/local/lib/
 CC=g++
 LIB=-Llib/bamtools/lib/ -L$(HOME)/bin/lib -Llib/leveldb-1.5.0/ \
 	-Llib/glog-0.3.2/.libs/ -L$(BOOST)
-LDFLAGS= -lz lib/bamtools/lib/libbamtools.a -lboost_system -lboost_filesystem  -lprotobuf lib/leveldb-1.5.0/libleveldb.a lib/glog-0.3.2/.libs/libglog.a
+LDFLAGS= -lz lib/bamtools/lib/libbamtools.a -lboost_system -lboost_filesystem \
+	 -lprotobuf lib/leveldb-1.5.0/libleveldb.a lib/glog-0.3.2/.libs/libglog.a
 CFLAGS= -g -O3 -std=gnu++0x -Wall -Wextra
-INC=-Ilib/bamtools/include/ -Ilib/fastahack/ -I$(HOME)/bin/include -Ilib/leveldb-1.5.0/include -Ilib/glog-0.3.2/src/ -Ilib/protobuf-2.4.1/src
+INC=-Ilib/bamtools/include/ -Ilib/fastahack/ -I$(HOME)/bin/include \
+	-Ilib/leveldb-1.5.0/include -Ilib/glog-0.3.2/src/ -Ilib/protobuf-2.4.1/src
 
 # UNIT TEST MAKEFILE
 
@@ -77,7 +79,8 @@ TEST_BAM_OBJECTS=$(TEST_BAM_SOURCES:.cpp=.o)
 
 EXECUTABLE=$(JEWELER_EXECUTABLE) $(APPRAISER_EXECUTABLE) $(TEST_BAM_EXECUTABLE)
 SOURCES=$(JEWELER_SOURCES) $(APPRAISER_SOURCES)
-OBJECTS=$(JEWELER_OBJECTS) $(APPRAISER_OBJECTS) $(TEST_BAM_OBJECTS) $(TEST_JEWELER_OBJECTS)
+OBJECTS=$(JEWELER_OBJECTS) $(APPRAISER_OBJECTS) $(TEST_BAM_OBJECTS) \
+	$(TEST_JEWELER_OBJECTS)
 
 TESTS = $(TEST_JEWELER)
 

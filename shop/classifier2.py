@@ -28,6 +28,8 @@ from sklearn.neighbors.nearest_centroid import NearestCentroid
 from sklearn.ensemble import RandomForestClassifier
 
 def f1(precision, recall):
+    if precision + recall < 0.000000001:
+        return 0
     return 2 * precision * recall / (precision + recall)
 
 class JewelerClassifier:
@@ -42,8 +44,10 @@ class JewelerClassifier:
         self.bad_transcripts = set()
         self.good_transcripts = set()
         self.fit = None
-        print(self.shop_info.sample_id[0:9])
-        self.correct_gene_set, self.correct_transcript_set = self.get_correct_data("data/simulation_bam_new_merge/" + self.shop_info.sample_id[0:9] + ".abundance")
+        simulation_file = "data/simulation_bam_new_merge/" + \
+                          self.shop_info.sample_id[0:9] + ".abundance"
+        self.correct_gene_set, self.correct_transcript_set = \
+             self.get_correct_data(simulation_file)
         self.generate_training_data()
         self.train()
         self.classify()
@@ -51,7 +55,7 @@ class JewelerClassifier:
         self.dump_cuffcompare_file()
 
     def get_correct_data(self, filename):
-        if filename is None :
+        if filename is None:
             return (None, None)
 
         if not os.path.isfile(filename):
@@ -68,14 +72,21 @@ class JewelerClassifier:
 
     def train(self):
         raise NotImplementedError
-    def count_intersect(goods, alls):
-        g = goods.copy
+
     def print_output(self, goods, alls, correct_set):
         num_correct_genes = sum((collections.Counter(goods) & collections.Counter(correct_set)).values())
-        pre = num_correct_genes * 1.0 / len((alls))
+        pre = num_correct_genes * 1.0 / len(alls)
         recall = len(filter(set(goods).__contains__, set(correct_set))) * 1.0 / len(set(correct_set))
-        print(len(alls))
-        print (pre, recall, f1(pre, recall))
+        print (pre, recall , f1(pre, recall))
+
+    def print_bad(self, bads, alls, correct_set):
+        num_bad_genes = len([i for i in bads if i not in set(correct_set)])
+        print(num_bad_genes)
+        pre = float(num_bad_genes) / len(bads)
+        residue = set(alls) - set(correct_set)
+        recall = float(len(bads & residue)) / len(residue)
+        total = float(len(bads)) / len(correct_set)
+        print(pre, recall, total)
 
     def classify(self):
         predict = self.fit.predict(self.X)
@@ -102,23 +113,27 @@ class JewelerClassifier:
             #       cuffcompare.CuffcompareResult("result/simulation_mapsplice_trim/new_cuffcompare/" + self.shop_info.sample_id + "/cuffcompare.tracking")
             self.old_cuffcompare_result = \
                   cuffcompare.CuffcompareResult("result/simulation/cuffcompare/" + self.shop_info.sample_id + "/cuffcompare.tracking")
-            self.good_genes = self.cuffcompare_result.all_gene_names(self.black_list, True)
-            all_genes = self.cuffcompare_result.all_gene_names(self.black_list)
-            old_all_genes = self.old_cuffcompare_result.all_gene_names(None, False)
-            old_good_genes = self.old_cuffcompare_result.all_gene_names(None, True)
-            print(len(self.good_genes))
-            print(len(old_good_genes))
-            print(len(self.correct_gene_set))
+            all_genes = self.cuffcompare_result.all_gene_names()
+            self.good_genes = self.cuffcompare_result.all_gene_names(self.black_list)
+            old_all_genes = self.old_cuffcompare_result.all_gene_names()
+            old_good_genes = self.old_cuffcompare_result.all_gene_names()
+            bad_genes = set(all_genes) - set(self.good_genes)
+
             self.print_output(self.good_genes, all_genes, self.correct_gene_set)
             self.print_output(old_good_genes, old_all_genes, self.correct_gene_set)
+            self.print_bad(bad_genes, all_genes, self.correct_gene_set)
 
-            old_good_transcripts = self.old_cuffcompare_result.all_transcript_names(None, True)
-            old_all_transcripts = self.old_cuffcompare_result.all_transcript_names(None)
-            all_transcripts = self.cuffcompare_result.all_transcript_names(self.black_list)
-            self.good_transcripts = self.cuffcompare_result.all_transcript_names(self.black_list, True)
-            self.print_output(self.good_transcripts, all_transcripts, self.correct_transcript_set)
-            self.print_output(old_good_transcripts, old_all_transcripts, self.correct_transcript_set)
-
+            old_good_transcripts = \
+                 self.old_cuffcompare_result.all_transcript_names(self.black_list)
+            old_all_transcripts = self.old_cuffcompare_result.all_transcript_names()
+            all_transcripts = \
+                 self.cuffcompare_result.all_transcript_names(self.black_list)
+            self.good_transcripts = \
+                self.cuffcompare_result.all_transcript_names(self.black_list)
+            self.print_output(self.good_transcripts, all_transcripts,
+                              self.correct_transcript_set)
+            self.print_output(old_good_transcripts, old_all_transcripts,
+                              self.correct_transcript_set)
 
     def dump_cuffcompare_file(self):
         gene_names = self.black_list
@@ -151,7 +166,8 @@ class JewelerClassifier:
         open(self.shop_info.cufflinks_folder+"/"+"new_transcripts.gtf","w+").writelines(new_lines)
         new_lines = filter(is_filtered, lines)
         open(self.shop_info.cufflinks_folder+"/"+"suspicious_transcripts.gtf","w+").writelines(new_lines)
-        transcripts_lines = [line for line in lines if is_filtered(line) and is_transcript(line)]
+        transcripts_lines = [line for line in lines
+                             if is_filtered(line) and is_transcript(line)]
         fd = open(self.shop_info.cufflinks_folder+"/"+"sus_distribution.txt","w+")
         for line in transcripts_lines:
             k = line.split('\t')
@@ -183,7 +199,6 @@ class JewelerClassifier:
 class SVMJewelerClassifier(JewelerClassifier):
     def train(self):
         clf = svm.SVC(class_weight = {0:1, 1:1})
-        ## http://scikit-learn.org/0.11/auto_examples/plot_precision_recall.html
         half = len(self.X)
         self.fit = clf.fit(self.X[0:half], self.Y[0:half])
         pickle.dump(self.fit, open("learning_model", "wb"))
@@ -191,7 +206,6 @@ class SVMJewelerClassifier(JewelerClassifier):
 class TreeJewelerClassifier(JewelerClassifier):
     def train(self):
         clf = tree.DecisionTreeClassifier()
-        ## http://scikit-learn.org/0.11/auto_examples/plot_precision_recall.html
         half = len(self.X)
         self.fit = clf.fit(self.X[0:half], self.Y[0:half])
         pickle.dump(self.fit, open("learning_model", "wb"))
@@ -199,7 +213,6 @@ class TreeJewelerClassifier(JewelerClassifier):
 class RFJewelerClassifier(JewelerClassifier):
     def train(self):
         clf = RandomForestClassifier()
-        ## http://scikit-learn.org/0.11/auto_examples/plot_precision_recall.html
         half = len(self.X)
         self.fit = clf.fit(self.X[0:half], self.Y[0:half])
         pickle.dump(self.fit, open("learning_model", "wb"))
@@ -207,7 +220,6 @@ class RFJewelerClassifier(JewelerClassifier):
 class KNNJewelerClassifier(JewelerClassifier):
     def train(self):
         clf = NearestCentroid()
-        ## http://scikit-learn.org/0.11/auto_examples/plot_precision_recall.html
         half = len(self.X) / 2
         self.fit = clf.fit(self.X[0:half], self.Y[0:half])
 
