@@ -5,7 +5,7 @@
 #include <string> 
 #include <api/BamReader.h>
 #include <api/BamWriter.h>
-#include "../common.hpp"
+#include "main/common.hpp"
 #include <map>
 using namespace BamTools;
 using namespace std;

@@ -5,7 +5,7 @@
 #include <api/BamConstants.h>
 #include <Fasta.h>
 #include "laboratory/cigar_holder.hpp"
-#include "jeweler_alignment.hpp"
+#include "main/jeweler_alignment.hpp"
 using namespace BamTools;
 using namespace std;
 

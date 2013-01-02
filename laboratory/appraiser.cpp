@@ -1,6 +1,6 @@
 #include "appraiser.hpp"
-#include "../common.hpp"
-#include "../jeweler_alignment.hpp"
+#include "main/common.hpp"
+#include "main/jeweler_alignment.hpp"
 #include "metabam.hpp"
 #include "sewing_machine.hpp"
 #include "cigar_holder.hpp"

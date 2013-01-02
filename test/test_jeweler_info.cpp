@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "jeweler_info.hpp"
+#include "main/jeweler_info.hpp"
 
 using namespace std;
 

@@ -13,8 +13,8 @@
 using namespace BamTools;
 using namespace std;
 
-#include "../proto/jeweler.pb.h"
-#include "../common.hpp"
+#include "proto/jeweler.pb.h"
+#include "main/common.hpp"
 #include "bam_info.hpp"
 #include "cigar_holder.hpp"
 #include "gtest/gtest_prod.h"

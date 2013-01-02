@@ -1,7 +1,7 @@
 #include "cigar_holder.hpp"
 #include <sstream>
-#include "../common.hpp"
-#include "../jeweler_alignment.hpp"
+#include "main/common.hpp"
+#include "main/jeweler_alignment.hpp"
 using namespace std;
 int output_cigar_data(FILE * output_file, JewelerAlignment &al) {
 	std::vector< CigarOp > &cigar_data = al.CigarData;

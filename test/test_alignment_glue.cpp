@@ -1,5 +1,5 @@
-#include "alignment_glue.hpp"
+#include "main/alignment_glue.hpp"
 #include "gtest/gtest.h"
-#include "jeweler_alignment.hpp"
+#include "main/jeweler_alignment.hpp"
 #include "test_jeweler_alignment.hpp"
 #include "laboratory/cigar_holder.hpp"

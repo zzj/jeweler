@@ -1,6 +1,6 @@
 #include <limits.h>
 #include <string>
-#include "jeweler_alignment.hpp"
+#include "main/jeweler_alignment.hpp"
 #include "laboratory/cigar_holder.hpp"
 #include "test_jeweler_alignment.hpp"
 #include "gtest/gtest.h"

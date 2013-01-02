@@ -1,6 +1,6 @@
 #include <limits.h>
-#include "bracelet.hpp"
-#include "constants.hpp"
+#include "main/bracelet.hpp"
+#include "main/constants.hpp"
 #include "gtest/gtest.h"
 #include <boost/assign/std/vector.hpp>
 

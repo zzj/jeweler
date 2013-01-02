@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include "proto/jeweler.pb.h"
-#include "zleveldb.hpp"
+#include "main/zleveldb.hpp"
 
 class ZLevelDBTest: public ::testing::Test {
 protected:

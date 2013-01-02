@@ -1,5 +1,5 @@
-#include "gtf.hpp"
-#include "transcript.hpp"
+#include "main/gtf.hpp"
+#include "main/transcript.hpp"
 #include "gtest/gtest.h"
 #include <string>
 #include <vector>

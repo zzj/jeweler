@@ -1,5 +1,5 @@
 #include "graph.hpp"
-#include "../constants.hpp"
+#include "main/constants.hpp"
 Graph::~Graph(){
 	for (auto i=nodes.begin();i!=nodes.end();i++){
 		delete (*i);

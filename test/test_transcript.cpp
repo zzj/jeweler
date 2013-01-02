@@ -1,11 +1,11 @@
 #include <limits.h>
-#include "transcript.hpp"
-#include "gtf.hpp"
-#include "jeweler_info.hpp"
+#include "main/transcript.hpp"
+#include "main/gtf.hpp"
+#include "main/jeweler_info.hpp"
 #include "gtest/gtest.h"
 #include "test.hpp"
 #include "laboratory/cigar_holder.hpp"
-#include "constants.hpp"
+#include "main/constants.hpp"
 #include <boost/assign/std/vector.hpp>
 
 using namespace boost::assign; 

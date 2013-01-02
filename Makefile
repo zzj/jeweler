@@ -23,7 +23,7 @@ USER_DIR = .
 CXXFLAGS= $(CFLAGS)
 
 # Flags passed to the preprocessor.
-CPPFLAGS=$(INC) -I$(GTEST_DIR)/include
+CPPFLAGS=$(INC) -I$(GTEST_DIR)/include -I`pwd`
 
 # Builds gtest.a and gtest_main.a.
 
@@ -36,22 +36,24 @@ GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 # conservative and not optimized.  This is fine as Google Test
 # compiles fast and for ordinary users its source rarely changes.
 
-JEWELER_LIB_SOURCES =  jeweler_info.cpp jeweler_alignment.cpp read_matcher.cpp \
-                 pileup.plot.cpp alignment_glue.cpp aligner.cpp transcript.cpp \
-                 transcript_mismatcher.cpp earrings.cpp bracelet.cpp common.cpp \
-                 fasta.cpp gtf_info.cpp gtf.cpp rna_read.cpp \
-                 proto/jeweler.pb.cpp laboratory/cigar_holder.cpp \
-                 laboratory/sewing_machine.cpp laboratory/bam_info.cpp \
-                 graph/exon_node.cpp graph/graph.cpp  graph/path.cpp \
-                 math/probability.cpp lib/fastahack/Fasta.cpp \
-                 lib/fastahack/split.cpp
+JEWELER_LIB_SOURCES =  main/jeweler_info.cpp main/jeweler_alignment.cpp \
+	main/read_matcher.cpp main/pileup.plot.cpp main/alignment_glue.cpp \
+	main/aligner.cpp main/transcript.cpp main/transcript_mismatcher.cpp \
+	main/earrings.cpp main/bracelet.cpp main/common.cpp \
+	main/fasta.cpp main/gtf_info.cpp main/gtf.cpp main/rna_read.cpp \
+	proto/jeweler.pb.cpp laboratory/cigar_holder.cpp \
+	laboratory/sewing_machine.cpp laboratory/bam_info.cpp \
+	graph/exon_node.cpp graph/graph.cpp  graph/path.cpp \
+	math/probability.cpp lib/fastahack/Fasta.cpp \
+	lib/fastahack/split.cpp
 
-JEWELER_SOURCES= jeweler.cpp $(JEWELER_LIB_SOURCES)
+JEWELER_SOURCES= main/jeweler.cpp $(JEWELER_LIB_SOURCES)
 
-TEST_JEWELER_SOURCES= test_common.cpp test_jeweler_alignment.cpp test_gtf.cpp \
-                      test_jeweler_info.cpp test_transcript.cpp test_bracelet.cpp \
-                      test_zleveldb.cpp laboratory/test_sewing_machine.cpp \
-                      laboratory/test_cigar_holder.cpp test_alignment_glue.cpp
+TEST_JEWELER_SOURCES= test/test_common.cpp test/test_jeweler_alignment.cpp \
+	test/test_gtf.cpp test/test_jeweler_info.cpp test/test_transcript.cpp \
+	test/test_bracelet.cpp test/test_zleveldb.cpp \
+	test/test_sewing_machine.cpp \
+	test/test_cigar_holder.cpp test/test_alignment_glue.cpp
 
 TEST_JEWELER_OBJECTS=$(TEST_JEWELER_SOURCES:.cpp=.o)
 TEST_JEWELER = test_jeweler
@@ -61,7 +63,7 @@ JEWELER_OBJECTS= $(JEWELER_SOURCES:.cpp=.o)
 JEWELER_LIB_OBJECTS=$(JEWELER_LIB_SOURCES:.cpp=.o)
 
 APPRAISER_SOURCES= $(APPRAISER_CPP_SOURCES) $(APPRAISER_C_SOURCES)
-APPRAISER_CPP_SOURCES=laboratory/appraiser.cpp  common.cpp  laboratory/metabam.cpp \
+APPRAISER_CPP_SOURCES=laboratory/appraiser.cpp  main/common.cpp  laboratory/metabam.cpp \
                       laboratory/bam_info.cpp  laboratory/sewing_machine.cpp \
                       proto/jeweler.pb.cpp \
                       laboratory/cigar_holder.cpp  lib/fastahack/Fasta.cpp \
@@ -73,7 +75,7 @@ APPRAISER_CPP_OBJECTS=$(APPRAISER_CPP_SOURCES:.cpp=.o)
 APPRAISER_C_OBJECTS=$(APPRAISER_C_SOURCES:.c=.o)
 APPRAISER_OBJECTS=$(APPRAISER_C_OBJECTS) $(APPRAISER_CPP_OBJECTS)
 
-TEST_BAM_SOURCES= test_bam.cpp lib/fastahack/Fasta.cpp \
+TEST_BAM_SOURCES= test/test_bam.cpp lib/fastahack/Fasta.cpp \
                   lib/fastahack/split.cpp  laboratory/cigar_holder.cpp
 TEST_BAM_EXECUTABLE=test_bam
 TEST_BAM_OBJECTS=$(TEST_BAM_SOURCES:.cpp=.o)

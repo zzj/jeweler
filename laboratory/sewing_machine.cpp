@@ -1,8 +1,8 @@
 
 #include "sewing_machine.hpp"
-#include "../proto/jeweler.pb.h"
-#include "../zleveldb.hpp"
-#include "../jeweler_alignment.hpp"
+#include "proto/jeweler.pb.h"
+#include "main/zleveldb.hpp"
+#include "main/jeweler_alignment.hpp"
 #include <memory>
 #include <boost/filesystem.hpp>
 using boost::filesystem::path;

@@ -1,8 +1,8 @@
 #include <limits.h>
 #include "gtest/gtest.h"
-#include "../common.hpp"
-#include "../jeweler_alignment.hpp"
-#include "sewing_machine.hpp"
+#include "main/common.hpp"
+#include "main/jeweler_alignment.hpp"
+#include "laboratory/sewing_machine.hpp"
 #include <api/BamReader.h>
 #include <boost/filesystem.hpp>
 
