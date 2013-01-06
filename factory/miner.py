@@ -52,6 +52,12 @@ def main():
                 args.bracelet_folder="/bracelet/"
                 args.shared_graph_folder="/shared_graph/"
 
+            num_options = args.is_cufflinks + args.is_cuffcompare + \
+                          args.is_jeweler + args.is_transcriptome_alignment + \
+                          args.is_appraiser + \
+                          (args.plot_shared_graph or args.classify_gene)
+            if (num_options != 1):
+                raise Exception("Require One action per command!")
             if (args.is_cufflinks):
                 config("day", "8", "1")
                 cufflinks_worker(args)
