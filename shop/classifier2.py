@@ -37,12 +37,10 @@ class JewelerClassifier:
         self.shop_info = shop_info.ShopInfo()
         self.cuffcompare_result = \
             cuffcompare.CuffcompareResult(self.shop_info.cuffcompare_file)
-        self.training_data = pickle.load(open(self.shop_info.test_data_file, "rb"))
-        self.black_list = pickle.load(open(self.shop_info.blacklist_file, "rb"))
-        self.bad_genes = set()
-        self.good_genes = set()
-        self.bad_transcripts = set()
-        self.good_transcripts = set()
+        self.training_data = \
+            pickle.load(open(self.shop_info.test_data_file, "rb"))
+        self.black_list = \
+            pickle.load(open(self.shop_info.blacklist_file, "rb"))
         self.fit = None
         simulation_file = "data/simulation_bam_new_merge/" + \
                           self.shop_info.sample_id[0:9] + ".abundance"
@@ -73,29 +71,40 @@ class JewelerClassifier:
     def train(self):
         raise NotImplementedError
 
-    def print_output(self, goods, alls, correct_set):
-        num_correct_genes = sum((collections.Counter(goods) & collections.Counter(correct_set)).values())
-        pre = num_correct_genes * 1.0 / len(alls)
-        recall = len(filter(set(goods).__contains__, set(correct_set))) * 1.0 / len(set(correct_set))
-        print (pre, recall , f1(pre, recall))
 
-    def print_bad(self, bads, alls, correct_set):
+    ## the following three functions can be moved out from this class.
+    def calculate_gene_accuracy(self, goods, alls, correct_set):
+        '''Calculate the accuracy per gene.
+
+        If the gene is occurred multiple times in the result, only count once as correct one.
+        '''
+        goods_counter = collections.Counter(goods)
+        correct_counter = collections.Counter(correct_set)
+        num_correct_genes = sum((goods_counter & correct_counter).values())
+        pre = num_correct_genes * 1.0 / len(alls)
+        correct_number = len(filter(set(goods).__contains__, set(correct_set))) * 1.0
+        recall = correct_number / len(set(correct_set))
+        return (pre, recall , f1(pre, recall))
+
+    def calculate_error_rate(self, bads, alls, correct_set):
+        '''Calculate the error rate per gene'''
         num_bad_genes = len([i for i in bads if i not in set(correct_set)])
-        print(num_bad_genes)
         pre = float(num_bad_genes) / len(bads)
         residue = set(alls) - set(correct_set)
         recall = float(len(bads & residue)) / len(residue)
         total = float(len(bads)) / len(correct_set)
-        print(pre, recall, total)
+        return(pre, recall, total)
+
+    def calculate_testing_accuracy(self, Y, predict):
+        redundancy = sum(self.Y) * 1.0 / len(self.Y)
+        accuracy = zero_one_score(Y, predict)
+        precision = precision_score(Y, predict)
+        recall = recall_score(Y, predict)
+        f1 = f1_score(Y, predict)
 
     def classify(self):
         predict = self.fit.predict(self.X)
-        print(sum(self.Y) * 1.0 / len(self.Y))
-        print(zero_one_score(self.Y, predict))
-        print(precision_score(self.Y, predict))
-        print(recall_score(self.Y, predict))
-        print(f1_score(self.Y, predict))
-
+        self.calculate_testing_accuracy(self.Y, predict)
         for i, v in enumerate(predict):
             if v == 1:
                 self.black_list.add(self.training_data[self.idx[i]].target_name)
@@ -109,30 +118,33 @@ class JewelerClassifier:
             if v == 1:
                 self.black_list.add(self.training_data[i].target_name)
         if self.correct_gene_set:
-            # self.old_cuffcompare_result = \
-            #       cuffcompare.CuffcompareResult("result/simulation_mapsplice_trim/new_cuffcompare/" + self.shop_info.sample_id + "/cuffcompare.tracking")
             self.old_cuffcompare_result = \
-                  cuffcompare.CuffcompareResult("result/simulation/cuffcompare/" + self.shop_info.sample_id + "/cuffcompare.tracking")
+                  cuffcompare.CuffcompareResult("result/simulation_mapsplice_trim/new_cuffcompare/" + self.shop_info.sample_id + "/cuffcompare.tracking")
+            # self.old_cuffcompare_result = \
+            #       cuffcompare.CuffcompareResult("result/simulation/cuffcompare/" + self.shop_info.sample_id + "/cuffcompare.tracking")
             all_genes = self.cuffcompare_result.all_gene_names()
-            self.good_genes = self.cuffcompare_result.all_gene_names(self.black_list)
+            good_genes = self.cuffcompare_result.all_gene_names(self.black_list)
             old_all_genes = self.old_cuffcompare_result.all_gene_names()
             old_good_genes = self.old_cuffcompare_result.all_gene_names()
-            bad_genes = set(all_genes) - set(self.good_genes)
+            bad_genes = set(all_genes) - set(good_genes)
 
-            self.print_output(self.good_genes, all_genes, self.correct_gene_set)
-            self.print_output(old_good_genes, old_all_genes, self.correct_gene_set)
-            self.print_bad(bad_genes, all_genes, self.correct_gene_set)
+            print(self.calculate_gene_accuracy(good_genes, all_genes,
+                                               self.correct_gene_set))
+            print(self.calculate_gene_accuracy(old_good_genes, old_all_genes,
+                                               self.correct_gene_set))
+            print(self.calculate_error_rate(bad_genes, all_genes,
+                                            self.correct_gene_set))
 
             old_good_transcripts = \
                  self.old_cuffcompare_result.all_transcript_names(self.black_list)
             old_all_transcripts = self.old_cuffcompare_result.all_transcript_names()
             all_transcripts = \
                  self.cuffcompare_result.all_transcript_names(self.black_list)
-            self.good_transcripts = \
+            good_transcripts = \
                 self.cuffcompare_result.all_transcript_names(self.black_list)
-            self.print_output(self.good_transcripts, all_transcripts,
+            self.calculate_gene_accuracy(good_transcripts, all_transcripts,
                               self.correct_transcript_set)
-            self.print_output(old_good_transcripts, old_all_transcripts,
+            self.calculate_gene_accuracy(old_good_transcripts, old_all_transcripts,
                               self.correct_transcript_set)
 
     def dump_cuffcompare_file(self):
