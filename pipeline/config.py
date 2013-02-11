@@ -1,1 +1,1 @@
-tail = ""
+tail = "_new"

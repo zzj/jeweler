@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
 #include "proto/jeweler.pb.h"
+#include "glog/logging.h"
 #include "earrings.hpp"
 #include "bracelet.hpp"
 #include "transcript_mismatcher.hpp"
@@ -17,7 +18,7 @@
 using namespace std;
 
 jeweler::jeweler(int argc, char * argv[]) {
-    
+
     int i;
     bool has_info = false;
     is_earrings = false;
@@ -94,7 +95,7 @@ jeweler::jeweler(int argc, char * argv[]) {
         fprintf(stderr, "ERROR: No infomation file! You need to specify it by -i\n");
         exit(1);
     }
-    
+
 }
 
 void jeweler::load_mamf_file() {
@@ -119,13 +120,13 @@ int jeweler::run() {
             id ++;
             if (test_case > 0  && id != test_case)  continue;
             if (num_test_case > 0) {
-                num_test_case --; 
+                num_test_case --;
                 if (num_test_case == 0) {
                     break;
                 }
             }
             if (id%10 == 0) fprintf(log_file,"%d\n",id);
-            Earrings earrings(jeweler_info, 
+            Earrings earrings(jeweler_info,
                               (*i),
                               sm,
                               &zmf);
@@ -141,7 +142,7 @@ int jeweler::run() {
             bracelet.dump(&out, bracelet_filename);
             out.close();
         }
-    
+
         if (is_mismatch_analyzer) {
             fprintf(stdout, "Mismatch analyzing ...\n");
             TranscriptMismatcherAnalyzer tma(mismatch_filename,
@@ -155,6 +156,7 @@ int jeweler::run() {
 
 int main(int argc, char * argv[]) {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
+    google::InitGoogleLogging(argv[0]);
 
     jeweler j=jeweler(argc, argv);
     j.run();

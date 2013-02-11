@@ -31,15 +31,19 @@ accuracy = 0
 precision = 0
 recall = 0
 f1 = 0
+area = 0
+print(len(data))
 for i in range(5):
-    learning = data[:-6]
-    training = data[-6:]
-    data = data[-6:] + data[:-6]
+    learning = data[:-55]
+    training = data[-55:]
+    data = data[-55:] + data[:-55]
     X, Y = get_data(learning)
     half = len(X)
-    clf = svm.LinearSVC()
-    clf = tree.DecisionTreeClassifier()
     clf = RandomForestClassifier(n_estimators=20)
+    clf = tree.DecisionTreeClassifier()
+    clf = svm.LinearSVC()
+    clf = svm.SVC(kernel='linear', probability=True)
+    print(len(Y))
     fit = clf.fit(X, Y)
     X, Y = get_data(training)
     predict = fit.predict(X)
@@ -52,11 +56,16 @@ for i in range(5):
     print(recall_score(Y, predict, pos_label=0))
     print(f1_score(Y, predict, pos_label=0))
     pickle.dump(fit, open("learning_model_cv" + str(i), "wb"))
-    print(training)
+    predict_prob = fit.predict_proba(X)
+    precision_curve, recall_curve, thresholds = precision_recall_curve(Y, predict_prob[:,1])
+    area += auc(recall_curve, precision_curve)
+    print("area is %lf" % area)
+
 print(accuracy / 5)
 print(precision / 5)
 print(recall / 5)
 print(f1 / 5)
+print(area / 5)
 #pickle.dump(fit, open("learning_model", "wb"))
 
 # scores = cross_validation.cross_val_score(clf, X, Y, cv=10, score_func=precision_score)

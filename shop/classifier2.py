@@ -213,21 +213,21 @@ class SVMJewelerClassifier(JewelerClassifier):
         clf = svm.SVC(class_weight = {0:1, 1:1})
         half = len(self.X)
         self.fit = clf.fit(self.X[0:half], self.Y[0:half])
-        pickle.dump(self.fit, open("learning_model", "wb"))
+        pickle.dump(self.fit, open("svm_learning_model", "wb"))
 
 class TreeJewelerClassifier(JewelerClassifier):
     def train(self):
         clf = tree.DecisionTreeClassifier()
         half = len(self.X)
         self.fit = clf.fit(self.X[0:half], self.Y[0:half])
-        pickle.dump(self.fit, open("learning_model", "wb"))
+        pickle.dump(self.fit, open("tree_learning_model", "wb"))
 
 class RFJewelerClassifier(JewelerClassifier):
     def train(self):
         clf = RandomForestClassifier()
         half = len(self.X)
         self.fit = clf.fit(self.X[0:half], self.Y[0:half])
-        pickle.dump(self.fit, open("learning_model", "wb"))
+        pickle.dump(self.fit, open("rf_learning_model", "wb"))
 
 class KNNJewelerClassifier(JewelerClassifier):
     def train(self):
@@ -236,8 +236,8 @@ class KNNJewelerClassifier(JewelerClassifier):
         self.fit = clf.fit(self.X[0:half], self.Y[0:half])
 
 class ClassifyJewelerClassifier(JewelerClassifier):
-    def train(self):
-        self.fit = pickle.load(open("learning_model", "rb"))
+    def train(self, model_name):
+        self.fit = pickle.load(open(model_name, "rb"))
 
 if __name__ == "__main__":
-    sjc = ClassifyJewelerClassifier()
+    sjc = SVMJewelerClassifier()

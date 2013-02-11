@@ -31,7 +31,7 @@ def main():
                 refidtable[r[0]]=r[1]
                 reffiletable[r[0]]=r[2]
 
-        else :
+        else:
             print('No reftable supplied')
             return
 
@@ -56,23 +56,23 @@ def main():
                           args.is_jeweler + args.is_transcriptome_alignment + \
                           args.is_appraiser + \
                           (args.plot_shared_graph or args.classify_gene)
-            if (num_options != 1):
+            if num_options != 1:
                 raise Exception("Require One action per command!")
-            if (args.is_cufflinks):
+            if args.is_cufflinks:
                 config("day", "8", "1")
                 cufflinks_worker(args)
-            elif (args.is_cuffcompare):
+            elif args.is_cuffcompare:
                 config("day", "8", "1")
                 cuffcompare_worker(args)
-            elif (args.is_jeweler):
+            elif args.is_jeweler:
                 config("day", "24", "1")
                 jeweler_worker(args, refidtable, reffiletable)
-            elif (args.is_transcriptome_alignment):
+            elif args.is_transcriptome_alignment:
                 transcriptome_alignment_worker(args, refidtable, reffiletable)
-            elif (args.is_appraiser):
-                config("adhoc", "8", "1")
+            elif args.is_appraiser:
+                config("day", "8", "1")
                 appraiser_worker(args)
-            elif (args.plot_shared_graph or args.classify_gene):
+            elif args.plot_shared_graph or args.classify_gene:
                 config("day", "4", "1")
                 shared_graph_worker(args)
 
