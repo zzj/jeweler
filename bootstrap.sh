@@ -16,5 +16,13 @@ cd ../protobuf-2.4.1
 ./configure --prefix=`pwd`/../../third_party/bin/
 make
 make install
+cd ..
 
-cd ../..
+cd lib/bamtools/
+mkdir build
+cd build
+cmake ..
+make
+cd ../../..
+
+
