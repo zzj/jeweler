@@ -7,17 +7,18 @@ def run_command(fd, comm):
 
 def main():
     job_id = int(sys.argv[1])
+
     log_file_fd = open('log/log_'+str(job_id),"w+")
     tophat_log_file = 'log_tophat'+str(job_id)
 
     playpen_index = '/lustre/scr/z/z/zzj/jeweler/data/index/'
     playpen_root = '/nas02/home/z/z/zzj/Research/rna_seq/jeweler/data/cegs_rnaseq_bam' + config.tail + '/'
-    fastq_root = '/lustre/scr/k/e/kemal/RNAseq/data/'
+    fastq_root = '/lustre/scr/z/z/zzj/jeweler/data/fastq/'
     ##run_command(log_file_fd,'mkdir '+playpen_root)
 
     ref_map={'F':'CAST', 'G':'PWK', 'H':'WSB'}
 
-    with open('../info/fastq') as f:
+    with open('../info/fastq_inbred') as f:
         read_meta = f.readlines()
 
     first_read_file = read_meta[job_id * 2 - 2].strip()

@@ -31,7 +31,7 @@ def jeweler_worker(args, refidtable, reffiletable):
         maternal_strain_ref_seq=reffiletable[alias[0]]
         paternal_strain_ref_seq=reffiletable[alias[1]]
         bam_file=f.strip()
-        
+
         result_file=alias+'.info'
         cuffresult_folder='result/'+os.path.basename(args.filelist)+args.cufflinks_folder
         gtf_input_file=	cuffresult_folder+'/'+os.path.basename(f.strip().replace('.bam',''))+'/transcripts.gtf'
@@ -52,20 +52,20 @@ def jeweler_worker(args, refidtable, reffiletable):
         earrings_command = ""
         ma_command = ""
         prepare_command = ""
-        if (os.path.exists(appraiser_result_folder + alias +"/sm_map")):
-            mamf_command = " -mamf " + appraiser_result_folder + alias +"/sm_map";
+        # if (os.path.exists(appraiser_result_folder + alias +"/sm_map")):
+        mamf_command = " -mamf " + appraiser_result_folder + alias +"/sm_map";
 
         if (args.is_earrings):
             ## multiple alignments maps
-            earrings_command = " -earrings" 
+            earrings_command = " -earrings"
         if (args.is_prepare):
             ## multiple alignments maps
-            prepare_command = " -prepare" 
+            prepare_command = " -prepare"
         if (args.is_mismatch_analyzer):
             if (args.is_new_cufflinks):
                 ma_result_folder = 'result/'+os.path.basename(args.filelist)+'/new_mismatch_analyzer/' + alias + '/'
             else:
-                ma_result_folder = 'result/'+os.path.basename(args.filelist)+'/mismatch_analyzer/' + alias + '/'                
+                ma_result_folder = 'result/'+os.path.basename(args.filelist)+'/mismatch_analyzer/' + alias + '/'
             if not os.path.exists(ma_result_folder):
                 os.makedirs(ma_result_folder)
             ma_command = " -mismatch_analyzer " + ma_result_folder+ "result"
@@ -74,7 +74,7 @@ def jeweler_worker(args, refidtable, reffiletable):
             if (args.is_new_cufflinks):
                 ma_result_folder = 'result/'+os.path.basename(args.filelist)+'/new_bracelet/' + alias + '/'
             else:
-                ma_result_folder = 'result/'+os.path.basename(args.filelist)+'/bracelet/' + alias + '/'                
+                ma_result_folder = 'result/'+os.path.basename(args.filelist)+'/bracelet/' + alias + '/'
             if not os.path.exists(ma_result_folder):
                     os.makedirs(ma_result_folder)
             bracelet_command = " -bracelet " + ma_result_folder+ " "
