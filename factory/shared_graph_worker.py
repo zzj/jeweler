@@ -3,6 +3,7 @@ import json
 import sys
 import traceback
 import argparse
+import common
 from subprocess import call
 
 def get_cuffcompare_folder(args, filename):
@@ -40,25 +41,25 @@ def get_mismatch_analyzer(args, filename):
     return ma_result_folder
 
 def shared_graph_worker(args):
-    files=open(args.filelist).readlines()
-    for f in files:
-        cuffcompare_folder=get_cuffcompare_folder(args, f)
-        jeweler_folder=get_jeweler_folder(args, f)
-        bracelet_folder=get_bracelet_folder(args,f)
-        mismatch_analyzer_folder = get_mismatch_analyzer(args, f)
-        shared_graph_folder = get_shared_graph_folder(args, f)
-        sample_id =  os.path.basename(f.strip().replace('.bam',''))
-        cufflinks_folder = get_cufflinks_folder(args, f)
-        ##stupid python evoke a R program that cannot read a file
-        if args.classify_gene:
-            command = "python shop/classifier2.py "
-        elif args.plot_shared_graph:
-            command = "python shop/shared_graph.py "
-        print(command + 
-              cuffcompare_folder + "/ " +
-              jeweler_folder + "/ " +
-              bracelet_folder + "/ " +
-              mismatch_analyzer_folder + "/ " +
-              shared_graph_folder + "/ " +
-              cufflinks_folder + "/ " +
-              sample_id)
+
+    f = args.filename
+    cuffcompare_folder=get_cuffcompare_folder(args, f)
+    jeweler_folder=get_jeweler_folder(args, f)
+    bracelet_folder=get_bracelet_folder(args,f)
+    mismatch_analyzer_folder = get_mismatch_analyzer(args, f)
+    shared_graph_folder = get_shared_graph_folder(args, f)
+    sample_id =  os.path.basename(f.strip().replace('.bam',''))
+    cufflinks_folder = get_cufflinks_folder(args, f)
+    ##stupid python evoke a R program that cannot read a file
+    if args.classify_gene:
+        command = "python shop/classifier2.py "
+    elif args.plot_shared_graph:
+        command = "python shop/shared_graph.py "
+    common.run(command +
+               cuffcompare_folder + "/ " +
+               jeweler_folder + "/ " +
+               bracelet_folder + "/ " +
+               mismatch_analyzer_folder + "/ " +
+               shared_graph_folder + "/ " +
+               cufflinks_folder + "/ " +
+               sample_id)

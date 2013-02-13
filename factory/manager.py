@@ -3,14 +3,21 @@ import argparse
 import sys
 import traceback
 
+def config(queue, memory, process):
+    print("config " + queue + " " + memory + " " + process)
+
 
 def initialize_parser():
     parser=argparse.ArgumentParser(description=
                                    'The manager for RNA-seq analysis.')
 
     parser.add_argument('--filelist',
-                        help='A list of bam files, for multipe bamfiles. ',
+                        help='A bam file path. ',
                         dest='filelist')
+
+    parser.add_argument('--id',
+                        help='The line index in the filelist. ',
+                        dest='id')
 
     parser.add_argument('--reftable',
                         help='A reference table for reference genomes',
@@ -23,42 +30,48 @@ def initialize_parser():
     return parser
 
 
-def run_command(file_list, reftable, parameters, extra):
-    cmd = "python3.2 factory/miner.py --filelist " + file_list
-    cmd += " --reftable " + reftable
-    cmd += " " + parameters + " " + extra
-    cmd += ">> command_list"
-    print(cmd)
+def run_command(filelist, filename, reftable, parameters, extra):
+    cmd = "python3.2 factory/miner.py --filelist " + filelist + \
+          " --reftable " + reftable + ' --filename ' + filename + \
+          " " + parameters + " " + extra
     os.system(cmd)
 
-
-def pause_command():
-    os.system("echo pause >> command_list")
-
+def run_manager_command(filelist, i, reftable, extra):
+    cmd = "python3.2 factory/manager.py --filelist " + filelist + \
+          " --reftable " + reftable + ' --id ' + str(i) + ' ' + extra
+    print(cmd)
 
 def main():
     try:
         parser = initialize_parser()
         args = parser.parse_args();
         if not args.filelist or not args.reftable:
-            parser.error("Require filelist and reftable")
+            parser.error("Require --filelist and --reftable and --id")
         extra = ""
+        files = open(args.filelist, 'r').readlines()
         if args.is_new_cufflinks:
             extra = "--new_cufflinks"
-        os.system("rm command_list")
-        run_command(args.filelist, args.reftable, "--cufflinks", extra)
-        run_command(args.filelist, args.reftable, "--appraiser", extra)
-        pause_command()
-        run_command(args.filelist, args.reftable, "--cuffcompare", extra)
-        run_command(args.filelist, args.reftable,
-                    "--jeweler --earrings --bracelet", extra)
-        pause_command()
-        run_command(args.filelist, args.reftable,
-                    "--jeweler --mismatch_analyzer", extra)
-        pause_command()
-        run_command(args.filelist, args.reftable, "--shared_graph", extra)
-        pause_command()
-        run_command(args.filelist, args.reftable, "--classify_gene", extra)
+        if args.id is not None:
+            jobid = int(args.id)
+            filename = files[jobid].strip()
+            run_command(args.filelist, filename, args.reftable,
+                        "--cufflinks", extra)
+            run_command(args.filelist, filename, args.reftable,
+                        "--appraiser", extra)
+            run_command(args.filelist, filename, args.reftable,
+                        "--cuffcompare", extra)
+            run_command(args.filelist, filename, args.reftable,
+                        "--jeweler --earrings --bracelet", extra)
+            run_command(args.filelist, filename, args.reftable,
+                        "--jeweler --mismatch_analyzer", extra)
+            run_command(args.filelist, filename, args.reftable,
+                        "--shared_graph", extra)
+            run_command(args.filelist, filename, args.reftable,
+                        "--classify_gene", extra)
+        else:
+            config("week", "12", "1")
+            for i in range(len(files)):
+                run_manager_command(args.filelist, i, args.reftable, extra)
     except:
         exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
         print("*** print_exc:")

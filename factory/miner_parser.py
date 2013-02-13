@@ -9,7 +9,7 @@ from subprocess import call
 def initialize_parser():
         parser=argparse.ArgumentParser(description=
                                        'The main batch script for RNA-seq analysis.')
-        
+
         parser.add_argument('--json',
                             help='legendary json function. Process one json file a time',
                             dest='json')
@@ -17,6 +17,10 @@ def initialize_parser():
         parser.add_argument('--filelist',
                             help='A list of bam files, for multipe bamfiles. ',
                             dest='filelist')
+
+        parser.add_argument('--filename',
+                            help='A filename of a  bam file. ',
+                            dest='filename')
 
         parser.add_argument('--reftable',
                             help='A reference table for reference genomes',
@@ -66,7 +70,7 @@ def initialize_parser():
         parser.add_argument('--cufflinks',
                             action='store_true',
                             dest='is_cufflinks')
-        
+
         parser.add_argument('--new_cufflinks',
                             action='store_true',
                             dest='is_new_cufflinks')
@@ -90,7 +94,7 @@ def initialize_parser():
         parser.add_argument('--mismatch_analyzer',
                             action='store_true',
                             dest='is_mismatch_analyzer')
-        
+
         parser.add_argument('--bracelet',
                             action='store_true',
                             dest='is_bracelet')
