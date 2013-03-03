@@ -6,24 +6,27 @@ def run_command(fd,comm):
 
 method = "mapsplice"
 method = "contextmap"
+method = "tophat"
+method = "tophat_pseudo"
 simulation_root = "/lustre/scr/z/z/zzj/RNAseqSim/output/"
+fq_folder = "/real/"
 if method == "tophat":
     output_root = "/lustre/scr/z/z/zzj/jeweler/data/simulation_bam/"
     output_root1 = "/lustre/scr/z/z/zzj/jeweler/data/simulation_bam_merge/"
+elif method == "tophat_pseudo":
+    output_root = "/lustre/scr/z/z/zzj/jeweler/data/simulation_bam_pseudo/"
+    output_root1 = "/lustre/scr/z/z/zzj/jeweler/data/simulation_bam_merge_pseudo/"
+    fq_folder = "/pseudo/"
 elif method =="mapsplice":
     output_root = "/lustre/scr/z/z/zzj/jeweler/data/simulation_bam_mapsplice/"
     output_root1 = "/lustre/scr/z/z/zzj/jeweler/data/simulation_bam_merge_mapsplice/"
-    if not os.path.exists(output_root):
-        os.makedirs(output_root)
-    if not os.path.exists(output_root1):
-        os.makedirs(output_root1)
 elif method =="contextmap":
     output_root = "/lustre/scr/z/z/zzj/jeweler/data/simulation_bam_contextmap/"
     output_root1 = "/lustre/scr/z/z/zzj/jeweler/data/simulation_bam_merge_contextmap/"
-    if not os.path.exists(output_root):
-        os.makedirs(output_root)
-    if not os.path.exists(output_root1):
-        os.makedirs(output_root1)
+if not os.path.exists(output_root):
+    os.makedirs(output_root)
+if not os.path.exists(output_root1):
+    os.makedirs(output_root1)
 
 ref_map={'F':'CAST','G':'PWK','H':'WSB'}
 n = 20
@@ -33,20 +36,21 @@ for i in range(0, n):
         output_folder = output_root + "/"+sample_id
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
-        input_file1 = simulation_root + f + "/real/" + str(i) + "/" + "1.fq"
-        input_file2 = simulation_root + f + "/real/" + str(i) + "/" + "2.fq"
-        abundance_file = simulation_root + f + "/real/abundance.txt." + str(i)
-        if method == "tophat":
-            print("tophat -o "+output_folder+"  -N 8 -p 4 -r 100 /lustre/scr/z/z/zzj/jeweler/data/index/"+f+".fa " + input_file1 + " " + input_file2)
+        input_file1 = simulation_root + f + fq_folder + str(i) + "/" + "1.fq"
+        input_file2 = simulation_root + f + fq_folder + str(i) + "/" + "2.fq"
+        abundance_file = simulation_root + f + fq_folder + "abundance.txt." + str(i)
+        if method == "tophat" or method == "tophat_pseudo":
+            # print("tophat -o "+output_folder+"  -N 8 -p 4 -r 100 /lustre/scr/z/z/zzj/jeweler/data/index/"+f+".fa " + input_file1 + " " + input_file2)
+            pass
         elif method == "mapsplice":
             # print("python ../../MapSplice_1.15.2/bin/mapsplice_segments.py --pairend -Q fq  -o "+output_folder + " -c /lustre/scr/z/z/zzj/jeweler/data/index/" + f  + "/  -B /lustre/scr/z/z/zzj/jeweler/data/index/"+f+".fa  -u " + input_file1 + "," + input_file2)
             # print("samtools view -bT ../data/index/" + f + ".fa " + output_folder + "/alignments.sam -o " + output_folder + "/accepted_hits_unsorted.bam ")
             # print("samtools sort -m 5000000000 "+ output_folder + "/accepted_hits_unsorted.bam " + output_folder + "/accepted_hits")
             pass
         elif method == 'contextmap':
-            input_fa1 = simulation_root + f + "/real/" + str(i) + "/" + "1.fa"
-            input_fa2 = simulation_root + f + "/real/" + str(i) + "/" + "2.fa"
-            input_all = simulation_root + f + "/real/" + str(i) + "/" + "all.fa"
+            input_fa1 = simulation_root + f + fq_folder + str(i) + "/" + "1.fa"
+            input_fa2 = simulation_root + f + fq_folder + str(i) + "/" + "2.fa"
+            input_all = simulation_root + f + fq_folder + str(i) + "/" + "all.fa"
             # print("sed '/^@/!d;s//>/;N' " + input_file1 + " > " + input_fa1)
             # print("sed '/^@/!d;s//>/;N' " + input_file2 + " > " + input_fa2)
             # print("cat " + input_fa1 + " " + input_fa2 + " > " +input_all)

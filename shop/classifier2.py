@@ -119,7 +119,7 @@ class JewelerClassifier:
                 self.black_list.add(self.training_data[i].target_name)
         if self.correct_gene_set:
             self.old_cuffcompare_result = \
-                  cuffcompare.CuffcompareResult("result/simulation_mapsplice_trim/new_cuffcompare/" + self.shop_info.sample_id + "/cuffcompare.tracking")
+                  cuffcompare.CuffcompareResult("result/simulation/cuffcompare/" + self.shop_info.sample_id + "/cuffcompare.tracking")
             # self.old_cuffcompare_result = \
             #       cuffcompare.CuffcompareResult("result/simulation/cuffcompare/" + self.shop_info.sample_id + "/cuffcompare.tracking")
             all_genes = self.cuffcompare_result.all_gene_names()
@@ -236,8 +236,13 @@ class KNNJewelerClassifier(JewelerClassifier):
         self.fit = clf.fit(self.X[0:half], self.Y[0:half])
 
 class ClassifyJewelerClassifier(JewelerClassifier):
-    def train(self, model_name):
-        self.fit = pickle.load(open(model_name, "rb"))
+    def train(self):
+
+        # remove the current instance from the training set.
+        #data = "simulation_data/" + self.shop_info.sample_id[0:9] + "_merged"
+        #os.system("python shop/generate_learning_model.py " + data)
+
+        self.fit = pickle.load(open("learning_model_all", "rb"))
 
 if __name__ == "__main__":
-    sjc = SVMJewelerClassifier()
+    sjc = ClassifyJewelerClassifier()

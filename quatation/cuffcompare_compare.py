@@ -22,10 +22,12 @@ def load_cuffcompare_stat(cuffcompare_file):
     return cuffcompare.CuffcompareResult(cuffcompare_file).get_meta_count()
 
 def main():
-    cuff1_root = "result/merged_list/cuffcompare/"
-    cuff2_root = "result/new_merged_list/new_cuffcompare/"
+    datafolder = "merged_list"
+    datafolder = "inbreds"
+    cuff1_root = "result/" + datafolder + "/cuffcompare/"
+    cuff2_root = "result/new_" + datafolder + "/new_cuffcompare/"
     cmp = filecmp.dircmp(cuff1_root, cuff2_root)
-    fd = open("quatation/cuff.stats","w+")
+    fd = open("quatation/" + datafolder + ".cuff.stats","w+")
     print("name\tbefore.unknown\tbefore.pseudo\tbefore.nonpseudo\tbefore.exact\tbefore.total\tafter.unknown\tafter.pseudo\tafter.nonpseudo\tafter.exact\tafter.total\tratio.unknown\tratio.pseudo\tratio.nonpseudo\tratio.exact\tratio.total", file = fd)
     for i in cmp.common_dirs:
         cuff1_file = cuff1_root + i + "/cuffcompare.tracking"
