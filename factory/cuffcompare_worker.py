@@ -7,6 +7,9 @@ import argparse
 import common
 from subprocess import call
 
+
+reffile = "references/Mus_musculus.NCBIM37.63.chr.gtf"
+
 def cuffcompare_worker(args):
     ## run cuffcompare command
     resultfolder='result/' + os.path.basename(args.filelist) + args.cuffcompare_folder
@@ -20,6 +23,6 @@ def cuffcompare_worker(args):
         os.makedirs(resultsubfolder)
 
     alias=os.path.basename(f.strip().replace('.bam',''))
-    common.run('cuffcompare -r data/database/Mus_musculus.NCBIM37.63.chr.gtf -o ' +
+    common.run('cuffcompare -r ' + reffile + ' -o ' +
                resultsubfolder  + "/cuffcompare " +
                cuffresultfolder + '/' + alias + '/transcripts.gtf')

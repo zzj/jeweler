@@ -82,8 +82,6 @@ for i in range(num_folds):
     precision_curve, recall_curve, thresholds = precision_recall_curve(Y, predict_prob[:,1])
     area += auc(recall_curve, precision_curve)
 
-
-
 print(accuracy / num_folds)
 print(precision / num_folds)
 print(recall / num_folds)

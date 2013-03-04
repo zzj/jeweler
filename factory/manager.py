@@ -54,18 +54,18 @@ def main():
         if args.id is not None:
             jobid = int(args.id)
             filename = files[jobid].strip()
-            # run_command(args.filelist, filename, args.reftable,
-            #             "--cufflinks", extra)
-            # run_command(args.filelist, filename, args.reftable,
-            #             "--appraiser", extra)
-            # run_command(args.filelist, filename, args.reftable,
-            #             "--cuffcompare", extra)
-            # run_command(args.filelist, filename, args.reftable,
-            #             "--jeweler --earrings --bracelet", extra)
-            # run_command(args.filelist, filename, args.reftable,
-            #             "--jeweler --mismatch_analyzer", extra)
-            # run_command(args.filelist, filename, args.reftable,
-            #             "--shared_graph", extra)
+            run_command(args.filelist, filename, args.reftable,
+                        "--cufflinks", extra)
+            run_command(args.filelist, filename, args.reftable,
+                        "--appraiser", extra)
+            run_command(args.filelist, filename, args.reftable,
+                        "--cuffcompare", extra)
+            run_command(args.filelist, filename, args.reftable,
+                        "--jeweler --earrings --bracelet", extra)
+            run_command(args.filelist, filename, args.reftable,
+                        "--jeweler --mismatch_analyzer", extra)
+            run_command(args.filelist, filename, args.reftable,
+                        "--shared_graph", extra)
             run_command(args.filelist, filename, args.reftable,
                         "--classify_gene", extra)
         else:
