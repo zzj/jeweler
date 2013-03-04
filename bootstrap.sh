@@ -10,7 +10,7 @@ cd lib/boost_1_52_0
 cd ../..
 wget http://leveldb.googlecode.com/files/leveldb-1.9.0.tar.gz
 tar zxf leveldb-1.9.0.tar.gz -C lib/
-cd ../leveldb-1.9.0
+cd lib/leveldb-1.9.0
 make -j8
 
 cd ../glog-0.3.2/
@@ -23,7 +23,7 @@ make -j8
 make install
 cd ..
 
-cd lib/bamtools/
+cd bamtools/
 mkdir build
 cd build
 cmake ..
