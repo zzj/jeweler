@@ -45,3 +45,11 @@ ls
 *.txt
 test_data
 third_party
+*.tar.gz
+lib/glog-0.3.2/Makefile.in
+lib/glog-0.3.2/aclocal.m4
+lib/glog-0.3.2/configure
+lib/protobuf-2.4.1/Makefile.in
+lib/protobuf-2.4.1/aclocal.m4
+lib/protobuf-2.4.1/configure
+lib/protobuf-2.4.1/src/Makefile.in
