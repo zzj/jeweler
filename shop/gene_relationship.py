@@ -52,7 +52,11 @@ class GeneRelationship:
 
     @property
     def X(self):
-        return [self.origin_num_reads * 1.0 /
+        return [self.origin_num_reads,
+                self.target_num_reads,
+                self.origin_num_reads * 1.0 /
+                self.target_num_reads,
+                self.origin_num_reads >
                 self.target_num_reads,
                 self.target_coverage_shared_rate,
                 self.origin_coverage_shared_rate,
@@ -60,11 +64,13 @@ class GeneRelationship:
                 self.origin_coverage_shared_rate,
                 self.target_coverage_shared_rate * 1.0 /
                 self.origin_coverage_shared_rate,
+                self.target_coverage_shared_rate >
+                self.origin_coverage_shared_rate,
                 self.target_region_shared_rate,
                 self.origin_region_shared_rate,
                 self.target_region_shared_rate -
                 self.origin_region_shared_rate,
-                self.target_region_shared_rate * 1.0 /
+                self.target_region_shared_rate >
                 self.origin_region_shared_rate,
                 self.target_num_isoforms == 1,
                 self.origin_num_isoforms == 1,

@@ -7,7 +7,7 @@ plot.comparision <- function(data, name, filename, title, so, founder.names,
   x <- 1:length(y1) + offset.position
   l = max(c(y1,y2)) - min(c(y1,y2))
 
-  plot(x, y1, xlab = "samples123", ylab ="number",
+  plot(x, y1, xlab = "samples", ylab ="number",
        main = paste(title, "mean(change) =", sprintf("%.2f%%", mean(ratio)*100)) ,
        pch = 15, col ="blue", ylim=c(min(c(y1,y2)) -l *0.1, max(c(y1,y2)) + l *0.15),
        xaxt="n")

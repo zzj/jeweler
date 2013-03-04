@@ -66,7 +66,7 @@ def main():
             elif args.is_appraiser:
                 appraiser_worker(args)
             elif args.plot_shared_graph or args.classify_gene:
-                    # config("day", "4", "1")
+                ## config("day", "4", "1")
                 shared_graph_worker(args)
 
 
