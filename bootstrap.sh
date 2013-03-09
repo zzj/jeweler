@@ -1,5 +1,5 @@
 
-rm boost_1_52_0.tar.gz leveldb-1.9.0.tar.gz
+wget http://csbio.unc.edu/gene_scissors/learning_model_all
 
 wget http://downloads.sourceforge.net/project/boost/boost/1.52.0/boost_1_52_0.tar.gz
 tar zxf boost_1_52_0.tar.gz -C lib/

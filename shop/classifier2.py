@@ -42,13 +42,13 @@ class JewelerClassifier:
         self.black_list = \
             pickle.load(open(self.shop_info.blacklist_file, "rb"))
         self.fit = None
-        simulation_file = "data/simulation_bam_new_merge/" + \
-                          self.shop_info.sample_id[0:9] + ".abundance"
+        simulation_file = "data/simulation_bam_rp_new/" + \
+                          self.shop_info.sample_id[0:9] + ".abundance.pseudo"
         self.correct_gene_set, self.correct_transcript_set = \
              self.get_correct_data(simulation_file)
         self.generate_training_data()
-        ##self.train()
-        ##self.classify()
+        self.train()
+        self.classify()
         ##self.dump_gtf_file()
         ##self.dump_cuffcompare_file()
 
@@ -73,17 +73,19 @@ class JewelerClassifier:
 
 
     ## the following three functions can be moved out from this class.
-    def calculate_gene_accuracy(self, goods, alls, correct_set):
+    def calculate_gene_accuracy(self, goods, correct_set):
         '''Calculate the accuracy per gene.
 
-        If the gene is occurred multiple times in the result, only count once as correct one.
+        If a correct gene occurs multiple times in the result, only
+        count one of them as the correct one.
+
         '''
         goods_counter = collections.Counter(goods)
         correct_counter = collections.Counter(correct_set)
         num_correct_genes = sum((goods_counter & correct_counter).values())
-        pre = num_correct_genes * 1.0 / len(alls)
-        correct_number = len(filter(set(goods).__contains__, set(correct_set))) * 1.0
-        recall = correct_number / len(set(correct_set))
+        pre = num_correct_genes * 1.0 / len(goods)
+        correct_number = len(filter(set(goods).__contains__, set(correct_set)))
+        recall = correct_number * 1.0 / len(set(correct_set))
         return (pre, recall , f1(pre, recall))
 
     def calculate_error_rate(self, bads, alls, correct_set):
@@ -117,20 +119,20 @@ class JewelerClassifier:
         for i, v in enumerate(predict):
             if v == 1:
                 self.black_list.add(self.training_data[i].target_name)
+
         if self.correct_gene_set:
             self.old_cuffcompare_result = \
-                  cuffcompare.CuffcompareResult("result/simulation/cuffcompare/" + self.shop_info.sample_id + "/cuffcompare.tracking")
+                  cuffcompare.CuffcompareResult("result/simulation_rp/cuffcompare/" + self.shop_info.sample_id + "/cuffcompare.tracking")
             # self.old_cuffcompare_result = \
             #       cuffcompare.CuffcompareResult("result/simulation/cuffcompare/" + self.shop_info.sample_id + "/cuffcompare.tracking")
             all_genes = self.cuffcompare_result.all_gene_names()
             good_genes = self.cuffcompare_result.all_gene_names(self.black_list)
-            old_all_genes = self.old_cuffcompare_result.all_gene_names()
             old_good_genes = self.old_cuffcompare_result.all_gene_names()
             bad_genes = set(all_genes) - set(good_genes)
 
-            print(self.calculate_gene_accuracy(good_genes, all_genes,
+            print(self.calculate_gene_accuracy(good_genes,
                                                self.correct_gene_set))
-            print(self.calculate_gene_accuracy(old_good_genes, old_all_genes,
+            print(self.calculate_gene_accuracy(old_good_genes,
                                                self.correct_gene_set))
             print(self.calculate_error_rate(bad_genes, all_genes,
                                             self.correct_gene_set))
@@ -142,9 +144,9 @@ class JewelerClassifier:
                  self.cuffcompare_result.all_transcript_names(self.black_list)
             good_transcripts = \
                 self.cuffcompare_result.all_transcript_names(self.black_list)
-            self.calculate_gene_accuracy(good_transcripts, all_transcripts,
+            self.calculate_gene_accuracy(good_transcripts,
                               self.correct_transcript_set)
-            self.calculate_gene_accuracy(old_good_transcripts, old_all_transcripts,
+            self.calculate_gene_accuracy(old_good_transcripts,
                               self.correct_transcript_set)
 
     def dump_cuffcompare_file(self):
@@ -205,8 +207,8 @@ class JewelerClassifier:
                 self.Y.append(s.Y(self.correct_gene_set))
                 self.idx.append(i)
 
-        pickle.dump((self.X, self.Y),
-                    open("simulation_data/" + self.shop_info.sample_id, "wb"))
+        # pickle.dump((self.X, self.Y),
+        #             open("simulation_data/" + self.shop_info.sample_id, "wb"))
 
 class SVMJewelerClassifier(JewelerClassifier):
     def train(self):
@@ -239,8 +241,8 @@ class ClassifyJewelerClassifier(JewelerClassifier):
     def train(self):
 
         # remove the current instance from the training set.
-        #data = "simulation_data/" + self.shop_info.sample_id[0:9] + "_merged"
-        #os.system("python shop/generate_learning_model.py " + data)
+        # data = "simulation_data/" + self.shop_info.sample_id[0:9] + "_merged"
+        # os.system("python shop/generate_learning_model.py " + data)
 
         self.fit = pickle.load(open("learning_model_all", "rb"))
 
