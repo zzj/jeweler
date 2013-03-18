@@ -28,21 +28,7 @@ class CuffcompareResult:
         self.index = dict()
         self.gene2num_exon = dict()
         self.transcript2num_exon = dict()
-        self.load_gtf()
         self.build_index()
-
-    def load_gtf(self):
-        lines = open("data/database/Mus_musculus.NCBIM37.63.gtf").readlines()
-        for line in lines:
-            line_data = line.strip().split('\t')
-            if line_data[2] != "exon":
-                continue
-            match = re.search(r'gene_name "(.*)"; t', line_data[8])
-            gene_name = match.group(1)
-            match = re.search(r'transcript_id "([0-9A-Z]*)', line_data[8])
-            transcript_name = match.group(1)
-            match = re.search(r'exon_number "([0-9]*)', line_data[8])
-            num_exon = int(match.group(1))
 
     def load_cuffcompare_raw_data(self, data):
         lines = open(self.filename).readlines()
@@ -79,7 +65,6 @@ class CuffcompareResult:
         self.num_nonpseudo_transcripts = 0
         self.num_good_transcripts = 0
         self.num_transcripts = len(self.data.gene_data)
-        good_genes = set()
         for d in self.data.gene_data:
             if d.is_unknown:
                 self.num_unknown_transcripts += 1
