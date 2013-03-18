@@ -2,9 +2,9 @@
 #define _PILEUPPLOT_H_
 
 #include <cstdio>
-#include <string> 
-#include <cstring> 
-#include <cstdlib> 
+#include <string>
+#include <cstring>
+#include <cstdlib>
 #include <vector>
 #include <algorithm>
 #include <set>
@@ -18,20 +18,22 @@ using namespace std;
 
 class PileupPlot{
 public:
-	PileupPlot(Transcript * maternal, 
-			   Transcript * paternal, 
+	PileupPlot(Transcript * maternal,
+			   Transcript * paternal,
 			   set<JewelerAlignment *> &unknown,
 			   set<JewelerAlignment *> &multiple);
-	int add_transcript_to_pileup_filter(Transcript * transcript, 
-										set<JewelerAlignment *> &reads, 
+
+	void generate_pileup_plot(FILE * info, FILE * output);
+
+private:
+	int add_transcript_to_pileup_filter(Transcript * transcript,
+										set<JewelerAlignment *> &reads,
 										vector<int> & coverage,
 										set<JewelerAlignment *> &multiple);
 
 	int add_transcript_to_pileup(Transcript *,
                                  set<JewelerAlignment *> &reads,
                                  vector<int> & coverage);
-								
-	void generate_pileup_plot(FILE * info, FILE * output);
 
 	int add_coverage(Transcript * transcript, JewelerAlignment *, vector<int>& coverage);
 
@@ -46,7 +48,5 @@ private:
 	int num_maternal, num_paternal, num_unknown, num_exons;
 	string transcript_id;
 };
-
-
 
 #endif /* _PILEUP.PLOT_H_ */

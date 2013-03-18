@@ -23,11 +23,14 @@ Earrings::Earrings(JewelerInfo *jeweler_info,
     this->jeweler_info = jeweler_info;
     this->gene_id = gene_id;
     this->result_folder = jeweler_info->result_folder + "/" + gene_id + "/";
+
+    if (!boost::filesystem::create_directory(this->result_folder))
+        fprintf(stderr, "cannot create folder %s", this->result_folder.c_str());
     this->zmf = file;
 
-    this->maternal_transcripts = 
+    this->maternal_transcripts =
         this->jeweler_info->get_maternal_transcripts(this->gene_id);
-    this->paternal_transcripts = 
+    this->paternal_transcripts =
         this->jeweler_info->get_paternal_transcripts(this->gene_id);
 
     this->mismatcher = new TranscriptMismatcher();
@@ -303,21 +306,25 @@ void Earrings::align_reads() {
             bam_reads.size()
             );
 
-    // finfo=fopen(string(result_folder+"/"+gene_id+".landscape.plot.meta").c_str(),"w+");
-
-    // for (i=0;i<maternal_transcripts.size();i++) {
-    //  FILE *foutput;
-    //  foutput=fopen(string(result_folder+"/"+maternal_transcripts[i]->transcript_id+".landscape.plot.info").c_str(),"w+");
-    //  if (foutput == NULL) {
-    //      fprintf(stderr, "cannot open file at %s\n",
-    //              string(result_folder+"/"+maternal_transcripts[i]->transcript_id+".landscape.plot.info").c_str());
-    //  }
-    //  string name=maternal_transcripts[i]->transcript_id;
-    //  PileupPlot lp(maternal_transcripts[i],paternal_transcripts[i],noninfo[i], multiple_reads);
-    //  lp.generate_pileup_plot(finfo, foutput);
-    //  fclose(foutput);
-    // }
-    // fclose(finfo);
+    FILE *finfo = fopen(string(result_folder+"/"+gene_id+".landscape.plot.meta").c_str(),"w+");
+    for (i=0;i<maternal_transcripts.size();i++) {
+        FILE *foutput;
+        auto filename = \
+            result_folder + "/" + maternal_transcripts[i]->transcript_id() + \
+            ".landscape.plot.info";
+        foutput = fopen(filename.c_str(),"w+");
+        if (foutput == NULL) {
+            fprintf(stderr, "cannot open file at %s\n",
+                    filename.c_str());
+        }
+        string name=maternal_transcripts[i]->transcript_id();
+        PileupPlot lp(maternal_transcripts[i],
+                      paternal_transcripts[i],
+                      noninfo[i], multiple_reads);
+        lp.generate_pileup_plot(finfo, foutput);
+        fclose(foutput);
+    }
+    fclose(finfo);
 
     //fprintf(stdout,"Unaligned\tUncleared\tCleared\tNoninfo\tTotal\n");
     //fprintf(stdout,"%d\t%d\t%d\t%d\t%d\n",unaligned.size(),
@@ -438,7 +445,7 @@ void Earrings::dump_data() {
 }
 
 void Earrings::classify_reads() {
-    // delete this function ...
+
     single_reads.clear();
     multiple_reads.clear();
 
