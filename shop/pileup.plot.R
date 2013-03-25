@@ -1,4 +1,5 @@
-gene.pileup.plot <- function(data.folder, landscape.file, mismatcher.file, title.text){
+gene.pileup.plot <- function(data.folder, landscape.file, mismatcher.file,
+                             title.text){
 
   plot.info <- read.table(landscape.file,stringsAsFactors=F)
   plot.data <- list()
@@ -32,7 +33,7 @@ gene.pileup.plot <- function(data.folder, landscape.file, mismatcher.file, title
     tracking.exon.jump[index]=tracking.exon.jump[index] + plot.data[[j]]$exon_jump
     tracking.snp[index]=tracking.snp[index] + plot.data[[j]]$is_snp
   }
-  
+
   if (!is.null(mismatcher) && length(index)>10){
     index <-which (locations %in% mismatcher$location)
     tracking.mismatches[index] = mismatcher$mismatches

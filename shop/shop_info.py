@@ -1,4 +1,3 @@
-import constants
 import sys
 import os
 
@@ -33,3 +32,7 @@ class ShopInfo:
     @property
     def blacklist_file(self):
         return self.result_folder + "/blacklist.obj"
+
+    @property
+    def jeweler_db(self):
+        return self.jeweler_folder
