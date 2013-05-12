@@ -102,6 +102,7 @@ $(TEST_BAM_EXECUTABLE): $(TEST_BAM_OBJECTS)
 
 proto/jeweler.pb.cc: proto/jeweler.proto
 	cd proto &&	../third_party/bin/bin/protoc --cpp_out=. --python_out=../shop/ jeweler.proto
+	cd proto &&	../third_party/bin/bin/protoc --python_out=../p/ jeweler.proto
 
 proto/jeweler.pb.cpp: proto/jeweler.pb.cc proto/jeweler.pb.h
 	cp proto/jeweler.pb.cc proto/jeweler.pb.cpp
