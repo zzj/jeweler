@@ -10,6 +10,12 @@ class ShopInfo:
         self.result_folder = sys.argv[5]
         self.cufflinks_folder = sys.argv[6]
         self.sample_id = sys.argv[7]
+        try:
+            if sys.argv[8] == "--simulation":
+                self.is_simulation = True
+                self.simulation_profile = sys.args[9]
+        except Exception as e:
+            self.is_simulation = False
         if (not os.path.exists(self.result_folder)):
             os.makedirs(self.result_folder)
 

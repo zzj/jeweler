@@ -42,15 +42,14 @@ class JewelerClassifier:
         self.black_list = \
             pickle.load(open(self.shop_info.blacklist_file, "rb"))
         self.fit = None
-        simulation_file = "data/simulation_bam_rp_new/" + \
-                          self.shop_info.sample_id[0:9] + ".abundance.pseudo"
+        simulation_file = self.shop_info.simulation_profile
         self.correct_gene_set, self.correct_transcript_set = \
              self.get_correct_data(simulation_file)
         self.generate_training_data()
         self.train()
         self.classify()
-        ##self.dump_gtf_file()
-        ##self.dump_cuffcompare_file()
+        self.dump_gtf_file()
+        ## self.dump_cuffcompare_file()
 
     def get_correct_data(self, filename):
         if filename is None:
@@ -63,7 +62,7 @@ class JewelerClassifier:
         transcript = []
         lines = open(filename).readlines()
         for line in lines:
-            data = line.strip().split(" ")
+            data = line.strip().split()
             gene.append(data[3])
             transcript.append(data[0])
         return (gene, transcript)
@@ -110,17 +109,14 @@ class JewelerClassifier:
         for i, v in enumerate(predict):
             if v == 1:
                 self.black_list.add(self.training_data[self.idx[i]].target_name)
-                # if self.training_data[self.idx[i]].target_gene_name in self.correct_gene_set:
-                    # print (self.training_data[self.idx[i]].origin_gene_name,
-                    #        self.training_data[self.idx[i]].target_gene_name)
-                    # print (self.training_data[self.idx[i]].X)
         predict = self.fit.predict(self.allX)
 
         for i, v in enumerate(predict):
             if v == 1:
                 self.black_list.add(self.training_data[i].target_name)
 
-        if self.correct_gene_set:
+        if False:
+        ## if self.correct_gene_set:
             self.old_cuffcompare_result = \
                   cuffcompare.CuffcompareResult("result/simulation_rp/cuffcompare/" + self.shop_info.sample_id + "/cuffcompare.tracking")
             # self.old_cuffcompare_result = \
@@ -207,8 +203,8 @@ class JewelerClassifier:
                 self.Y.append(s.Y(self.correct_gene_set))
                 self.idx.append(i)
 
-        # pickle.dump((self.X, self.Y),
-        #             open("simulation_data/" + self.shop_info.sample_id, "wb"))
+        pickle.dump((self.X, self.Y),
+                    open("simulation_data/" + self.shop_info.sample_id, "wb"))
 
 class SVMJewelerClassifier(JewelerClassifier):
     def train(self):

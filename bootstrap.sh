@@ -3,6 +3,7 @@ wget http://csbio.unc.edu/gene_scissors/learning_model_all
 
 wget http://downloads.sourceforge.net/project/boost/boost/1.52.0/boost_1_52_0.tar.gz
 tar zxf boost_1_52_0.tar.gz -C lib/
+rm boost_1_52_0.tar.gz
 cd lib/boost_1_52_0
 ./bootstrap.sh
 ./b2 install --prefix=`pwd`/../../third_party/bin/ -j8
@@ -10,6 +11,7 @@ cd lib/boost_1_52_0
 cd ../..
 wget http://leveldb.googlecode.com/files/leveldb-1.9.0.tar.gz
 tar zxf leveldb-1.9.0.tar.gz -C lib/
+rm leveldb-1.9.0.tar.gz
 cd lib/leveldb-1.9.0
 make -j8
 

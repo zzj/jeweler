@@ -7,7 +7,7 @@ import argparse
 import common
 from subprocess import call
 
-
+## Please change the gtf filename here if you want to use an updated version.
 reffile = "references/Mus_musculus.NCBIM37.63.chr.gtf"
 
 def cuffcompare_worker(args):

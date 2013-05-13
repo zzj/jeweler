@@ -27,6 +27,10 @@ def initialize_parser():
                         action='store_true',
                         dest='is_new_cufflinks')
 
+    parser.add_argument('--simulation',
+                        help='Indicate whether the bam files are simulated (have true labels) or real.',
+                        dest='is_simulation')
+
     parser.add_argument('--action',
                         help="specify actions",
                         dest='action')
@@ -51,14 +55,14 @@ def main():
         parser = initialize_parser()
         args = parser.parse_args();
         if not args.filelist or not args.reftable:
-            parser.error("Require --filelist and --reftable and --id")
+            parser.error("Require --filelist and --reftable and/or --id")
         extra = ""
         files = open(args.filelist, 'r').readlines()
         if args.is_new_cufflinks:
             extra = "--new_cufflinks"
         if args.id is not None:
             jobid = int(args.id)
-            filename = files[jobid].strip()
+            filename = files[jobid].strip().split("\t")[0]
             if args.action:
                 run_command(args.filelist, filename, args.reftable,
                             args.action, extra)
@@ -73,12 +77,16 @@ def main():
                             "--jeweler --earrings --bracelet", extra)
                 run_command(args.filelist, filename, args.reftable,
                             "--jeweler --mismatch_analyzer", extra)
-                run_command(args.filelist, filename, args.reftable,
-                            "--shared_graph", extra)
-                run_command(args.filelist, filename, args.reftable,
-                            "--classify_gene", extra)
+                if args.is_simulation:
+                    simulation_profile = files[jobid].strip().split("\t")[1]
+                    run_command(args.filelist, filename, args.reftable,
+                                "--shared_graph --simulation " + simulation_profile, extra)
+                else:
+                    run_command(args.filelist, filename, args.reftable,
+                                "--shared_graph", extra)
+                    run_command(args.filelist, filename, args.reftable,
+                                "--classify_gene", extra)
         else:
-            config("week", "12", "1")
             for i in range(len(files)):
                 run_manager_command(args.filelist, i, args.reftable, extra)
     except:
