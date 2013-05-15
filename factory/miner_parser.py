@@ -115,4 +115,7 @@ def initialize_parser():
                             action='store_true',
                             dest='is_transcriptome_alignment')
 
+        parser.add_argument('--simulation',
+                            dest='simulation_profile')
+
         return parser

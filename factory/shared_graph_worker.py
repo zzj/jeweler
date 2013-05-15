@@ -55,6 +55,8 @@ def shared_graph_worker(args):
         command = "python shop/classifier2.py "
     elif args.plot_shared_graph:
         command = "python shop/shared_graph.py "
+    if args.simulation_profile:
+        extra = " --simulation "  + args.simulation_profile
     common.run(command +
                cuffcompare_folder + "/ " +
                jeweler_folder + "/ " +
@@ -62,4 +64,4 @@ def shared_graph_worker(args):
                mismatch_analyzer_folder + "/ " +
                shared_graph_folder + "/ " +
                cufflinks_folder + "/ " +
-               sample_id)
+               sample_id + extra)

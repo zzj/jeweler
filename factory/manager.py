@@ -29,6 +29,7 @@ def initialize_parser():
 
     parser.add_argument('--simulation',
                         help='Indicate whether the bam files are simulated (have true labels) or real.',
+                        action='store_true',
                         dest='is_simulation')
 
     parser.add_argument('--action',
@@ -40,13 +41,14 @@ def initialize_parser():
 
 
 def run_command(filelist, filename, reftable, parameters, extra):
-    cmd = "python3.2 factory/miner.py --filelist " + filelist + \
+    cmd = "python factory/miner.py --filelist " + filelist + \
           " --reftable " + reftable + ' --filename ' + filename + \
           " " + parameters + " " + extra
-    os.system(cmd)
+    print(cmd)
+    ## os.system(cmd)
 
 def run_manager_command(filelist, i, reftable, extra):
-    cmd = "python3.2 factory/manager.py --filelist " + filelist + \
+    cmd = "python factory/manager.py --filelist " + filelist + \
           " --reftable " + reftable + ' --id ' + str(i) + ' ' + extra
     print(cmd)
 
@@ -87,6 +89,8 @@ def main():
                     run_command(args.filelist, filename, args.reftable,
                                 "--classify_gene", extra)
         else:
+            if args.is_simulation:
+                extra += " --simulation"
             for i in range(len(files)):
                 run_manager_command(args.filelist, i, args.reftable, extra)
     except:
