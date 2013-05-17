@@ -45,10 +45,12 @@ class JewelerClassifier:
         simulation_file = self.shop_info.simulation_profile
         self.correct_gene_set, self.correct_transcript_set = \
              self.get_correct_data(simulation_file)
+
         self.generate_training_data()
-        self.train()
-        self.classify()
-        self.dump_gtf_file()
+        if not self.shop_info.is_simulation:
+            self.train()
+            self.classify()
+            self.dump_gtf_file()
         ## self.dump_cuffcompare_file()
 
     def get_correct_data(self, filename):

@@ -45,7 +45,7 @@ def run_command(filelist, filename, reftable, parameters, extra):
           " --reftable " + reftable + ' --filename ' + filename + \
           " " + parameters + " " + extra
     print(cmd)
-    ## os.system(cmd)
+    os.system(cmd)
 
 def run_manager_command(filelist, i, reftable, extra):
     cmd = "python factory/manager.py --filelist " + filelist + \
@@ -83,6 +83,8 @@ def main():
                     simulation_profile = files[jobid].strip().split("\t")[1]
                     run_command(args.filelist, filename, args.reftable,
                                 "--shared_graph --simulation " + simulation_profile, extra)
+                    run_command(args.filelist, filename, args.reftable,
+                                "--classify_gene --simulation " + simulation_profile, extra)
                 else:
                     run_command(args.filelist, filename, args.reftable,
                                 "--shared_graph", extra)
