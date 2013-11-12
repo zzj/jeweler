@@ -14,12 +14,12 @@ ExonNode * Graph::find_exon_node(int start, int end, int origin){
 			(*i)->origin==origin){
 			return (*i);
 		}
-		
+
 	}
-	return GRAPH_EXON_NOT_FOUND;
+	return (ExonNode *) GRAPH_EXON_NOT_FOUND;
 }
 
-ExonNode * Graph::add_exon_node(int start, int end, int origin, 
+ExonNode * Graph::add_exon_node(int start, int end, int origin,
 								set<JewelerAlignment *> &reads,
 								set< JewelerAlignment *> &allele_reads){
 	ExonNode * ret;
@@ -86,7 +86,7 @@ void Graph::dump_graph(FILE *foutput){
 		fprintf(foutput,"\t\"%s\" [color=%s];\n",(*i)->detach().c_str(),color.c_str());
 	}
 	queue=get_starting_nodes();
-	
+
 	while(queue.size() != top){
 		ExonNode *current=queue[top];
 		top++;
@@ -96,7 +96,7 @@ void Graph::dump_graph(FILE *foutput){
 			 j!=current->out_nodes.end();
 			 j++){
 			string next_node_name=(*j)->detach();
-			fprintf(foutput,"\t\"%s\" -> \"%s\";\n", 
+			fprintf(foutput,"\t\"%s\" -> \"%s\";\n",
 					current_node_name.c_str(), next_node_name.c_str());
 			if (checklist.find((*j))==checklist.end()){
 				queue.push_back(*j);
@@ -129,9 +129,9 @@ int Graph::get_all_paths(vector<Path> & records){
 	}
 	return 0;
 }
-	
+
 int Graph::traverse_graph( ExonNode * current_node, vector<ExonNode *> &path, vector<Path> &records, int origin){
-	
+
 	if (origin!=EXON_NO_INFO) {
 		if (current_node->origin!=EXON_NO_INFO &&
 			current_node->origin!=origin){
@@ -142,12 +142,12 @@ int Graph::traverse_graph( ExonNode * current_node, vector<ExonNode *> &path, ve
 	if (current_node->origin!=EXON_NO_INFO) origin=current_node->origin;
 
 	path.push_back(current_node);
-	
+
 	if (current_node->out_nodes.size()==0){
 		records.push_back(Path(path));
 	}
 	else {
-		for (auto i=current_node->out_nodes.begin(); 
+		for (auto i=current_node->out_nodes.begin();
 			 i!=current_node->out_nodes.end();
 			 i++){
 			traverse_graph((*i), path, records, origin);
